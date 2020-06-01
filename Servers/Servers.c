@@ -1,13 +1,12 @@
                /*
  * Servers.c
  *
- *  Created on: 2020Äê4ÔÂ26ÈÕ
  *      Author: WangXiang
  */
 #include "Servers.h"
 #include "UserConfig.h"
 #include <stdio.h>
-//text
+
 
 extern Cach1 Pack1;
 extern Cach2 Pack2;

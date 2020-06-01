@@ -1,8 +1,19 @@
+/*		江苏大学
+ * 农业装备学院工程学院
+ *
+ * 收割机项目,使用FreeRTOS操作系统
+ * 使用 Github 进行版本控制
+ *
+ * Author: WangXiang
+ *
+ */
+
+
+/*include*/
 #include "stm32f10x.h"
 #include <stdio.h>
 #include <stddef.h>
 #include "UserConfig.h"
-
 
 #include "FreeRTOS.h"
 #include "task.h"
