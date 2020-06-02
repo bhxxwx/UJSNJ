@@ -1,12 +1,11 @@
 /*
  * keys.c
  *
- *  Created on: 2020Äê4ÔÂ13ÈÕ
+ *  Created on: 2020å¹´4æœˆ13æ—¥
  *      Author: WangXiang
  */
 #include "UserConfig.h"
 #include "keys.h"
-#include "Servers.h"
 
 NVIC_InitTypeDef NVIC_InitStructure;
 void (*e1_left_handler)(void);
@@ -16,19 +15,19 @@ void (*e2_left_handler)(void);
 void (*e2_right_handler)(void);
 
 /*
- * EC11±àÂë¿ª¹Ø³õÊ¼»¯
+ * EC11ç¼–ç å¼€å…³åˆå§‹åŒ–
  *
  */
 void EC11_init()
 {
 	EXTI_InitTypeDef EXTI_InitStructure;
 
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;	//ÇÀÕ¼ÓÅÏÈ¼¶2
-//	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x02;			//×ÓÓÅÏÈ¼¶1
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;					//Ê¹ÄÜÍâ²¿ÖÐ¶ÏÍ¨µÀ
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;	//æŠ¢å ä¼˜å…ˆçº§2
+//	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x02;			//å­ä¼˜å…ˆçº§1
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;					//ä½¿èƒ½å¤–éƒ¨ä¸­æ–­é€šé“
 
 	nvic_init();
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE); //Íâ²¿ÖÐ¶Ï£¬ÐèÒªÊ¹ÄÜAFIOÊ±ÖÓ
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE); //å¤–éƒ¨ä¸­æ–­ï¼Œéœ€è¦ä½¿èƒ½AFIOæ—¶é’Ÿ
 #ifdef E1_1_Poart_A
 	        pinModeA(E1_1,INPUT);
 	        GPIO_EXTILineConfig(GPIO_PortSourceGPIOA,E1_1_IT);
@@ -127,7 +126,7 @@ void EC11_init()
 
 	EXTI_InitStructure.EXTI_Line = (uint32_t) E1_1;
 	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling; //ÏÂ½µÑØ´¥·¢
+	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling; //ä¸‹é™æ²¿è§¦å‘
 	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
 	EXTI_Init(&EXTI_InitStructure);
 	it_init(E1_1);
@@ -149,44 +148,44 @@ void EC11_init()
 }
 
 /*
- * GPIOÒý½ÅÖÐ¶Ï³õÊ¼»¯
- * ÊäÈë: GPIO_Pin_x
+ * GPIOå¼•è„šä¸­æ–­åˆå§‹åŒ–
+ * è¾“å…¥: GPIO_Pin_x
  */
 void it_init(uint16_t pin)
 {
 	if (pin == 0x0001)
 	{
-		NVIC_InitStructure.NVIC_IRQChannel = EXTI0_IRQn;				//Ê¹ÄÜ°´¼üËùÔÚµÄÍâ²¿ÖÐ¶ÏÍ¨µÀ
+		NVIC_InitStructure.NVIC_IRQChannel = EXTI0_IRQn;				//ä½¿èƒ½æŒ‰é”®æ‰€åœ¨çš„å¤–éƒ¨ä¸­æ–­é€šé“
 	}
 	else if (pin == 0x0002)
 	{
-		NVIC_InitStructure.NVIC_IRQChannel = EXTI1_IRQn;				//Ê¹ÄÜ°´¼üËùÔÚµÄÍâ²¿ÖÐ¶ÏÍ¨µÀ
+		NVIC_InitStructure.NVIC_IRQChannel = EXTI1_IRQn;				//ä½¿èƒ½æŒ‰é”®æ‰€åœ¨çš„å¤–éƒ¨ä¸­æ–­é€šé“
 	}
 	else if (pin == 0x0004)
 	{
-		NVIC_InitStructure.NVIC_IRQChannel = EXTI2_IRQn;				//Ê¹ÄÜ°´¼üËùÔÚµÄÍâ²¿ÖÐ¶ÏÍ¨µÀ
+		NVIC_InitStructure.NVIC_IRQChannel = EXTI2_IRQn;				//ä½¿èƒ½æŒ‰é”®æ‰€åœ¨çš„å¤–éƒ¨ä¸­æ–­é€šé“
 	}
 	else if (pin == 0x0008)
 	{
-		NVIC_InitStructure.NVIC_IRQChannel = EXTI3_IRQn;				//Ê¹ÄÜ°´¼üËùÔÚµÄÍâ²¿ÖÐ¶ÏÍ¨µÀ
+		NVIC_InitStructure.NVIC_IRQChannel = EXTI3_IRQn;				//ä½¿èƒ½æŒ‰é”®æ‰€åœ¨çš„å¤–éƒ¨ä¸­æ–­é€šé“
 	}
 	else if (pin == 0x0010)
 	{
-		NVIC_InitStructure.NVIC_IRQChannel = EXTI4_IRQn;				//Ê¹ÄÜ°´¼üËùÔÚµÄÍâ²¿ÖÐ¶ÏÍ¨µÀ
+		NVIC_InitStructure.NVIC_IRQChannel = EXTI4_IRQn;				//ä½¿èƒ½æŒ‰é”®æ‰€åœ¨çš„å¤–éƒ¨ä¸­æ–­é€šé“
 	}
 	else if (pin >= 0x0020 && pin <= 0x0200)
 	{
-		NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;				//Ê¹ÄÜ°´¼üËùÔÚµÄÍâ²¿ÖÐ¶ÏÍ¨µÀ
+		NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;				//ä½¿èƒ½æŒ‰é”®æ‰€åœ¨çš„å¤–éƒ¨ä¸­æ–­é€šé“
 	}
 	else if (pin >= 0x0400 && pin <= 0x8000)
 	{
-		NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;				//Ê¹ÄÜ°´¼üËùÔÚµÄÍâ²¿ÖÐ¶ÏÍ¨µÀ
+		NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;				//ä½¿èƒ½æŒ‰é”®æ‰€åœ¨çš„å¤–éƒ¨ä¸­æ–­é€šé“
 	}
-	NVIC_Init(&NVIC_InitStructure);  	  //¸ù¾ÝNVIC_InitStructÖÐÖ¸¶¨µÄ²ÎÊý³õÊ¼»¯ÍâÉèNVIC¼Ä´æÆ÷
+	NVIC_Init(&NVIC_InitStructure);  	  //æ ¹æ®NVIC_InitStructä¸­æŒ‡å®šçš„å‚æ•°åˆå§‹åŒ–å¤–è®¾NVICå¯„å­˜å™¨
 }
 
 /*
- * 1ºÅEC11×óÐý
+ * 1å·EC11å·¦æ—‹
  */
 void E1_turn_left(void (*e1_left_function))
 {
@@ -194,7 +193,7 @@ void E1_turn_left(void (*e1_left_function))
 }
 
 /*
- * 1ºÅEC11ÓÒÐý
+ * 1å·EC11å³æ—‹
  */
 void E1_turn_right(void (*e1_right_function))
 {
@@ -203,7 +202,7 @@ void E1_turn_right(void (*e1_right_function))
 
 
 /*
- * 2ºÅEC11×óÐý
+ * 2å·EC11å·¦æ—‹
  */
 void E2_turn_left(void (*e2_left_function))
 {
@@ -211,13 +210,13 @@ void E2_turn_left(void (*e2_left_function))
 }
 
 /*
- * 2ºÅEC11ÓÒÐý
+ * 2å·EC11å³æ—‹
  */
 void E2_turn_right(void (*e2_right_function))
 {
 	e2_right_handler = e2_right_function;
 }
-/*************************************************GPIOÖÐ¶Ïº¯ÊýÇøÓò********************************************************/
+/*************************************************GPIOä¸­æ–­å‡½æ•°åŒºåŸŸ********************************************************/
 void EXTI0_IRQHandler(void)
 {
 	delay_us(200);

@@ -1,13 +1,13 @@
 /*
  * Genlib.c
  *
- *  Created on: 2019Äê11ÔÂ10ÈÕ
+ *  Created on: 2019å¹´11æœˆ10æ—¥
  *      Author: WangXiang
  */
 #include "GenLib.h"
 #include "UserConfig.h"
 
-char temp[usart_buffer_size] = { '\0' }; //´®¿ÚÊä³öÔİ´æÊı×é
+char temp[usart_buffer_size] = { '\0' }; //ä¸²å£è¾“å‡ºæš‚å­˜æ•°ç»„
 uint16_t pwm_freq_B;
 uint16_t pwm_freq_C;
 
@@ -18,43 +18,43 @@ typedef struct
 	char RX_buffer[usart_buffer_size];
 	uint16_t number;
 	bool is_full;
-} usart_cache; //´®¿Ú»º³åÇøÊı¾İ½á¹¹Ìå
+} usart_cache; //ä¸²å£ç¼“å†²åŒºæ•°æ®ç»“æ„ä½“
 
-//³õÊ¼»¯´®¿ÚÊı¾İ»º³åÇø
+//åˆå§‹åŒ–ä¸²å£æ•°æ®ç¼“å†²åŒº
 usart_cache Uart1_RX_Buffer;
 usart_cache Uart2_RX_Buffer;
 
 //static int uart1_in_cache = 0;
 //static int uart2_in_cache = 0;
 
-//¼ì²âÊÇ·ñÒÑ¾­³õÊ¼»¯¹ıÏà¹Ø¹¦ÄÜ
+//æ£€æµ‹æ˜¯å¦å·²ç»åˆå§‹åŒ–è¿‡ç›¸å…³åŠŸèƒ½
 static bool adcinit_flag = false;
 static bool pwminit_flag_B = false;
 static bool pwminit_flag_C = false;
 
-void (*function_handler)(void); //RTC¶¨Ê±ÃëÖĞ¶ÏÖĞ×ªº¯ÊıÖ¸Õë
-void (*systick_handler)(void); //ÖĞ¶ÏÖĞ×ªº¯ÊıÖ¸Õë
+void (*function_handler)(void); //RTCå®šæ—¶ç§’ä¸­æ–­ä¸­è½¬å‡½æ•°æŒ‡é’ˆ
+void (*systick_handler)(void); //ä¸­æ–­ä¸­è½¬å‡½æ•°æŒ‡é’ˆ
 
-//¸÷ÖÖ³õÊ¼»¯½á¹¹Ìå
+//å„ç§åˆå§‹åŒ–ç»“æ„ä½“
 GPIO_InitTypeDef GPIO_InitStruct;
 TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
 TIM_OCInitTypeDef TIM_OCInitStructure;
 
 /*
- * ÖĞ¶ÏÓÅÏÈ¼¶¿ØÖÆ³õÊ¼»¯
- * Ö»ÓĞÇÀÕ¼Ê½ÓÅÏÈ¼¶£¬Ã»ÓĞÏìÓ¦ÓÅÏÈ¼¶
- * ÇÀÕ¼ÓÅÏÈ¼¶4Î»,¿É½øĞĞÇ¶Ì×,¿ÉÑ¡ÖµÎª:(¸ßÓÅÏÈ¼¶)0~15(µÍÓÅÏÈ¼¶)
- * Ê¹ÓÃ´®¿Ú2,3»òÖĞ¶ÏµÄÊ±ºòĞèÒªÏÈ³õÊ¼»¯¸Ãº¯Êı
+ * ä¸­æ–­ä¼˜å…ˆçº§æ§åˆ¶åˆå§‹åŒ–
+ * åªæœ‰æŠ¢å å¼ä¼˜å…ˆçº§ï¼Œæ²¡æœ‰å“åº”ä¼˜å…ˆçº§
+ * æŠ¢å ä¼˜å…ˆçº§4ä½,å¯è¿›è¡ŒåµŒå¥—,å¯é€‰å€¼ä¸º:(é«˜ä¼˜å…ˆçº§)0~15(ä½ä¼˜å…ˆçº§)
+ * ä½¿ç”¨ä¸²å£2,3æˆ–ä¸­æ–­çš„æ—¶å€™éœ€è¦å…ˆåˆå§‹åŒ–è¯¥å‡½æ•°
  */
 void nvic_init()
 {
-	//Ö»ÓĞÇÀÕ¼Ê½ÓÅÏÈ¼¶£¬Ã»ÓĞÏìÓ¦ÓÅÏÈ¼¶
+	//åªæœ‰æŠ¢å å¼ä¼˜å…ˆçº§ï¼Œæ²¡æœ‰å“åº”ä¼˜å…ˆçº§
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 }
 
 /*
- * ´®¿Ú1³õÊ¼»¯
- * ÓÅÏÈ¼¶Îª0
+ * ä¸²å£1åˆå§‹åŒ–
+ * ä¼˜å…ˆçº§ä¸º1
  */
 void usart_1_init(int bandrate)
 {
@@ -79,8 +79,8 @@ void usart_1_init(int bandrate)
 
 	//Usart1 NVIC
 	NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1; //ÇÀÕ¼ÓÅÏÈ¼¶
-	//NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;//ÏìÓ¦ÓÅÏÈ¼¶
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1; //æŠ¢å ä¼˜å…ˆçº§
+	//NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;//å“åº”ä¼˜å…ˆçº§
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 
@@ -94,14 +94,14 @@ void usart_1_init(int bandrate)
 	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
 
 	USART_Init(USART1, &USART_InitStructure);
-	USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);	//´ò¿ª½ÓÊÕµ½Êı¾İÖĞ¶Ï
+	USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);	//æ‰“å¼€æ¥æ”¶åˆ°æ•°æ®ä¸­æ–­
 	USART_Cmd(USART1, ENABLE);
 }
 
 /*
- * ´®¿Ú2¿ØÖÆ³õÊ¼»¯
- * bandrate:²¨ÌØÂÊÉèÖÃ
- * nvic_pree:ÇÀÕ¼ÓÅÏÈ¼¶4Î»,¿É½øĞĞÇ¶Ì×,¿ÉÑ¡ÖµÎª:(¸ßÓÅÏÈ¼¶)0~15(µÍÓÅÏÈ¼¶)
+ * ä¸²å£2æ§åˆ¶åˆå§‹åŒ–
+ * bandrate:æ³¢ç‰¹ç‡è®¾ç½®
+ * nvic_pree:æŠ¢å ä¼˜å…ˆçº§4ä½,å¯è¿›è¡ŒåµŒå¥—,å¯é€‰å€¼ä¸º:(é«˜ä¼˜å…ˆçº§)0~15(ä½ä¼˜å…ˆçº§)
  */
 void usart_2_init(int bandrate, char nvic_pree)
 {
@@ -125,8 +125,8 @@ void usart_2_init(int bandrate, char nvic_pree)
 
 	//Usart2 NVIC
 	NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = nvic_pree;	//ÇÀÕ¼ÓÅÏÈ¼¶
-	//NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;//ÏìÓ¦ÓÅÏÈ¼¶
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = nvic_pree;	//æŠ¢å ä¼˜å…ˆçº§
+	//NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;//å“åº”ä¼˜å…ˆçº§
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 
@@ -140,14 +140,14 @@ void usart_2_init(int bandrate, char nvic_pree)
 	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
 
 	USART_Init(USART2, &USART_InitStructure);
-	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);	//´ò¿ª½ÓÊÕµ½Êı¾İÖĞ¶Ï
+	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);	//æ‰“å¼€æ¥æ”¶åˆ°æ•°æ®ä¸­æ–­
 	USART_Cmd(USART2, ENABLE);
 }
 
 /*
- * ´®¿Ú3¿ØÖÆ³õÊ¼»¯
- * bandrate:²¨ÌØÂÊÉèÖÃ
- * nvic_pree:ÇÀÕ¼ÓÅÏÈ¼¶4Î»,¿É½øĞĞÇ¶Ì×,¿ÉÑ¡ÖµÎª:(¸ßÓÅÏÈ¼¶)0~15(µÍÓÅÏÈ¼¶)
+ * ä¸²å£3æ§åˆ¶åˆå§‹åŒ–
+ * bandrate:æ³¢ç‰¹ç‡è®¾ç½®
+ * nvic_pree:æŠ¢å ä¼˜å…ˆçº§4ä½,å¯è¿›è¡ŒåµŒå¥—,å¯é€‰å€¼ä¸º:(é«˜ä¼˜å…ˆçº§)0~15(ä½ä¼˜å…ˆçº§)
  */
 void usart_3_init(int bandrate, char nvic_pree)
 {
@@ -171,8 +171,8 @@ void usart_3_init(int bandrate, char nvic_pree)
 
 	//Usart3 NVIC
 	NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = nvic_pree;	//ÇÀÕ¼ÓÅÏÈ¼¶
-	//NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;//ÏìÓ¦ÓÅÏÈ¼¶
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = nvic_pree;	//æŠ¢å ä¼˜å…ˆçº§
+	//NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;//å“åº”ä¼˜å…ˆçº§
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 
@@ -186,14 +186,14 @@ void usart_3_init(int bandrate, char nvic_pree)
 	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
 
 	USART_Init(USART3, &USART_InitStructure);
-	USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);	//´ò¿ª½ÓÊÕµ½Êı¾İÖĞ¶Ï
+	USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);	//æ‰“å¼€æ¥æ”¶åˆ°æ•°æ®ä¸­æ–­
 	USART_Cmd(USART3, ENABLE);
 }
 
 /*
- * ¼ì²â´®¿Ú1Êı¾İ»º³åÇøÎ´¶ÁÈ¡Êı¾İ¸öÊı
- * ·µ»ØÖµ:	»º³åÇøÊı¾İ¸öÊı(>=0)
- * 			-1->»º³åÇøÒÔ¼°Òç³ö£¬´æÔÚÊı¾İ¶ªÊ§
+ * æ£€æµ‹ä¸²å£1æ•°æ®ç¼“å†²åŒºæœªè¯»å–æ•°æ®ä¸ªæ•°
+ * è¿”å›å€¼:	ç¼“å†²åŒºæ•°æ®ä¸ªæ•°(>=0)
+ * 			-1->ç¼“å†²åŒºä»¥åŠæº¢å‡ºï¼Œå­˜åœ¨æ•°æ®ä¸¢å¤±
  */
 int check_usart1_cache()
 {
@@ -204,9 +204,9 @@ int check_usart1_cache()
 }
 
 /*
- * ¼ì²â´®¿Ú2Êı¾İ»º³åÇøÎ´¶ÁÈ¡Êı¾İ¸öÊı
- * ·µ»ØÖµ:	»º³åÇøÊı¾İ¸öÊı(>=0)
- * 			-1->»º³åÇøÒÔ¼°Òç³ö£¬´æÔÚÊı¾İ¶ªÊ§
+ * æ£€æµ‹ä¸²å£2æ•°æ®ç¼“å†²åŒºæœªè¯»å–æ•°æ®ä¸ªæ•°
+ * è¿”å›å€¼:	ç¼“å†²åŒºæ•°æ®ä¸ªæ•°(>=0)
+ * 			-1->ç¼“å†²åŒºä»¥åŠæº¢å‡ºï¼Œå­˜åœ¨æ•°æ®ä¸¢å¤±
  */
 int check_usart2_cache()
 {
@@ -217,67 +217,67 @@ int check_usart2_cache()
 }
 
 /*
- * ´Ó´®¿Ú1Êı¾İ»º³åÇø¶ÁÈ¡È«²¿Êı¾İ,²¢ÇåÁã»º³åÇø
+ * ä»ä¸²å£1æ•°æ®ç¼“å†²åŒºè¯»å–å…¨éƒ¨æ•°æ®,å¹¶æ¸…é›¶ç¼“å†²åŒº
  */
 char *usart1_readToEnd()
 {
 	int i = 0;
-	for (i = 0; i < Uart1_RX_Buffer.number; i++)	//½«»º³åÇøÊı¾İ¸´ÖÆµ½Ôİ´æÊı×é
+	for (i = 0; i < Uart1_RX_Buffer.number; i++)	//å°†ç¼“å†²åŒºæ•°æ®å¤åˆ¶åˆ°æš‚å­˜æ•°ç»„
 	{
 		temp[i] = Uart1_RX_Buffer.RX_buffer[i];
 	}
-	for (; i < usart_buffer_size; i++)	//½«Ôİ´æÊı×éÖ®ºóµÄÊı¾İÇåÁã
+	for (; i < usart_buffer_size; i++)	//å°†æš‚å­˜æ•°ç»„ä¹‹åçš„æ•°æ®æ¸…é›¶
 	{
 		temp[i] = '\0';
 	}
-	Uart1_RX_Buffer.number = 0;	//ÇåÁãÊı¾İÎ»Êı,ÏÂÒ»´ÎÊı¾İ½ÓÊÕ·Åµ½»º³åÇø0Î»
+	Uart1_RX_Buffer.number = 0;	//æ¸…é›¶æ•°æ®ä½æ•°,ä¸‹ä¸€æ¬¡æ•°æ®æ¥æ”¶æ”¾åˆ°ç¼“å†²åŒº0ä½
 	return temp;
 }
 
 /*
- * ´Ó´®¿Ú2Êı¾İ»º³åÇø¶ÁÈ¡È«²¿Êı¾İ,²¢ÇåÁã»º³åÇø
+ * ä»ä¸²å£2æ•°æ®ç¼“å†²åŒºè¯»å–å…¨éƒ¨æ•°æ®,å¹¶æ¸…é›¶ç¼“å†²åŒº
  */
 char *usart2_readToEnd()
 {
 	int i = 0;
-	for (i = 0; i < Uart2_RX_Buffer.number; i++)	//½«»º³åÇøÊı¾İ¸´ÖÆµ½Ôİ´æÊı×é
+	for (i = 0; i < Uart2_RX_Buffer.number; i++)	//å°†ç¼“å†²åŒºæ•°æ®å¤åˆ¶åˆ°æš‚å­˜æ•°ç»„
 	{
 		temp[i] = Uart2_RX_Buffer.RX_buffer[i];
 	}
-	for (; i < usart_buffer_size; i++)	//½«Ôİ´æÊı×éÖ®ºóµÄÊı¾İÇåÁã
+	for (; i < usart_buffer_size; i++)	//å°†æš‚å­˜æ•°ç»„ä¹‹åçš„æ•°æ®æ¸…é›¶
 	{
 		temp[i] = '\0';
 	}
-	Uart2_RX_Buffer.number = 0;	//ÇåÁãÊı¾İÎ»Êı,ÏÂÒ»´ÎÊı¾İ½ÓÊÕ·Åµ½»º³åÇø0Î»
+	Uart2_RX_Buffer.number = 0;	//æ¸…é›¶æ•°æ®ä½æ•°,ä¸‹ä¸€æ¬¡æ•°æ®æ¥æ”¶æ”¾åˆ°ç¼“å†²åŒº0ä½
 	return temp;
 }
 
 //void USART1_IRQHandler(void)
 //{
-//	if (USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)	//½ÓÊÕµ½Êı¾İ
+//	if (USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)	//æ¥æ”¶åˆ°æ•°æ®
 //	{
-//		USART_ClearITPendingBit(USART1, USART_IT_RXNE); //Çå³ı½ÓÊÕÖĞ¶Ï±êÖ¾
+//		USART_ClearITPendingBit(USART1, USART_IT_RXNE); //æ¸…é™¤æ¥æ”¶ä¸­æ–­æ ‡å¿—
 //
-//		if (Uart1_RX_Buffer.number < usart_buffer_size) //Èç¹ûµ±Ç°Êı×éĞ¡ÓÚ»º³åÇø´óĞ¡
+//		if (Uart1_RX_Buffer.number < usart_buffer_size) //å¦‚æœå½“å‰æ•°ç»„å°äºç¼“å†²åŒºå¤§å°
 //		{
-//			Uart1_RX_Buffer.RX_buffer[Uart1_RX_Buffer.number] = USART_ReceiveData(USART1); //½ÓÊÕ´®¿Ú1Êı¾İµ½buff»º³åÇø
+//			Uart1_RX_Buffer.RX_buffer[Uart1_RX_Buffer.number] = USART_ReceiveData(USART1); //æ¥æ”¶ä¸²å£1æ•°æ®åˆ°buffç¼“å†²åŒº
 ////			uart1_in_cache++;
-//			Uart1_RX_Buffer.number++; //Êı¾İÎ»Êı+1
+//			Uart1_RX_Buffer.number++; //æ•°æ®ä½æ•°+1
 //		} else
 //		{
-//			Uart1_RX_Buffer.is_full = true; //»º³åÇøÒÑÂú
+//			Uart1_RX_Buffer.is_full = true; //ç¼“å†²åŒºå·²æ»¡
 //		}
 //	}
 //}
 
 void USART2_IRQHandler(void)
 {
-	if (USART_GetITStatus(USART2, USART_IT_RXNE) != RESET) //½ÓÊÕµ½Êı¾İ
+	if (USART_GetITStatus(USART2, USART_IT_RXNE) != RESET) //æ¥æ”¶åˆ°æ•°æ®
 	{
-		USART_ClearITPendingBit(USART2, USART_IT_RXNE); //Çå³ı½ÓÊÕÖĞ¶Ï±êÖ¾
+		USART_ClearITPendingBit(USART2, USART_IT_RXNE); //æ¸…é™¤æ¥æ”¶ä¸­æ–­æ ‡å¿—
 		if (Uart2_RX_Buffer.number < usart_buffer_size)
 		{
-			Uart2_RX_Buffer.RX_buffer[Uart2_RX_Buffer.number] = USART_ReceiveData(USART2); //½ÓÊÕ´®¿Ú1Êı¾İµ½buff»º³åÇø
+			Uart2_RX_Buffer.RX_buffer[Uart2_RX_Buffer.number] = USART_ReceiveData(USART2); //æ¥æ”¶ä¸²å£1æ•°æ®åˆ°buffç¼“å†²åŒº
 //			uart2_in_cache++;
 			Uart2_RX_Buffer.number++;
 		} else
@@ -289,17 +289,17 @@ void USART2_IRQHandler(void)
 
 //void USART3_IRQHandler(void)
 //{
-//	if (USART_GetITStatus(USART3, USART_IT_RXNE) != RESET) //½ÓÊÕµ½Êı¾İ
+//	if (USART_GetITStatus(USART3, USART_IT_RXNE) != RESET) //æ¥æ”¶åˆ°æ•°æ®
 //	{
-//		USART_ClearITPendingBit(USART3, USART_IT_RXNE); //Çå³ı½ÓÊÕÖĞ¶Ï±êÖ¾
+//		USART_ClearITPendingBit(USART3, USART_IT_RXNE); //æ¸…é™¤æ¥æ”¶ä¸­æ–­æ ‡å¿—
 //		USART_ReceiveData(USART3);
 //	}
 //}
 
 /*
- * ´®¿Ú1·¢ËÍÊı¾İ
- * ²ÎÊı:  data->ĞèÒª·¢ËÍµÄÊı¾İµÄcharĞÍÖ¸Õë
- * 		  length->·¢ËÍµÄÊı¾İÎ»Êı
+ * ä¸²å£1å‘é€æ•°æ®
+ * å‚æ•°:  data->éœ€è¦å‘é€çš„æ•°æ®çš„charå‹æŒ‡é’ˆ
+ * 		  length->å‘é€çš„æ•°æ®ä½æ•°
  */
 void usart_1_send(uint8_t *data, int length)
 {
@@ -307,16 +307,16 @@ void usart_1_send(uint8_t *data, int length)
 	for (; i < length; i++)
 	{
 		while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
-			//µÈ´ıµ±Ç°Êı¾İ·¢ËÍÍê³É
+			//ç­‰å¾…å½“å‰æ•°æ®å‘é€å®Œæˆ
 			;
 		USART_SendData(USART1, *(data + i));
 	}
 }
 
 /*
- * ´®¿Ú2·¢ËÍÊı¾İ
- * ²ÎÊı:  data->ĞèÒª·¢ËÍµÄÊı¾İµÄcharĞÍÖ¸Õë
- * 		  length->·¢ËÍµÄÊı¾İÎ»Êı
+ * ä¸²å£2å‘é€æ•°æ®
+ * å‚æ•°:  data->éœ€è¦å‘é€çš„æ•°æ®çš„charå‹æŒ‡é’ˆ
+ * 		  length->å‘é€çš„æ•°æ®ä½æ•°
  */
 void usart_2_send(uint8_t *data, int length)
 {
@@ -324,16 +324,16 @@ void usart_2_send(uint8_t *data, int length)
 	for (; i < length; i++)
 	{
 		while (USART_GetFlagStatus(USART2, USART_FLAG_TC) == RESET)
-			//µÈ´ıµ±Ç°Êı¾İ·¢ËÍÍê³É
+			//ç­‰å¾…å½“å‰æ•°æ®å‘é€å®Œæˆ
 			;
 		USART_SendData(USART2, *(data + i));
 	}
 }
 
 /*
- * ´®¿Ú3·¢ËÍÊı¾İ
- * ²ÎÊı:  data->ĞèÒª·¢ËÍµÄÊı¾İµÄcharĞÍÖ¸Õë
- * 		  length->·¢ËÍµÄÊı¾İÎ»Êı
+ * ä¸²å£3å‘é€æ•°æ®
+ * å‚æ•°:  data->éœ€è¦å‘é€çš„æ•°æ®çš„charå‹æŒ‡é’ˆ
+ * 		  length->å‘é€çš„æ•°æ®ä½æ•°
  */
 void usart_3_send(uint8_t *data, int length)
 {
@@ -341,16 +341,16 @@ void usart_3_send(uint8_t *data, int length)
 	for (; i < length; i++)
 	{
 		while (USART_GetFlagStatus(USART3, USART_FLAG_TC) == RESET)
-			//µÈ´ıµ±Ç°Êı¾İ·¢ËÍÍê³É
+			//ç­‰å¾…å½“å‰æ•°æ®å‘é€å®Œæˆ
 			;
 		USART_SendData(USART3, *(data + i));
 	}
 }
 
 /*
- * ÉèÖÃCPUÊ±ÖÓÎª72MHz
- * ·µ»ØÏµÍ³¸÷Ê±ÖÓÆµÂÊÊıÖµ
- * Ò»°ãÓÃ²»µ½
+ * è®¾ç½®CPUæ—¶é’Ÿä¸º72MHz
+ * è¿”å›ç³»ç»Ÿå„æ—¶é’Ÿé¢‘ç‡æ•°å€¼
+ * ä¸€èˆ¬ç”¨ä¸åˆ°
  */
 RCC_ClocksTypeDef set_cpu_72MHz()
 {
@@ -367,87 +367,87 @@ RCC_ClocksTypeDef set_cpu_72MHz()
 	return get_rcc_clock;
 }
 
-/* ¶¨Ê±Æ÷ÑÓ³Ù,ÎŞÖĞ¶Ï,Ê¹ÓÃÍâ²¿Ê±ÖÓĞÅºÅ
- * (¾«È·)
- * ×î¸ßÑÓÊ±1.8s£¬¼´1864135us
- * ×¢Òâ£¬Ê¹ÓÃ²Ù×÷ÏµÍ³Ê±²»ÄÜÊ¹ÓÃ¸Ãº¯Êı
+/* å®šæ—¶å™¨å»¶è¿Ÿ,æ— ä¸­æ–­,ä½¿ç”¨å¤–éƒ¨æ—¶é’Ÿä¿¡å·
+ * (ç²¾ç¡®)
+ * æœ€é«˜å»¶æ—¶1.8sï¼Œå³1864135us
+ * æ³¨æ„ï¼Œä½¿ç”¨æ“ä½œç³»ç»Ÿæ—¶ä¸èƒ½ä½¿ç”¨è¯¥å‡½æ•°
  */
 void delay_tick_us(u32 time)
 {
 	u32 temp;
 	SysTick->LOAD = 9 * time;
-	SysTick->VAL = 0X00;   //Çå¿Õ¼ÆÊıÆ÷
-	SysTick->CTRL = 0X01;   //Ê¹ÄÜ£¬¼õµ½ÁãÊÇÎŞ¶¯×÷£¬²ÉÓÃÍâ²¿Ê±ÖÓÔ´
+	SysTick->VAL = 0X00;   //æ¸…ç©ºè®¡æ•°å™¨
+	SysTick->CTRL = 0X01;   //ä½¿èƒ½ï¼Œå‡åˆ°é›¶æ˜¯æ— åŠ¨ä½œï¼Œé‡‡ç”¨å¤–éƒ¨æ—¶é’Ÿæº
 	do
 	{
-		temp = SysTick->CTRL;   //¶ÁÈ¡µ±Ç°µ¹¼ÆÊıÖµ
-	} while ((temp & 0x01) && (!(temp & (1 << 16)))); //µÈ´ıÊ±¼äµ½´ï
-	SysTick->CTRL = 0x00; //¹Ø±Õ¼ÆÊıÆ÷
-	SysTick->VAL = 0X00; //Çå¿Õ¼ÆÊıÆ÷
+		temp = SysTick->CTRL;   //è¯»å–å½“å‰å€’è®¡æ•°å€¼
+	} while ((temp & 0x01) && (!(temp & (1 << 16)))); //ç­‰å¾…æ—¶é—´åˆ°è¾¾
+	SysTick->CTRL = 0x00; //å…³é—­è®¡æ•°å™¨
+	SysTick->VAL = 0X00; //æ¸…ç©ºè®¡æ•°å™¨
 }
 
-/* RTC¼ÆÊ±Æ÷³õÊ¼»¯
- * Éè¶¨ÓÅÏÈ¼¶Îª1
- * Éè¶¨Ã¿Ò»ÃëÖÓÒ»´ÎÖĞ¶Ï
- * Ä¬ÈÏÖĞ¶Ï¿ªÆô
+/* RTCè®¡æ—¶å™¨åˆå§‹åŒ–
+ * è®¾å®šä¼˜å…ˆçº§ä¸º1
+ * è®¾å®šæ¯ä¸€ç§’é’Ÿä¸€æ¬¡ä¸­æ–­
+ * é»˜è®¤ä¸­æ–­å¼€å¯
  *
- * Ê¹ÓÃ RTC_IT_ON; ¿ªÆôRTCÖĞ¶Ï
- * Ê¹ÓÃ RTC_IT_OFF; ¹Ø±ÕRTCÖĞ¶Ï
+ * ä½¿ç”¨ RTC_IT_ON; å¼€å¯RTCä¸­æ–­
+ * ä½¿ç”¨ RTC_IT_OFF; å…³é—­RTCä¸­æ–­
  */
 void RTC_1s_it_init()
 {
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
 	NVIC_InitTypeDef NVIC_InitStructure;
 	NVIC_InitStructure.NVIC_IRQChannel = RTC_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1; //ÇÀÕ¼ÓÅÏÈ¼¶
-	//NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;//ÏìÓ¦ÓÅÏÈ¼¶
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1; //æŠ¢å ä¼˜å…ˆçº§
+	//NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;//å“åº”ä¼˜å…ˆçº§
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 	PWR_BackupAccessCmd(ENABLE);
-	RCC_RTCCLKConfig(RCC_RTCCLKSource_HSE_Div128);	//Ñ¡ÔñLSEÊ±ÖÓ×÷ÎªRTCÊ±ÖÓ£¬´ËÍâ»¹¿ÉÒÔÑ¡Ôñ£ºLSI¡¢HSE_Div128
-	RCC_RTCCLKCmd(ENABLE);	//Ê¹ÄÜRTCÊ±ÖÓ
+	RCC_RTCCLKConfig(RCC_RTCCLKSource_HSE_Div128);	//é€‰æ‹©LSEæ—¶é’Ÿä½œä¸ºRTCæ—¶é’Ÿï¼Œæ­¤å¤–è¿˜å¯ä»¥é€‰æ‹©ï¼šLSIã€HSE_Div128
+	RCC_RTCCLKCmd(ENABLE);	//ä½¿èƒ½RTCæ—¶é’Ÿ
 	RTC_WaitForSynchro();
 	RTC_WaitForLastTask();
 
-	RTC_EnterConfigMode();	/// ÔÊĞíÅäÖÃ
+	RTC_EnterConfigMode();	/// å…è®¸é…ç½®
 	RTC_SetPrescaler(62500);
 	RTC_WaitForLastTask();
-	RTC_ExitConfigMode(); //ÍË³öÅäÖÃÄ£Ê½
+	RTC_ExitConfigMode(); //é€€å‡ºé…ç½®æ¨¡å¼
 
 	RTC_ClearITPendingBit(RTC_IT_SEC);
 	RTC_WaitForSynchro();
-	RTC_ITConfig(RTC_IT_SEC, ENABLE); //ÃëÖĞ¶ÏÊ¹ÄÜÃë,ÓÃÀ´²úÉúÒ»¸ö¿É±à³ÌµÄÖÜÆÚĞÔÖĞ¶ÏĞÅºÅ(×î³¤¿É´ï1Ãë)¡£
+	RTC_ITConfig(RTC_IT_SEC, ENABLE); //ç§’ä¸­æ–­ä½¿èƒ½ç§’,ç”¨æ¥äº§ç”Ÿä¸€ä¸ªå¯ç¼–ç¨‹çš„å‘¨æœŸæ€§ä¸­æ–­ä¿¡å·(æœ€é•¿å¯è¾¾1ç§’)ã€‚
 	RTC_WaitForLastTask();
 
 }
 
-/* RTCÖĞ¶Ïº¯Êı´«µİº¯Êı
- * ²ÎÊı:ÓÃ»§×Ô¶¨Òåº¯ÊıµÄº¯ÊıÃû(µØÖ·)
- * ÀıÈç:RTC_Handler(test_hander)
+/* RTCä¸­æ–­å‡½æ•°ä¼ é€’å‡½æ•°
+ * å‚æ•°:ç”¨æˆ·è‡ªå®šä¹‰å‡½æ•°çš„å‡½æ•°å(åœ°å€)
+ * ä¾‹å¦‚:RTC_Handler(test_hander)
  */
 void RTC_Handler(void (*temp_function))
 {
-	//RTC_ITConfig(RTC_IT_SEC, ENABLE); //ÃëÖĞ¶ÏÊ¹ÄÜÃë,ÓÃÀ´²úÉúÒ»¸ö¿É±à³ÌµÄÖÜÆÚĞÔÖĞ¶ÏĞÅºÅ(×î³¤¿É´ï1Ãë)¡£
+	//RTC_ITConfig(RTC_IT_SEC, ENABLE); //ç§’ä¸­æ–­ä½¿èƒ½ç§’,ç”¨æ¥äº§ç”Ÿä¸€ä¸ªå¯ç¼–ç¨‹çš„å‘¨æœŸæ€§ä¸­æ–­ä¿¡å·(æœ€é•¿å¯è¾¾1ç§’)ã€‚
 	function_handler = temp_function;
 }
 
-void RTC_IRQHandler(void) //RTCÖĞ¶Ïº¯Êı
+void RTC_IRQHandler(void) //RTCä¸­æ–­å‡½æ•°
 {
 	if (function_handler == 0x0)
 	{
-		RTC_ClearITPendingBit(RTC_IT_SEC); //Çå³ıÖĞ¶Ï±ê¼Ç
+		RTC_ClearITPendingBit(RTC_IT_SEC); //æ¸…é™¤ä¸­æ–­æ ‡è®°
 		return;
 	}
-	if (RTC_GetITStatus(RTC_IT_SEC) != RESET) //ÃëÖĞ¶Ï
+	if (RTC_GetITStatus(RTC_IT_SEC) != RESET) //ç§’ä¸­æ–­
 	{
 		function_handler();
-		RTC_ClearITPendingBit(RTC_IT_SEC); //Çå³ıÖĞ¶Ï±ê¼Ç
+		RTC_ClearITPendingBit(RTC_IT_SEC); //æ¸…é™¤ä¸­æ–­æ ‡è®°
 	}
 }
 
-/* Èí¼şÑÓÊ±,ÏµÍ³Ê±ÖÓÎª72MHzÊ±Ê¹ÓÃ,·ñÔò²»¾«È·
- * Ïà²î1us
- * (¾«È·)
+/* è½¯ä»¶å»¶æ—¶,ç³»ç»Ÿæ—¶é’Ÿä¸º72MHzæ—¶ä½¿ç”¨,å¦åˆ™ä¸ç²¾ç¡®
+ * ç›¸å·®1us
+ * (ç²¾ç¡®)
  */
 void delay_us(__IO u32 time)
 {
@@ -457,7 +457,7 @@ void delay_us(__IO u32 time)
 	{
 		while (temp)
 		{
-			//__NOP();//µ¥ÖÜÆÚÖ¸Áî 1/72M=0.01389us
+			//__NOP();//å•å‘¨æœŸæŒ‡ä»¤ 1/72M=0.01389us
 			temp--;
 		}
 		temp = 4;
@@ -465,19 +465,19 @@ void delay_us(__IO u32 time)
 }
 
 /*
- * ÏµÍ³¼ÆÊ±Æ÷ÖĞ¶Ï£¬×î´óÖĞ¶ÏÑÓÊ±233ms
- * ²ÎÊı:
- * 		u32 time:×îĞ¡ÖµÎª43,
- * 			×î´óÖµÎª72000000	,
- * 			ÌØÊâÈ¡ÖµÏÂ:
- * 				1000 -> 1msÖĞ¶ÏÒ»´Î
- * 				100000 -> 10usÖĞ¶ÏÒ»´Î
- * 				1000000 -> 1usÖĞ¶ÏÒ»´Î
- * 		(*temp_function):ÖĞ¶Ï·şÎñº¯ÊıµØÖ·
+ * ç³»ç»Ÿè®¡æ—¶å™¨ä¸­æ–­ï¼Œæœ€å¤§ä¸­æ–­å»¶æ—¶233ms
+ * å‚æ•°:
+ * 		u32 time:æœ€å°å€¼ä¸º43,
+ * 			æœ€å¤§å€¼ä¸º72000000	,
+ * 			ç‰¹æ®Šå–å€¼ä¸‹:
+ * 				1000 -> 1msä¸­æ–­ä¸€æ¬¡
+ * 				100000 -> 10usä¸­æ–­ä¸€æ¬¡
+ * 				1000000 -> 1usä¸­æ–­ä¸€æ¬¡
+ * 		(*temp_function):ä¸­æ–­æœåŠ¡å‡½æ•°åœ°å€
  *
- * Ê¾Àı:systick_delay(1000,TEST_FUN);
+ * ç¤ºä¾‹:systick_delay(1000,TEST_FUN);
  *
- * ×¢Òâ!Èç¹û±¨´í,Çë½«src/stm32f1xx_it.cÖĞµÄSysTick_Handler(void)º¯Êı×¢ÊÍµô
+ * æ³¨æ„!å¦‚æœæŠ¥é”™,è¯·å°†src/stm32f1xx_it.cä¸­çš„SysTick_Handler(void)å‡½æ•°æ³¨é‡Šæ‰
  */
 void systick_delay(u32 time, void (*temp_function))
 {
@@ -492,8 +492,8 @@ void systick_delay(u32 time, void (*temp_function))
 			;
 	}
 	systick_handler = temp_function;
-//	SysTick->CTRL = 0x00;   //Ê§ÄÜSysTick
-//	SysTick->VAL = 0x00;    //µ±Ç°ÖµÇåÁã
+//	SysTick->CTRL = 0x00;   //å¤±èƒ½SysTick
+//	SysTick->VAL = 0x00;    //å½“å‰å€¼æ¸…é›¶
 }
 
 //#ifndef FREERTOS_CONFIG_H
@@ -504,14 +504,14 @@ void systick_delay(u32 time, void (*temp_function))
 //}
 //#endif
 /*
- * flash³õÊ¼»¯
- * ²Á³ıÒ»Ò³Ğè22ms,ÇÒ¹ı³ÌÖĞCPU²»ÄÜ×öÈÎºÎÊÂÇé
- * page:³õÊ¼»¯Ò³µØÖ·
+ * flashåˆå§‹åŒ–
+ * æ“¦é™¤ä¸€é¡µéœ€22ms,ä¸”è¿‡ç¨‹ä¸­CPUä¸èƒ½åšä»»ä½•äº‹æƒ…
+ * page:åˆå§‹åŒ–é¡µåœ°å€
  */
 void Flash_Erase(uint32_t page)
 {
-	FLASH_SetLatency(FLASH_Latency_2); //FLASHÊ±ĞòÑÓ³Ù¼¸¸öÖÜÆÚ£¬µÈ´ı×ÜÏßÍ¬²½²Ù×÷
-	FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable); //¿ªÆôFLASHÔ¤¶Á»º³å¹¦ÄÜ£¬¼ÓËÙFLASHµÄ¶ÁÈ¡
+	FLASH_SetLatency(FLASH_Latency_2); //FLASHæ—¶åºå»¶è¿Ÿå‡ ä¸ªå‘¨æœŸï¼Œç­‰å¾…æ€»çº¿åŒæ­¥æ“ä½œ
+	FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable); //å¼€å¯FLASHé¢„è¯»ç¼“å†²åŠŸèƒ½ï¼ŒåŠ é€ŸFLASHçš„è¯»å–
 	FLASH_Unlock();
 	FLASH_ClearFlag(FLASH_FLAG_BSY | FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR);
 	FLASH_ErasePage(page);
@@ -519,11 +519,11 @@ void Flash_Erase(uint32_t page)
 }
 
 /*
- * ÒÔ16Î»Ğ´Èë·½Ê½8Î»buffer
- * page:Ğ´ÈëÒ³µØÖ·
- * buffer:ĞèÒªĞ´ÈëµÄ8Î»Êı¾İÖ¸Õë
- * length:ĞèÒªĞ´ÈëÊı¾İµÄ³¤¶È
- * ¸Ãº¯Êı·µ»Ø×îºóÒ»¸öĞ´ÈëÊı¾İµÄflashµØÖ·£¬»òÕß·µ»ØµÚ¼¸Î»Êı¾İĞ´ÈëÊ§°Ü
+ * ä»¥16ä½å†™å…¥æ–¹å¼8ä½buffer
+ * page:å†™å…¥é¡µåœ°å€
+ * buffer:éœ€è¦å†™å…¥çš„8ä½æ•°æ®æŒ‡é’ˆ
+ * length:éœ€è¦å†™å…¥æ•°æ®çš„é•¿åº¦
+ * è¯¥å‡½æ•°è¿”å›æœ€åä¸€ä¸ªå†™å…¥æ•°æ®çš„flashåœ°å€ï¼Œæˆ–è€…è¿”å›ç¬¬å‡ ä½æ•°æ®å†™å…¥å¤±è´¥
  */
 uint32_t FlashWrite_8bitbuffer(uint32_t page, uint8_t *buffer, uint32_t length)
 {
@@ -545,11 +545,11 @@ uint32_t FlashWrite_8bitbuffer(uint32_t page, uint8_t *buffer, uint32_t length)
 }
 
 /*
- * ÒÔ16Î»Ğ´Èë·½Ê½16Î»buffer
- * page:Ğ´ÈëÒ³µØÖ·
- * buffer:ĞèÒªĞ´ÈëµÄ16Î»Êı¾İÖ¸Õë
- * length:ĞèÒªĞ´ÈëÊı¾İµÄ³¤¶È
- * ¸Ãº¯Êı·µ»Ø×îºóÒ»¸öĞ´ÈëÊı¾İµÄflashµØÖ·£¬»òÕß·µ»ØµÚ¼¸Î»Êı¾İĞ´ÈëÊ§°Ü
+ * ä»¥16ä½å†™å…¥æ–¹å¼16ä½buffer
+ * page:å†™å…¥é¡µåœ°å€
+ * buffer:éœ€è¦å†™å…¥çš„16ä½æ•°æ®æŒ‡é’ˆ
+ * length:éœ€è¦å†™å…¥æ•°æ®çš„é•¿åº¦
+ * è¯¥å‡½æ•°è¿”å›æœ€åä¸€ä¸ªå†™å…¥æ•°æ®çš„flashåœ°å€ï¼Œæˆ–è€…è¿”å›ç¬¬å‡ ä½æ•°æ®å†™å…¥å¤±è´¥
  */
 uint32_t FlashWrite_16bitbuffer(uint32_t page, uint16_t *buffer, uint32_t length)
 {
@@ -571,11 +571,11 @@ uint32_t FlashWrite_16bitbuffer(uint32_t page, uint16_t *buffer, uint32_t length
 }
 
 /*
- * Á¬Ğø8Î»¶Á³öÊı¾İ
- * address:¶ÁÈ¡Êı¾İÊ×µØÖ·
- * *buffer:¶Á³öÊı¾İ´æ·ÅµÄÄ¿±êµØÖ·
- * length:ĞèÒª¶ÁÈ¡Êı¾İ¸öÊı
- * ·µ»Øµ±Ç°Êı¾İµØÖ·
+ * è¿ç»­8ä½è¯»å‡ºæ•°æ®
+ * address:è¯»å–æ•°æ®é¦–åœ°å€
+ * *buffer:è¯»å‡ºæ•°æ®å­˜æ”¾çš„ç›®æ ‡åœ°å€
+ * length:éœ€è¦è¯»å–æ•°æ®ä¸ªæ•°
+ * è¿”å›å½“å‰æ•°æ®åœ°å€
  */
 uint32_t FlashRead_8bitbuffer(uint32_t address, uint8_t *buffer, uint32_t length)
 {
@@ -584,8 +584,8 @@ uint32_t FlashRead_8bitbuffer(uint32_t address, uint8_t *buffer, uint32_t length
 }
 
 /*
- *	¶Á³öÖ¸¶¨µØÖ·16Î»Êı¾İ
- *	µÍµØÖ·ÔÚµÍÎ»
+ *	è¯»å‡ºæŒ‡å®šåœ°å€16ä½æ•°æ®
+ *	ä½åœ°å€åœ¨ä½ä½
  */
 uint16_t FlashRead_16bitbuffer(uint32_t address)
 {
@@ -593,19 +593,19 @@ uint16_t FlashRead_16bitbuffer(uint32_t address)
 }
 
 /*
- * ¼ÆÊ±Æ÷³õÊ¼»¯,×î´ó¼ÆÊ±1.8s,Òç³öÃ»ÓĞÈÎºÎÌáĞÑ,×¢ÒâÊ¹ÓÃ³¡ºÏ,²Ù×÷ÏµÍ³ÖĞ²»ÄÜÊ¹ÓÃ
- * systick_on;//¿ªÊ¼¼ÆÊ±
- * systick_off;//Í£Ö¹¼ÆÊ±
+ * è®¡æ—¶å™¨åˆå§‹åŒ–,æœ€å¤§è®¡æ—¶1.8s,æº¢å‡ºæ²¡æœ‰ä»»ä½•æé†’,æ³¨æ„ä½¿ç”¨åœºåˆ,æ“ä½œç³»ç»Ÿä¸­ä¸èƒ½ä½¿ç”¨
+ * systick_on;//å¼€å§‹è®¡æ—¶
+ * systick_off;//åœæ­¢è®¡æ—¶
  */
 void time_counter_init()
 {
 	SysTick->LOAD = 0xFFFFFF;
-	SysTick->VAL = 0X00;   //Çå¿Õ¼ÆÊıÆ÷
-	SysTick->CTRL = 0x00; //¹Ø±Õ¼ÆÊıÆ÷
+	SysTick->VAL = 0X00;   //æ¸…ç©ºè®¡æ•°å™¨
+	SysTick->CTRL = 0x00; //å…³é—­è®¡æ•°å™¨
 }
 
 /*
- * ·µ»Ø¼ÆÊ±Öµ£¬µ¥Î»us
+ * è¿”å›è®¡æ—¶å€¼ï¼Œå•ä½us
  */
 int time_counter_value()
 {
@@ -618,47 +618,47 @@ int time_counter_value()
 void adc_init()
 {
 	ADC_InitTypeDef ADC_InitStructure;
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE); //Ê¹ÄÜADC1Í¨µÀÊ±ÖÓ
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC2, ENABLE); //Ê¹ÄÜADC2Í¨µÀÊ±ÖÓ
-	RCC_ADCCLKConfig(RCC_PCLK2_Div6);   //ÉèÖÃADC·ÖÆµÒò×Ó6,72M/6=12MHz,ADC×î´ó²»ÄÜ³¬¹ı14M
-	ADC_DeInit(ADC1);  //¸´Î»ADC1,½«ÍâÉè ADC1 µÄÈ«²¿¼Ä´æÆ÷ÖØÉèÎªÈ±Ê¡Öµ
-	ADC_DeInit(ADC2);  //¸´Î»ADC2,½«ÍâÉè ADC2 µÄÈ«²¿¼Ä´æÆ÷ÖØÉèÎªÈ±Ê¡Öµ
-	ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;	//ADC¹¤×÷Ä£Ê½:ADC1ºÍADC2¹¤×÷ÔÚ¶ÀÁ¢Ä£Ê½
-	ADC_InitStructure.ADC_ScanConvMode = DISABLE;	//Ä£Êı×ª»»¹¤×÷ÔÚµ¥Í¨µÀÄ£Ê½
-	ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;	//Ä£Êı×ª»»¹¤×÷ÔÚµ¥´Î×ª»»Ä£Ê½
-	ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;	//×ª»»ÓÉÈí¼ş¶ø²»ÊÇÍâ²¿´¥·¢Æô¶¯
-	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;	//ADCÊı¾İÓÒ¶ÔÆë
-	ADC_InitStructure.ADC_NbrOfChannel = 1;	//Ë³Ğò½øĞĞ¹æÔò×ª»»µÄADCÍ¨µÀµÄÊıÄ¿
-	ADC_Init(ADC1, &ADC_InitStructure);	//¸ù¾İADC_InitStructÖĞÖ¸¶¨µÄ²ÎÊı³õÊ¼»¯ÍâÉèADCxµÄ¼Ä´æÆ÷
-	ADC_Init(ADC2, &ADC_InitStructure);	//¸ù¾İADC_InitStructÖĞÖ¸¶¨µÄ²ÎÊı³õÊ¼»¯ÍâÉèADCxµÄ¼Ä´æÆ÷
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE); //ä½¿èƒ½ADC1é€šé“æ—¶é’Ÿ
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC2, ENABLE); //ä½¿èƒ½ADC2é€šé“æ—¶é’Ÿ
+	RCC_ADCCLKConfig(RCC_PCLK2_Div6);   //è®¾ç½®ADCåˆ†é¢‘å› å­6,72M/6=12MHz,ADCæœ€å¤§ä¸èƒ½è¶…è¿‡14M
+	ADC_DeInit(ADC1);  //å¤ä½ADC1,å°†å¤–è®¾ ADC1 çš„å…¨éƒ¨å¯„å­˜å™¨é‡è®¾ä¸ºç¼ºçœå€¼
+	ADC_DeInit(ADC2);  //å¤ä½ADC2,å°†å¤–è®¾ ADC2 çš„å…¨éƒ¨å¯„å­˜å™¨é‡è®¾ä¸ºç¼ºçœå€¼
+	ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;	//ADCå·¥ä½œæ¨¡å¼:ADC1å’ŒADC2å·¥ä½œåœ¨ç‹¬ç«‹æ¨¡å¼
+	ADC_InitStructure.ADC_ScanConvMode = DISABLE;	//æ¨¡æ•°è½¬æ¢å·¥ä½œåœ¨å•é€šé“æ¨¡å¼
+	ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;	//æ¨¡æ•°è½¬æ¢å·¥ä½œåœ¨å•æ¬¡è½¬æ¢æ¨¡å¼
+	ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;	//è½¬æ¢ç”±è½¯ä»¶è€Œä¸æ˜¯å¤–éƒ¨è§¦å‘å¯åŠ¨
+	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;	//ADCæ•°æ®å³å¯¹é½
+	ADC_InitStructure.ADC_NbrOfChannel = 1;	//é¡ºåºè¿›è¡Œè§„åˆ™è½¬æ¢çš„ADCé€šé“çš„æ•°ç›®
+	ADC_Init(ADC1, &ADC_InitStructure);	//æ ¹æ®ADC_InitStructä¸­æŒ‡å®šçš„å‚æ•°åˆå§‹åŒ–å¤–è®¾ADCxçš„å¯„å­˜å™¨
+	ADC_Init(ADC2, &ADC_InitStructure);	//æ ¹æ®ADC_InitStructä¸­æŒ‡å®šçš„å‚æ•°åˆå§‹åŒ–å¤–è®¾ADCxçš„å¯„å­˜å™¨
 
-	ADC_Cmd(ADC1, ENABLE);	//Ê¹ÄÜÖ¸¶¨µÄADC1
-	ADC_ResetCalibration(ADC1);	//Ê¹ÄÜ¸´Î»Ğ£×¼
+	ADC_Cmd(ADC1, ENABLE);	//ä½¿èƒ½æŒ‡å®šçš„ADC1
+	ADC_ResetCalibration(ADC1);	//ä½¿èƒ½å¤ä½æ ¡å‡†
 	while (ADC_GetResetCalibrationStatus(ADC1))
-		;	//µÈ´ı¸´Î»Ğ£×¼½áÊø
-	ADC_StartCalibration(ADC1);	 //¿ªÆôADĞ£×¼
+		;	//ç­‰å¾…å¤ä½æ ¡å‡†ç»“æŸ
+	ADC_StartCalibration(ADC1);	 //å¼€å¯ADæ ¡å‡†
 	while (ADC_GetCalibrationStatus(ADC1))
-		;	 //µÈ´ıĞ£×¼½áÊø
+		;	 //ç­‰å¾…æ ¡å‡†ç»“æŸ
 
-	ADC_Cmd(ADC2, ENABLE);	//Ê¹ÄÜÖ¸¶¨µÄADC2
-	ADC_ResetCalibration(ADC2);	//Ê¹ÄÜ¸´Î»Ğ£×¼
+	ADC_Cmd(ADC2, ENABLE);	//ä½¿èƒ½æŒ‡å®šçš„ADC2
+	ADC_ResetCalibration(ADC2);	//ä½¿èƒ½å¤ä½æ ¡å‡†
 	while (ADC_GetResetCalibrationStatus(ADC2))
-		;	//µÈ´ı¸´Î»Ğ£×¼½áÊø
-	ADC_StartCalibration(ADC2);	 //¿ªÆôADĞ£×¼
+		;	//ç­‰å¾…å¤ä½æ ¡å‡†ç»“æŸ
+	ADC_StartCalibration(ADC2);	 //å¼€å¯ADæ ¡å‡†
 	while (ADC_GetCalibrationStatus(ADC2))
-		;	 //µÈ´ıĞ£×¼½áÊø
+		;	 //ç­‰å¾…æ ¡å‡†ç»“æŸ
 	adcinit_flag = true;
 }
 
 /*
- * GPIOAÒı½ÅÄ£Ê½ÉèÖÃ
+ * GPIOAå¼•è„šæ¨¡å¼è®¾ç½®
  * GPIO_Pin_:GPIO_Pin_X
- * GPIO_Mode: OUTPUT ÍÆÍìÊä³ö
- *			  INPUT ¸¡¿ÕÊäÈë
- *			  AIN Ä£ÄâÊäÈë(ADC)
- *			  IPU ÉÏÀ­ÊäÈë
- *			  IPD ÏÂÀ­ÊäÈë
- *			  AOT Ä£ÄâÊä³ö(DAC)
+ * GPIO_Mode: OUTPUT æ¨æŒ½è¾“å‡º
+ *			  INPUT æµ®ç©ºè¾“å…¥
+ *			  AIN æ¨¡æ‹Ÿè¾“å…¥(ADC)
+ *			  IPU ä¸Šæ‹‰è¾“å…¥
+ *			  IPD ä¸‹æ‹‰è¾“å…¥
+ *			  AOT æ¨¡æ‹Ÿè¾“å‡º(DAC)
  */
 void pinModeA(uint16_t GPIO_Pin, GPIOMode_TypeDef GPIO_Mode)
 {
@@ -674,31 +674,31 @@ void pinModeA(uint16_t GPIO_Pin, GPIOMode_TypeDef GPIO_Mode)
 			adc_init();
 			/***************************************DAC******************************************************/
 			DAC_InitTypeDef DAC_InitType;
-			RCC_APB1PeriphClockCmd(RCC_APB1Periph_DAC, ENABLE);	  //Ê¹ÄÜDACÍ¨µÀÊ±ÖÓ
-			DAC_InitType.DAC_Trigger = DAC_Trigger_None;	//²»Ê¹ÓÃ´¥·¢¹¦ÄÜ TEN1=0
-			DAC_InitType.DAC_WaveGeneration = DAC_WaveGeneration_None;	//²»Ê¹ÓÃ²¨ĞÎ·¢Éú
-			DAC_InitType.DAC_LFSRUnmask_TriangleAmplitude = DAC_LFSRUnmask_Bit0;	//ÆÁ±Î¡¢·ùÖµÉèÖÃ
-			DAC_InitType.DAC_OutputBuffer = DAC_OutputBuffer_Disable;	//DAC1Êä³ö»º´æ¹Ø±Õ BOFF1=1
-			DAC_Init(DAC_Channel_1, &DAC_InitType);	 //³õÊ¼»¯DACÍ¨µÀ1
-			DAC_Init(DAC_Channel_2, &DAC_InitType);	 //³õÊ¼»¯DACÍ¨µÀ2
+			RCC_APB1PeriphClockCmd(RCC_APB1Periph_DAC, ENABLE);	  //ä½¿èƒ½DACé€šé“æ—¶é’Ÿ
+			DAC_InitType.DAC_Trigger = DAC_Trigger_None;	//ä¸ä½¿ç”¨è§¦å‘åŠŸèƒ½ TEN1=0
+			DAC_InitType.DAC_WaveGeneration = DAC_WaveGeneration_None;	//ä¸ä½¿ç”¨æ³¢å½¢å‘ç”Ÿ
+			DAC_InitType.DAC_LFSRUnmask_TriangleAmplitude = DAC_LFSRUnmask_Bit0;	//å±è”½ã€å¹…å€¼è®¾ç½®
+			DAC_InitType.DAC_OutputBuffer = DAC_OutputBuffer_Disable;	//DAC1è¾“å‡ºç¼“å­˜å…³é—­ BOFF1=1
+			DAC_Init(DAC_Channel_1, &DAC_InitType);	 //åˆå§‹åŒ–DACé€šé“1
+			DAC_Init(DAC_Channel_2, &DAC_InitType);	 //åˆå§‹åŒ–DACé€šé“2
 
-			DAC_Cmd(DAC_Channel_1, ENABLE);  //Ê¹ÄÜDACÍ¨µÀ1
-			DAC_Cmd(DAC_Channel_2, ENABLE);  //Ê¹ÄÜDACÍ¨µÀ2
+			DAC_Cmd(DAC_Channel_1, ENABLE);  //ä½¿èƒ½DACé€šé“1
+			DAC_Cmd(DAC_Channel_2, ENABLE);  //ä½¿èƒ½DACé€šé“2
 
-			DAC_SetChannel1Data(DAC_Align_12b_R, 0);  //12Î»ÓÒ¶ÔÆëÊı¾İ¸ñÊ½ÉèÖÃDACÖµ
-			DAC_SetChannel2Data(DAC_Align_12b_R, 0);  //12Î»ÓÒ¶ÔÆëÊı¾İ¸ñÊ½ÉèÖÃDACÖµ
+			DAC_SetChannel1Data(DAC_Align_12b_R, 0);  //12ä½å³å¯¹é½æ•°æ®æ ¼å¼è®¾ç½®DACå€¼
+			DAC_SetChannel2Data(DAC_Align_12b_R, 0);  //12ä½å³å¯¹é½æ•°æ®æ ¼å¼è®¾ç½®DACå€¼
 		}
 	}
 }
 
 /*
- * GPIOBÒı½ÅÄ£Ê½ÉèÖÃ
+ * GPIOBå¼•è„šæ¨¡å¼è®¾ç½®
  * GPIO_Pin_:GPIO_Pin_X
- * GPIO_Mode: OUTPUT ÍÆÍìÊä³ö
- *			  INPUT ¸¡¿ÕÊäÈë
- *			  IPU ÉÏÀ­ÊäÈë
- *			  IPD ÏÂÀ­ÊäÈë
- *			  PWM PWMÊä³ö,Ä¬ÈÏÆµÂÊ10kHz
+ * GPIO_Mode: OUTPUT æ¨æŒ½è¾“å‡º
+ *			  INPUT æµ®ç©ºè¾“å…¥
+ *			  IPU ä¸Šæ‹‰è¾“å…¥
+ *			  IPD ä¸‹æ‹‰è¾“å…¥
+ *			  PWM PWMè¾“å‡º,é»˜è®¤é¢‘ç‡10kHz
  */
 void pinModeB(uint16_t GPIO_Pin, GPIOMode_TypeDef GPIO_Mode)
 {
@@ -713,53 +713,53 @@ void pinModeB(uint16_t GPIO_Pin, GPIOMode_TypeDef GPIO_Mode)
 		{
 			RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
 
-			//ÉèÖÃÔÚÏÂÒ»¸ö¸üĞÂÊÂ¼ş×°Èë»î¶¯µÄ×Ô¶¯ÖØ×°ÔØ¼Ä´æÆ÷ÖÜÆÚµÄÖµ
-			//PWMÆµÂÊ:72000/(899+1)=80khz
+			//è®¾ç½®åœ¨ä¸‹ä¸€ä¸ªæ›´æ–°äº‹ä»¶è£…å…¥æ´»åŠ¨çš„è‡ªåŠ¨é‡è£…è½½å¯„å­˜å™¨å‘¨æœŸçš„å€¼
+			//PWMé¢‘ç‡:72000/(899+1)=80khz
 			TIM_TimeBaseStructure.TIM_Period = PWM_Freq_B;
 			pwm_freq_B = PWM_Freq_B;
 
-			TIM_TimeBaseStructure.TIM_Prescaler = 0; //ÉèÖÃÓÃÀ´×÷ÎªTIMxÊ±ÖÓÆµÂÊ³ıÊıµÄÔ¤·ÖÆµÖµ
-			TIM_TimeBaseStructure.TIM_ClockDivision = 0; //ÉèÖÃÊ±ÖÓ·Ö¸î:TDTS = Tck_tim
-			TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;  //TIMÏòÉÏ¼ÆÊıÄ£Ê½
-			TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure); //¸ù¾İTIM_TimeBaseInitStructÖĞÖ¸¶¨µÄ²ÎÊı³õÊ¼»¯TIMxµÄÊ±¼ä»ùÊıµ¥Î»
+			TIM_TimeBaseStructure.TIM_Prescaler = 0; //è®¾ç½®ç”¨æ¥ä½œä¸ºTIMxæ—¶é’Ÿé¢‘ç‡é™¤æ•°çš„é¢„åˆ†é¢‘å€¼
+			TIM_TimeBaseStructure.TIM_ClockDivision = 0; //è®¾ç½®æ—¶é’Ÿåˆ†å‰²:TDTS = Tck_tim
+			TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;  //TIMå‘ä¸Šè®¡æ•°æ¨¡å¼
+			TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure); //æ ¹æ®TIM_TimeBaseInitStructä¸­æŒ‡å®šçš„å‚æ•°åˆå§‹åŒ–TIMxçš„æ—¶é—´åŸºæ•°å•ä½
 
-			TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2; //Ñ¡Ôñ¶¨Ê±Æ÷Ä£Ê½:TIMÂö³å¿í¶Èµ÷ÖÆÄ£Ê½2
-			TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; //±È½ÏÊä³öÊ¹ÄÜ
-			TIM_OCInitStructure.TIM_Pulse = 0; //ÉèÖÃ´ı×°Èë²¶»ñ±È½Ï¼Ä´æÆ÷µÄÂö³åÖµ
-			TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low; //Êä³ö¼«ĞÔ:TIMÊä³ö±È½Ï¼«ĞÔ¸ß
-			TIM_OC1Init(TIM4, &TIM_OCInitStructure);  //¸ù¾İTIM_OCInitStructÖĞÖ¸¶¨µÄ²ÎÊı³õÊ¼»¯ÍâÉèTIMx
-			TIM_OC2Init(TIM4, &TIM_OCInitStructure);  //¸ù¾İTIM_OCInitStructÖĞÖ¸¶¨µÄ²ÎÊı³õÊ¼»¯ÍâÉèTIMx
+			TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2; //é€‰æ‹©å®šæ—¶å™¨æ¨¡å¼:TIMè„‰å†²å®½åº¦è°ƒåˆ¶æ¨¡å¼2
+			TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; //æ¯”è¾ƒè¾“å‡ºä½¿èƒ½
+			TIM_OCInitStructure.TIM_Pulse = 0; //è®¾ç½®å¾…è£…å…¥æ•è·æ¯”è¾ƒå¯„å­˜å™¨çš„è„‰å†²å€¼
+			TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low; //è¾“å‡ºææ€§:TIMè¾“å‡ºæ¯”è¾ƒææ€§é«˜
+			TIM_OC1Init(TIM4, &TIM_OCInitStructure);  //æ ¹æ®TIM_OCInitStructä¸­æŒ‡å®šçš„å‚æ•°åˆå§‹åŒ–å¤–è®¾TIMx
+			TIM_OC2Init(TIM4, &TIM_OCInitStructure);  //æ ¹æ®TIM_OCInitStructä¸­æŒ‡å®šçš„å‚æ•°åˆå§‹åŒ–å¤–è®¾TIMx
 
 #ifdef PWM_Complementary_B
-			TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High; //Êä³ö¼«ĞÔ:TIMÊä³ö±È½Ï¼«ĞÔ¸ß
+			TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High; //è¾“å‡ºææ€§:TIMè¾“å‡ºæ¯”è¾ƒææ€§é«˜
 #endif
-			TIM_OC3Init(TIM4, &TIM_OCInitStructure);  //¸ù¾İTIM_OCInitStructÖĞÖ¸¶¨µÄ²ÎÊı³õÊ¼»¯ÍâÉèTIMx
-			TIM_OC4Init(TIM4, &TIM_OCInitStructure);  //¸ù¾İTIM_OCInitStructÖĞÖ¸¶¨µÄ²ÎÊı³õÊ¼»¯ÍâÉèTIMx
+			TIM_OC3Init(TIM4, &TIM_OCInitStructure);  //æ ¹æ®TIM_OCInitStructä¸­æŒ‡å®šçš„å‚æ•°åˆå§‹åŒ–å¤–è®¾TIMx
+			TIM_OC4Init(TIM4, &TIM_OCInitStructure);  //æ ¹æ®TIM_OCInitStructä¸­æŒ‡å®šçš„å‚æ•°åˆå§‹åŒ–å¤–è®¾TIMx
 
-			TIM_CtrlPWMOutputs(TIM4, ENABLE);	//MOE Ö÷Êä³öÊ¹ÄÜ
+			TIM_CtrlPWMOutputs(TIM4, ENABLE);	//MOE ä¸»è¾“å‡ºä½¿èƒ½
 
-			TIM_OC1PreloadConfig(TIM4, TIM_OCPreload_Enable);  //CH1Ô¤×°ÔØÊ¹ÄÜ
-			TIM_OC2PreloadConfig(TIM4, TIM_OCPreload_Enable);  //CH2Ô¤×°ÔØÊ¹ÄÜ
-			TIM_OC3PreloadConfig(TIM4, TIM_OCPreload_Enable);  //CH3Ô¤×°ÔØÊ¹ÄÜ
-			TIM_OC4PreloadConfig(TIM4, TIM_OCPreload_Enable);  //CH4Ô¤×°ÔØÊ¹ÄÜ
+			TIM_OC1PreloadConfig(TIM4, TIM_OCPreload_Enable);  //CH1é¢„è£…è½½ä½¿èƒ½
+			TIM_OC2PreloadConfig(TIM4, TIM_OCPreload_Enable);  //CH2é¢„è£…è½½ä½¿èƒ½
+			TIM_OC3PreloadConfig(TIM4, TIM_OCPreload_Enable);  //CH3é¢„è£…è½½ä½¿èƒ½
+			TIM_OC4PreloadConfig(TIM4, TIM_OCPreload_Enable);  //CH4é¢„è£…è½½ä½¿èƒ½
 
-			TIM_ARRPreloadConfig(TIM4, ENABLE); //Ê¹ÄÜTIMxÔÚARRÉÏµÄÔ¤×°ÔØ¼Ä´æÆ÷
+			TIM_ARRPreloadConfig(TIM4, ENABLE); //ä½¿èƒ½TIMxåœ¨ARRä¸Šçš„é¢„è£…è½½å¯„å­˜å™¨
 
-			TIM_Cmd(TIM4, ENABLE);  //Ê¹ÄÜTIM1
+			TIM_Cmd(TIM4, ENABLE);  //ä½¿èƒ½TIM1
 			pwminit_flag_B = true;
 		}
 	}
 }
 
 /*
- * GPIOCÒı½ÅÄ£Ê½ÉèÖÃ
+ * GPIOCå¼•è„šæ¨¡å¼è®¾ç½®
  * GPIO_Pin_:GPIO_Pin_X
- * GPIO_Mode: OUTPUT ÍÆÍìÊä³ö
- *			  INPUT ¸¡¿ÕÊäÈë
- *			  AIN Ä£ÄâÊäÈë
- *			  IPU ÉÏÀ­ÊäÈë
- *			  IPD ÏÂÀ­ÊäÈë
- *			  PWM PWMÊä³ö,Ä¬ÈÏÆµÂÊ100kHz
+ * GPIO_Mode: OUTPUT æ¨æŒ½è¾“å‡º
+ *			  INPUT æµ®ç©ºè¾“å…¥
+ *			  AIN æ¨¡æ‹Ÿè¾“å…¥
+ *			  IPU ä¸Šæ‹‰è¾“å…¥
+ *			  IPD ä¸‹æ‹‰è¾“å…¥
+ *			  PWM PWMè¾“å‡º,é»˜è®¤é¢‘ç‡100kHz
  */
 void pinModeC(uint16_t GPIO_Pin, GPIOMode_TypeDef GPIO_Mode)
 {
@@ -781,50 +781,50 @@ void pinModeC(uint16_t GPIO_Pin, GPIOMode_TypeDef GPIO_Mode)
 		{
 			RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM8, ENABLE);
 
-			//ÉèÖÃÔÚÏÂÒ»¸ö¸üĞÂÊÂ¼ş×°Èë»î¶¯µÄ×Ô¶¯ÖØ×°ÔØ¼Ä´æÆ÷ÖÜÆÚµÄÖµ
-			//PWMÆµÂÊ:72000/(899+1)=80khz
+			//è®¾ç½®åœ¨ä¸‹ä¸€ä¸ªæ›´æ–°äº‹ä»¶è£…å…¥æ´»åŠ¨çš„è‡ªåŠ¨é‡è£…è½½å¯„å­˜å™¨å‘¨æœŸçš„å€¼
+			//PWMé¢‘ç‡:72000/(899+1)=80khz
 			TIM_TimeBaseStructure.TIM_Period = PWM_Freq_C;
 			pwm_freq_C = PWM_Freq_C;
 
-			TIM_TimeBaseStructure.TIM_Prescaler = 0; //ÉèÖÃÓÃÀ´×÷ÎªTIMxÊ±ÖÓÆµÂÊ³ıÊıµÄÔ¤·ÖÆµÖµ
-			TIM_TimeBaseStructure.TIM_ClockDivision = 0; //ÉèÖÃÊ±ÖÓ·Ö¸î:TDTS = Tck_tim
-			TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;  //TIMÏòÉÏ¼ÆÊıÄ£Ê½
-			TIM_TimeBaseInit(TIM8, &TIM_TimeBaseStructure); //¸ù¾İTIM_TimeBaseInitStructÖĞÖ¸¶¨µÄ²ÎÊı³õÊ¼»¯TIMxµÄÊ±¼ä»ùÊıµ¥Î»
+			TIM_TimeBaseStructure.TIM_Prescaler = 0; //è®¾ç½®ç”¨æ¥ä½œä¸ºTIMxæ—¶é’Ÿé¢‘ç‡é™¤æ•°çš„é¢„åˆ†é¢‘å€¼
+			TIM_TimeBaseStructure.TIM_ClockDivision = 0; //è®¾ç½®æ—¶é’Ÿåˆ†å‰²:TDTS = Tck_tim
+			TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;  //TIMå‘ä¸Šè®¡æ•°æ¨¡å¼
+			TIM_TimeBaseInit(TIM8, &TIM_TimeBaseStructure); //æ ¹æ®TIM_TimeBaseInitStructä¸­æŒ‡å®šçš„å‚æ•°åˆå§‹åŒ–TIMxçš„æ—¶é—´åŸºæ•°å•ä½
 
-			TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2; //Ñ¡Ôñ¶¨Ê±Æ÷Ä£Ê½:TIMÂö³å¿í¶Èµ÷ÖÆÄ£Ê½2
-			TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; //±È½ÏÊä³öÊ¹ÄÜ
-			TIM_OCInitStructure.TIM_Pulse = 0; //ÉèÖÃ´ı×°Èë²¶»ñ±È½Ï¼Ä´æÆ÷µÄÂö³åÖµ
-			TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low; //Êä³ö¼«ĞÔ:TIMÊä³ö±È½Ï¼«ĞÔ¸ß
-			TIM_OC1Init(TIM8, &TIM_OCInitStructure);  //¸ù¾İTIM_OCInitStructÖĞÖ¸¶¨µÄ²ÎÊı³õÊ¼»¯ÍâÉèTIMx
-			TIM_OC2Init(TIM8, &TIM_OCInitStructure);  //¸ù¾İTIM_OCInitStructÖĞÖ¸¶¨µÄ²ÎÊı³õÊ¼»¯ÍâÉèTIMx
+			TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2; //é€‰æ‹©å®šæ—¶å™¨æ¨¡å¼:TIMè„‰å†²å®½åº¦è°ƒåˆ¶æ¨¡å¼2
+			TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; //æ¯”è¾ƒè¾“å‡ºä½¿èƒ½
+			TIM_OCInitStructure.TIM_Pulse = 0; //è®¾ç½®å¾…è£…å…¥æ•è·æ¯”è¾ƒå¯„å­˜å™¨çš„è„‰å†²å€¼
+			TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low; //è¾“å‡ºææ€§:TIMè¾“å‡ºæ¯”è¾ƒææ€§é«˜
+			TIM_OC1Init(TIM8, &TIM_OCInitStructure);  //æ ¹æ®TIM_OCInitStructä¸­æŒ‡å®šçš„å‚æ•°åˆå§‹åŒ–å¤–è®¾TIMx
+			TIM_OC2Init(TIM8, &TIM_OCInitStructure);  //æ ¹æ®TIM_OCInitStructä¸­æŒ‡å®šçš„å‚æ•°åˆå§‹åŒ–å¤–è®¾TIMx
 #ifdef PWM_Complementary_C
-			        TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High; //Êä³ö¼«ĞÔ:TIMÊä³ö±È½Ï¼«ĞÔ¸ß
+			        TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High; //è¾“å‡ºææ€§:TIMè¾“å‡ºæ¯”è¾ƒææ€§é«˜
 #endif
-			TIM_OC3Init(TIM8, &TIM_OCInitStructure);  //¸ù¾İTIM_OCInitStructÖĞÖ¸¶¨µÄ²ÎÊı³õÊ¼»¯ÍâÉèTIMx
-			TIM_OC4Init(TIM8, &TIM_OCInitStructure);  //¸ù¾İTIM_OCInitStructÖĞÖ¸¶¨µÄ²ÎÊı³õÊ¼»¯ÍâÉèTIMx
+			TIM_OC3Init(TIM8, &TIM_OCInitStructure);  //æ ¹æ®TIM_OCInitStructä¸­æŒ‡å®šçš„å‚æ•°åˆå§‹åŒ–å¤–è®¾TIMx
+			TIM_OC4Init(TIM8, &TIM_OCInitStructure);  //æ ¹æ®TIM_OCInitStructä¸­æŒ‡å®šçš„å‚æ•°åˆå§‹åŒ–å¤–è®¾TIMx
 
-			TIM_CtrlPWMOutputs(TIM8, ENABLE);	//MOE Ö÷Êä³öÊ¹ÄÜ
+			TIM_CtrlPWMOutputs(TIM8, ENABLE);	//MOE ä¸»è¾“å‡ºä½¿èƒ½
 
-			TIM_OC1PreloadConfig(TIM8, TIM_OCPreload_Enable);  //CH1Ô¤×°ÔØÊ¹ÄÜ
-			TIM_OC2PreloadConfig(TIM8, TIM_OCPreload_Enable);  //CH2Ô¤×°ÔØÊ¹ÄÜ
-			TIM_OC3PreloadConfig(TIM8, TIM_OCPreload_Enable);  //CH3Ô¤×°ÔØÊ¹ÄÜ
-			TIM_OC4PreloadConfig(TIM8, TIM_OCPreload_Enable);  //CH4Ô¤×°ÔØÊ¹ÄÜ
+			TIM_OC1PreloadConfig(TIM8, TIM_OCPreload_Enable);  //CH1é¢„è£…è½½ä½¿èƒ½
+			TIM_OC2PreloadConfig(TIM8, TIM_OCPreload_Enable);  //CH2é¢„è£…è½½ä½¿èƒ½
+			TIM_OC3PreloadConfig(TIM8, TIM_OCPreload_Enable);  //CH3é¢„è£…è½½ä½¿èƒ½
+			TIM_OC4PreloadConfig(TIM8, TIM_OCPreload_Enable);  //CH4é¢„è£…è½½ä½¿èƒ½
 
-			TIM_ARRPreloadConfig(TIM8, ENABLE); //Ê¹ÄÜTIMxÔÚARRÉÏµÄÔ¤×°ÔØ¼Ä´æÆ÷
+			TIM_ARRPreloadConfig(TIM8, ENABLE); //ä½¿èƒ½TIMxåœ¨ARRä¸Šçš„é¢„è£…è½½å¯„å­˜å™¨
 
-			TIM_Cmd(TIM8, ENABLE);  //Ê¹ÄÜTIM1
+			TIM_Cmd(TIM8, ENABLE);  //ä½¿èƒ½TIM1
 			pwminit_flag_C = true;
 		}
 	}
 }
 
 /*
- * GPIODÒı½ÅÄ£Ê½ÉèÖÃ
+ * GPIODå¼•è„šæ¨¡å¼è®¾ç½®
  * GPIO_Pin_:GPIO_Pin_X
- * GPIO_Mode: OUTPUT ÍÆÍìÊä³ö
- *			  INPUT  ¸¡¿ÕÊäÈë
- *			  IPU    ÉÏÀ­ÊäÈë
- *			  IPD    ÏÂÀ­ÊäÈë
+ * GPIO_Mode: OUTPUT æ¨æŒ½è¾“å‡º
+ *			  INPUT  æµ®ç©ºè¾“å…¥
+ *			  IPU    ä¸Šæ‹‰è¾“å…¥
+ *			  IPD    ä¸‹æ‹‰è¾“å…¥
  */
 void pinModeD(uint16_t GPIO_Pin, GPIOMode_TypeDef GPIO_Mode)
 {
@@ -836,8 +836,8 @@ void pinModeD(uint16_t GPIO_Pin, GPIOMode_TypeDef GPIO_Mode)
 }
 
 /*
- * ¶ÁÈ¡GPIOA¶Ë¿Ú Pin_0 ~ Pin_7µÄÄ£ÄâÊäÈë
- * Ê¹ÓÃÇ°Çë½«A¶Ë¿ÚÄ£Ê½ÖÃÎªÄ£ÄâÊäÈëÄ£Ê½£¬Àı:
+ * è¯»å–GPIOAç«¯å£ Pin_0 ~ Pin_7çš„æ¨¡æ‹Ÿè¾“å…¥
+ * ä½¿ç”¨å‰è¯·å°†Aç«¯å£æ¨¡å¼ç½®ä¸ºæ¨¡æ‹Ÿè¾“å…¥æ¨¡å¼ï¼Œä¾‹:
  * 		pinModeA(GPIO_Pin_7,AIN);
  */
 uint16_t analogeReadA(uint16_t GPIO_Pin)
@@ -872,20 +872,20 @@ uint16_t analogeReadA(uint16_t GPIO_Pin)
 		default:
 			ch = 17;
 	}
-	//ÉèÖÃÖ¸¶¨ADCµÄ¹æÔò×éÍ¨µÀ£¬Ò»¸öĞòÁĞ£¬²ÉÑùÊ±¼ä
-	ADC_RegularChannelConfig(ADC1, ch, 1, ADC_SampleTime_239Cycles5);	//ADC1,ADCÍ¨µÀ,²ÉÑùÊ±¼äÎª239.5ÖÜÆÚ
+	//è®¾ç½®æŒ‡å®šADCçš„è§„åˆ™ç»„é€šé“ï¼Œä¸€ä¸ªåºåˆ—ï¼Œé‡‡æ ·æ—¶é—´
+	ADC_RegularChannelConfig(ADC1, ch, 1, ADC_SampleTime_239Cycles5);	//ADC1,ADCé€šé“,é‡‡æ ·æ—¶é—´ä¸º239.5å‘¨æœŸ
 
-	ADC_SoftwareStartConvCmd(ADC1, ENABLE);	//Ê¹ÄÜÖ¸¶¨µÄADC1µÄÈí¼ş×ª»»Æô¶¯¹¦ÄÜ
+	ADC_SoftwareStartConvCmd(ADC1, ENABLE);	//ä½¿èƒ½æŒ‡å®šçš„ADC1çš„è½¯ä»¶è½¬æ¢å¯åŠ¨åŠŸèƒ½
 
 	while (!ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC))
-		;		//µÈ´ı×ª»»½áÊø
+		;		//ç­‰å¾…è½¬æ¢ç»“æŸ
 
-	return ADC_GetConversionValue(ADC1);	//·µ»Ø×î½üÒ»´ÎADC1¹æÔò×éµÄ×ª»»½á¹û
+	return ADC_GetConversionValue(ADC1);	//è¿”å›æœ€è¿‘ä¸€æ¬¡ADC1è§„åˆ™ç»„çš„è½¬æ¢ç»“æœ
 }
 
 /*
- * ¶ÁÈ¡GPIOC¶Ë¿Ú Pin_0 ~ Pin_5µÄÄ£ÄâÊäÈë
- * Ê¹ÓÃÇ°Çë½«C¶Ë¿ÚÄ£Ê½ÖÃÎªÄ£ÄâÊäÈëÄ£Ê½£¬Àı:
+ * è¯»å–GPIOCç«¯å£ Pin_0 ~ Pin_5çš„æ¨¡æ‹Ÿè¾“å…¥
+ * ä½¿ç”¨å‰è¯·å°†Cç«¯å£æ¨¡å¼ç½®ä¸ºæ¨¡æ‹Ÿè¾“å…¥æ¨¡å¼ï¼Œä¾‹:
  * 		pinModeC(GPIO_Pin_7,AIN);
  */
 uint16_t analogeReadC(uint16_t GPIO_Pin)
@@ -914,36 +914,36 @@ uint16_t analogeReadC(uint16_t GPIO_Pin)
 		default:
 			ch = 17;
 	}
-	//ÉèÖÃÖ¸¶¨ADCµÄ¹æÔò×éÍ¨µÀ£¬Ò»¸öĞòÁĞ£¬²ÉÑùÊ±¼ä
-	ADC_RegularChannelConfig(ADC2, ch, 1, ADC_SampleTime_239Cycles5);	//ADC2,ADCÍ¨µÀ,²ÉÑùÊ±¼äÎª239.5ÖÜÆÚ
+	//è®¾ç½®æŒ‡å®šADCçš„è§„åˆ™ç»„é€šé“ï¼Œä¸€ä¸ªåºåˆ—ï¼Œé‡‡æ ·æ—¶é—´
+	ADC_RegularChannelConfig(ADC2, ch, 1, ADC_SampleTime_239Cycles5);	//ADC2,ADCé€šé“,é‡‡æ ·æ—¶é—´ä¸º239.5å‘¨æœŸ
 
-	ADC_SoftwareStartConvCmd(ADC2, ENABLE);	//Ê¹ÄÜÖ¸¶¨µÄADC2µÄÈí¼ş×ª»»Æô¶¯¹¦ÄÜ
+	ADC_SoftwareStartConvCmd(ADC2, ENABLE);	//ä½¿èƒ½æŒ‡å®šçš„ADC2çš„è½¯ä»¶è½¬æ¢å¯åŠ¨åŠŸèƒ½
 
 	while (!ADC_GetFlagStatus(ADC2, ADC_FLAG_EOC))
-		;		//µÈ´ı×ª»»½áÊø
+		;		//ç­‰å¾…è½¬æ¢ç»“æŸ
 
-	return ADC_GetConversionValue(ADC2);	//·µ»Ø×î½üÒ»´ÎADC2¹æÔò×éµÄ×ª»»½á¹û
+	return ADC_GetConversionValue(ADC2);	//è¿”å›æœ€è¿‘ä¸€æ¬¡ADC2è§„åˆ™ç»„çš„è½¬æ¢ç»“æœ
 }
 
 /*
- * DACÄ£ÄâÊä³ö
- * 		GPIO_Pin  Òı½Å¿ØÖÆ,ÖµÎªGPIO_Pin_4»ò5
- * 		value	Êä³öµçÑ¹¿ØÖÆ(0~3.3),ÖµÎª0~4095
+ * DACæ¨¡æ‹Ÿè¾“å‡º
+ * 		GPIO_Pin  å¼•è„šæ§åˆ¶,å€¼ä¸ºGPIO_Pin_4æˆ–5
+ * 		value	è¾“å‡ºç”µå‹æ§åˆ¶(0~3.3),å€¼ä¸º0~4095
  */
 void analogWrite(uint16_t GPIO_Pin, uint16_t value)
 {
 	if (GPIO_Pin == GPIO_Pin_4)
-		DAC_SetChannel1Data(DAC_Align_12b_R, value);  //12Î»ÓÒ¶ÔÆëÊı¾İ¸ñÊ½ÉèÖÃDACÖµ
+		DAC_SetChannel1Data(DAC_Align_12b_R, value);  //12ä½å³å¯¹é½æ•°æ®æ ¼å¼è®¾ç½®DACå€¼
 	if (GPIO_Pin == GPIO_Pin_5)
-		DAC_SetChannel2Data(DAC_Align_12b_R, value);  //12Î»ÓÒ¶ÔÆëÊı¾İ¸ñÊ½ÉèÖÃDACÖµ
+		DAC_SetChannel2Data(DAC_Align_12b_R, value);  //12ä½å³å¯¹é½æ•°æ®æ ¼å¼è®¾ç½®DACå€¼
 }
 
 /*
- * GPIOB¿ÚµÄPWMÕ¼¿Õ±Èµ÷½Úº¯Êı
- * Èç¹û¿ªÆôPWM_ComplementaryÔòÃ»°ì·¨ÉèÖÃPB8ºÍPB9µÄÕ¼¿Õ±È,´ËÊ±PB8ºÍPB9µÄÕ¼¿Õ±È·Ö±ğÓÉPB6ºÍPB7¾ö¶¨
- * ²ÎÊı:
- * 		GPIO_Pin µ÷½ÚµÄPB¶Ë¿ÚÒı½Å
- * 		Duty µ÷½ÚµÄÕ¼¿Õ±ÈÖµ(0~100)
+ * GPIOBå£çš„PWMå ç©ºæ¯”è°ƒèŠ‚å‡½æ•°
+ * å¦‚æœå¼€å¯PWM_Complementaryåˆ™æ²¡åŠæ³•è®¾ç½®PB8å’ŒPB9çš„å ç©ºæ¯”,æ­¤æ—¶PB8å’ŒPB9çš„å ç©ºæ¯”åˆ†åˆ«ç”±PB6å’ŒPB7å†³å®š
+ * å‚æ•°:
+ * 		GPIO_Pin è°ƒèŠ‚çš„PBç«¯å£å¼•è„š
+ * 		Duty è°ƒèŠ‚çš„å ç©ºæ¯”å€¼(0~100)
  */
 void DutyCycleB(uint16_t GPIO_Pin, uint8_t Duty)
 {
@@ -983,10 +983,10 @@ void DutyCycleB(uint16_t GPIO_Pin, uint8_t Duty)
 }
 
 /*
- * GPIOC¿ÚµÄPWMÕ¼¿Õ±Èµ÷½Úº¯Êı
- * ²ÎÊı:
- * 		GPIO_Pin µ÷½ÚµÄPB¶Ë¿ÚÒı½Å
- * 		Duty µ÷½ÚµÄÕ¼¿Õ±ÈÖµ(0~100)
+ * GPIOCå£çš„PWMå ç©ºæ¯”è°ƒèŠ‚å‡½æ•°
+ * å‚æ•°:
+ * 		GPIO_Pin è°ƒèŠ‚çš„PBç«¯å£å¼•è„š
+ * 		Duty è°ƒèŠ‚çš„å ç©ºæ¯”å€¼(0~100)
  */
 void DutyCycleC(uint16_t GPIO_Pin, uint8_t Duty)
 {
@@ -1025,10 +1025,10 @@ void DutyCycleC(uint16_t GPIO_Pin, uint8_t Duty)
 }
 
 /*
- *  ÉèÖÃPWMÆµÂÊ
- *  ²ÎÊı:
- *  	GPIOx ÖµÎªGPIOB»òÕßGPIOC,ÉèÖÃPB¿Ú»òÕßPC¿ÚPWMµÄÆµÂÊ
- *  	freq ÊäÈëPWMÆµÂÊ,·¶Î§:1010~72000000Hz
+ *  è®¾ç½®PWMé¢‘ç‡
+ *  å‚æ•°:
+ *  	GPIOx å€¼ä¸ºGPIOBæˆ–è€…GPIOC,è®¾ç½®PBå£æˆ–è€…PCå£PWMçš„é¢‘ç‡
+ *  	freq è¾“å…¥PWMé¢‘ç‡,èŒƒå›´:1010~72000000Hz
  */
 void SetPWMfreq(GPIO_TypeDef* GPIOx, int freq)
 {
@@ -1039,7 +1039,7 @@ void SetPWMfreq(GPIO_TypeDef* GPIOx, int freq)
 	{
 		TIM_TimeBaseStructure.TIM_Period = arr;
 		pwm_freq_B = arr;
-		TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure); //¸ù¾İTIM_TimeBaseInitStructÖĞÖ¸¶¨µÄ²ÎÊı³õÊ¼»¯TIMxµÄÊ±¼ä»ùÊıµ¥Î»
+		TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure); //æ ¹æ®TIM_TimeBaseInitStructä¸­æŒ‡å®šçš„å‚æ•°åˆå§‹åŒ–TIMxçš„æ—¶é—´åŸºæ•°å•ä½
 		TIM_SetCompare1(TIM4, pwm_freq_B * DB1 * 0.01);
 		TIM_SetCompare2(TIM4, pwm_freq_B * DB2 * 0.01);
 		TIM_SetCompare3(TIM4, pwm_freq_B * DB3 * 0.01);
@@ -1049,7 +1049,7 @@ void SetPWMfreq(GPIO_TypeDef* GPIOx, int freq)
 	{
 		TIM_TimeBaseStructure.TIM_Period = arr;
 		pwm_freq_C = arr;
-		TIM_TimeBaseInit(TIM8, &TIM_TimeBaseStructure); //¸ù¾İTIM_TimeBaseInitStructÖĞÖ¸¶¨µÄ²ÎÊı³õÊ¼»¯TIMxµÄÊ±¼ä»ùÊıµ¥Î»
+		TIM_TimeBaseInit(TIM8, &TIM_TimeBaseStructure); //æ ¹æ®TIM_TimeBaseInitStructä¸­æŒ‡å®šçš„å‚æ•°åˆå§‹åŒ–TIMxçš„æ—¶é—´åŸºæ•°å•ä½
 		TIM_SetCompare1(TIM8, pwm_freq_C * DC1 * 0.01);
 		TIM_SetCompare2(TIM8, pwm_freq_C * DC2 * 0.01);
 		TIM_SetCompare3(TIM8, pwm_freq_C * DC3 * 0.01);
@@ -1058,10 +1058,10 @@ void SetPWMfreq(GPIO_TypeDef* GPIOx, int freq)
 }
 
 /*
- * ¼ÆÊ±Æ÷ÖĞ¶Ï!!!²»×¼£¬»¹Ã»ÓĞ²âÊÔ
- * Ê±ÖÓÆµÂÊÎª2kHz,×îĞ¡Ê±»ùÎª0.5ms,×î´ó¼ÆÊ±Ê±¼äÎª32s
- * ²ÎÊı:
- * 		times ¼ÆÊ±Ê±¼ä,·¶Î§(1~32000)µ¥Î»:ºÁÃë
+ * è®¡æ—¶å™¨ä¸­æ–­!!!ä¸å‡†ï¼Œè¿˜æ²¡æœ‰æµ‹è¯•
+ * æ—¶é’Ÿé¢‘ç‡ä¸º2kHz,æœ€å°æ—¶åŸºä¸º0.5ms,æœ€å¤§è®¡æ—¶æ—¶é—´ä¸º32s
+ * å‚æ•°:
+ * 		times è®¡æ—¶æ—¶é—´,èŒƒå›´(1~32000)å•ä½:æ¯«ç§’
  */
 void TIM7_init(uint16_t times)
 {
@@ -1069,25 +1069,25 @@ void TIM7_init(uint16_t times)
 	NVIC_InitTypeDef NVIC_InitStructure;
 	NVIC_InitStructure.NVIC_IRQChannel = TIM7_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1; //ÅäÖÃÇÀ¶ÏÓÅÏÈ¼¶
-	NVIC_Init(&NVIC_InitStructure); //ÉèÖÃ´æÈë¼Ä´æÆ÷
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1; //é…ç½®æŠ¢æ–­ä¼˜å…ˆçº§
+	NVIC_Init(&NVIC_InitStructure); //è®¾ç½®å­˜å…¥å¯„å­˜å™¨
 
 	if (times <= 0)
 		times = 1000;
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
-	//Ô¤·ÖÆµÏµÊıÎª36000-1,ÕâÑù¼ÆÊıÆ÷Ê±ÖÓÎª72MHz/36000 = 2kHz,·Ö±æÂÊÎª0.5ms
+	//é¢„åˆ†é¢‘ç³»æ•°ä¸º36000-1,è¿™æ ·è®¡æ•°å™¨æ—¶é’Ÿä¸º72MHz/36000 = 2kHz,åˆ†è¾¨ç‡ä¸º0.5ms
 	TIM_TimeBaseStructure.TIM_Prescaler = 36000 - 1;
-	//ÉèÖÃÊ±ÖÓ·Ö¸î TIM_CKD_DIV1=0x0000,²»·Ö¸î
+	//è®¾ç½®æ—¶é’Ÿåˆ†å‰² TIM_CKD_DIV1=0x0000,ä¸åˆ†å‰²
 	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
-	//ÉèÖÃ¼ÆÊıÆ÷Ä£Ê½ÎªÏòÉÏ¼ÆÊıÄ£Ê½
+	//è®¾ç½®è®¡æ•°å™¨æ¨¡å¼ä¸ºå‘ä¸Šè®¡æ•°æ¨¡å¼
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
-	//ÉèÖÃ¼ÆÊıÒç³ö´óĞ¡£¬Ã¿¼Æ2000¸öÊı¾Í²úÉúÒ»¸ö¸üĞÂÊÂ¼ş
+	//è®¾ç½®è®¡æ•°æº¢å‡ºå¤§å°ï¼Œæ¯è®¡2000ä¸ªæ•°å°±äº§ç”Ÿä¸€ä¸ªæ›´æ–°äº‹ä»¶
 	TIM_TimeBaseStructure.TIM_Period = times * 2 - 1;
-	TIM_TimeBaseStructure.TIM_RepetitionCounter = 0; //½«ÅäÖÃÓ¦ÓÃµ½TIM7ÖĞ
+	TIM_TimeBaseStructure.TIM_RepetitionCounter = 0; //å°†é…ç½®åº”ç”¨åˆ°TIM7ä¸­
 	TIM_TimeBaseInit(TIM7, &TIM_TimeBaseStructure);
-	TIM_UpdateRequestConfig( TIM7, TIM_UpdateSource_Regular); //Ê¹ÄÜ¼ÆÊıÆ÷
-	TIM_Cmd(TIM7, ENABLE); //Ê¹ÄÜÖĞ¶Ï
-	TIM_ITConfig(TIM7, TIM_IT_Update, ENABLE); //Çå³ı±êÖ¾Î»
+	TIM_UpdateRequestConfig( TIM7, TIM_UpdateSource_Regular); //ä½¿èƒ½è®¡æ•°å™¨
+	TIM_Cmd(TIM7, ENABLE); //ä½¿èƒ½ä¸­æ–­
+	TIM_ITConfig(TIM7, TIM_IT_Update, ENABLE); //æ¸…é™¤æ ‡å¿—ä½
 	TIM_ClearFlag(TIM7, TIM_FLAG_Update);
 }
 
@@ -1100,10 +1100,10 @@ void TIM7_IRQHandler(void)
 	}
 }
 
-/***************************************************CAN×ÜÏßÏà¹Ø²Ù×÷*******************************************************/
+/***************************************************CANæ€»çº¿ç›¸å…³æ“ä½œ*******************************************************/
 /*
- * CAN×ÜÏß»ù±¾ÉèÖÃ
- * Òı½Å,ÖĞ¶Ï,Ê±ÖÓÉèÖÃ
+ * CANæ€»çº¿åŸºæœ¬è®¾ç½®
+ * å¼•è„š,ä¸­æ–­,æ—¶é’Ÿè®¾ç½®
  */
 void CAN_INIT()
 {
@@ -1115,7 +1115,7 @@ void CAN_INIT()
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 
 #ifdef USE_CAN_PB
-	//ÖØÓ³Éäµ½PB¶Ë¿Ú
+	//é‡æ˜ å°„åˆ°PBç«¯å£
 	/* Configure CAN pin: RX */
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
@@ -1126,11 +1126,11 @@ void CAN_INIT()
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
 
-	GPIO_PinRemapConfig(GPIO_Remap1_CAN1, ENABLE);	   //ÖØÓ°ÉäCAN IO½Åµ½ PB8,PB9
+	GPIO_PinRemapConfig(GPIO_Remap1_CAN1, ENABLE);	   //é‡å½±å°„CAN IOè„šåˆ° PB8,PB9
 #endif
 
 #ifdef USE_CAN_PA
-	//²»ÖØĞÂÓ³Éä,PA¶Ë¿Ú
+	//ä¸é‡æ–°æ˜ å°„,PAç«¯å£
 	/* Configure CAN pin: RX */
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
@@ -1158,8 +1158,8 @@ void CAN_INIT()
 }
 
 /*
- * CAN×ÜÏß»ù±¾ÉèÖÃ(ÂÖÑ¯Ä£Ê½,²»Ê¹ÓÃÖĞ¶Ï)
- * ÉèÖÃ×ÜÏßÄ£Ê½,×ÜÏßÆµÂÊ(Ä¿Ç°250kHz),¹ıÂËÆ÷
+ * CANæ€»çº¿åŸºæœ¬è®¾ç½®(è½®è¯¢æ¨¡å¼,ä¸ä½¿ç”¨ä¸­æ–­)
+ * è®¾ç½®æ€»çº¿æ¨¡å¼,æ€»çº¿é¢‘ç‡(ç›®å‰250kHz),è¿‡æ»¤å™¨
  */
 void CAN_POLLING_INIT()
 {
@@ -1200,7 +1200,7 @@ void CAN_POLLING_INIT()
 }
 
 /*
- * ÂÖÑ¯Ä£Ê½ÏûÏ¢·¢ËÍ
+ * è½®è¯¢æ¨¡å¼æ¶ˆæ¯å‘é€
  */
 void CAN_POLLING_SEND(CanTxMsg TxMessage)
 {
@@ -1214,8 +1214,8 @@ void CAN_POLLING_SEND(CanTxMsg TxMessage)
 }
 
 /*
- * ÂÖÑ¯Ä£Ê½ÏûÏ¢½ÓÊÕ
- * ·µ»ØCanRxMsgÀàĞÍÊı¾İ
+ * è½®è¯¢æ¨¡å¼æ¶ˆæ¯æ¥æ”¶
+ * è¿”å›CanRxMsgç±»å‹æ•°æ®
  */
 CanRxMsg CAN_POLLING_REC()
 {
@@ -1231,8 +1231,8 @@ CanRxMsg CAN_POLLING_REC()
 }
 
 /*
- * CAN×ÜÏßÖĞ¶Ï·½Ê½³õÊ¼»¯
- * ÉèÖÃ×ÜÏßÄ£Ê½,×ÜÏßÆµÂÊ(Ä¿Ç°250kHz),¹ıÂËÆ÷
+ * CANæ€»çº¿ä¸­æ–­æ–¹å¼åˆå§‹åŒ–
+ * è®¾ç½®æ€»çº¿æ¨¡å¼,æ€»çº¿é¢‘ç‡(ç›®å‰250kHz),è¿‡æ»¤å™¨
  */
 void CAN_IT_INIT()
 {
@@ -1276,7 +1276,7 @@ void CAN_IT_INIT()
 }
 
 /*
- * ÖĞ¶ÏÄ£Ê½Êı¾İ·¢ËÍ
+ * ä¸­æ–­æ¨¡å¼æ•°æ®å‘é€
  */
 void CAN_IT_SEND(CanTxMsg TxMessage)
 {
@@ -1286,15 +1286,49 @@ void CAN_IT_SEND(CanTxMsg TxMessage)
 //CanRxMsg CAN_IT_REC();
 
 /*
- * CAN×ÜÏß½ÓÊÕÖĞ¶Ï
+ * CANæ€»çº¿æ¥æ”¶ä¸­æ–­
  */
 void USB_LP_CAN1_RX0_IRQHandler(void)
 {
-
 	CanRxMsg RxMessage;
-
 	CAN_Receive(CAN1, CAN_FIFO0, &RxMessage);
 	Analysys(RxMessage);
 
 }
 
+/*
+ * çœ‹é—¨ç‹—åˆå§‹åŒ–,å¹¶ä¸”ä½¿èƒ½
+ * å‚æ•°:
+ * 		Div:åˆ†é¢‘ç³»æ•°é€‰æ‹©,å¯ä¸ºä»¥ä¸‹å€¼:
+  *     	@arg IWDG_Prescaler_4: IWDG prescaler set to 4
+  *     	@arg IWDG_Prescaler_8: IWDG prescaler set to 8
+  *     	@arg IWDG_Prescaler_16: IWDG prescaler set to 16
+  *     	@arg IWDG_Prescaler_32: IWDG prescaler set to 32
+  *     	@arg IWDG_Prescaler_64: IWDG prescaler set to 64
+  *     	@arg IWDG_Prescaler_128: IWDG prescaler set to 128
+  *     	@arg IWDG_Prescaler_256: IWDG prescaler set to 256
+ *
+ *      No:è®¡æ•°æ•°å€¼
+ *
+ *      çœ‹é—¨ç‹—æ—¶é’Ÿé¢‘ç‡ä¸º40kHz,æœ€ç»ˆè®¡æ—¶æ—¶é—´ä¸º(1/40000)*Div*No (s)
+ *      ä¾‹å¦‚64åˆ†é¢‘,é‡è£…è½½å€¼ä¸º625,é‚£ä¹ˆçœ‹é—¨ç‹—è®¡æ—¶ä¸º1ç§’é’Ÿ
+ *
+ */
+void IWDG_INIT(uint8_t Div,u16 No)
+{
+ 	IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable);  //ä½¿èƒ½å¯¹å¯„å­˜å™¨IWDG_PRå’ŒIWDG_RLRçš„å†™æ“ä½œ
+
+	IWDG_SetPrescaler(Div);  //è®¾ç½®IWDGé¢„åˆ†é¢‘å€¼
+
+	IWDG_SetReload(No);  //è®¾ç½®IWDGé‡è£…è½½å€¼
+
+	IWDG_ReloadCounter();  //æŒ‰ç…§IWDGé‡è£…è½½å¯„å­˜å™¨çš„å€¼é‡è£…è½½IWDGè®¡æ•°å™¨
+
+	IWDG_Enable();  //ä½¿èƒ½IWDG
+}
+
+/*å–‚ç‹—*/
+void IWDG_Feed(void)
+{
+ 	IWDG_ReloadCounter();
+}

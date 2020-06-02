@@ -8,16 +8,13 @@
  *
  */
 
-//wx pullup
-
-//123
-
 /*include*/
 #include "stm32f10x.h"
 #include <stdio.h>
 #include <stddef.h>
-#include "UserConfig.h"
+#include "UserConfig.h"//用户库调用
 
+/*操作系统库函数调用*/
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
@@ -31,28 +28,18 @@ typedef enum
 
 } NB_STAT;
 
-Cach1 Pack1;
-Cach2 Pack2;
-Cach3 Pack3;
-Cach4 Pack4;
-Cach5 Pack5;
-Cach6 Pack6;
-Cach7 Pack7;
 
-char receives[15][10][100]; //可支持19条指令(1~19)[0舍弃不用],每条指令可接收5调返回信息(0~4),每条返回信息长度最长98(0~97)[99作为单条信息长度数据记录位]
-uint8_t x_axis = 0, y_axis = 0, cmd_axis = 0;
-int time_count = 0;
-int count = 0;
 
-GPS_DATA GPSDATA = { .ATW = false };
-GPS_INIT GPSINIT = { .matchCount = 0, .cmdHead = false, .match[0]='G', .match[1]='N', .match[2]='R',
-        .match[3]='M', .match[4]='C', .splitTime = 0, .dataCount = 0 };
+
+
+
 
 
 int main(void)
 {
-	usart_1_init(9600);
-	usart_3_init(9600, 1);
+//	DBGMCU_IWDG_STOP;
+
+
 
 	void RTC_1s_it_init(); //RTC计时1s初始化
 	void RTC_Handler(void (*temp_function)); //RTC中断函数传递函数
@@ -62,7 +49,7 @@ int main(void)
 //	delay_us(9000000);	//15s
 //	printf("ok");
 //	BC28_Init();
-	GPSDATA.ATW = true;
+
 	int count = 0;
 	while (1)
 	{
@@ -81,7 +68,7 @@ int main(void)
 //		{
 //			pack_to_aliyun();
 //		}
-		GPSDATA.ATW = true;
+
 //		while (GPSDATA.ATW == true)
 //			;
 
@@ -91,57 +78,5 @@ int main(void)
 	}
 }
 
-void USART1_IRQHandler(void)
-{
-	char temp;
-	if (USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)	//接收到数据
-	{
-		USART_ClearITPendingBit(USART1, USART_IT_RXNE); //清除接收中断标志
-		temp = USART_ReceiveData(USART1); //接收串口1数据到buff缓冲区
-		receives[cmd_axis][y_axis][x_axis] = temp;
-		x_axis++;
-		if (temp == '\n')
-		{
-			receives[cmd_axis][y_axis][99] = x_axis;
-			y_axis++;
-			x_axis = 0;
-		}
-	}
-}
 
-char GpstempChar;
-char GpsCharToConvert[20];
-char datas[100];
-int counts = 0;
-void USART3_IRQHandler(void)
-{
-//	GPSINIT.ATR=false;
-	if (USART_GetFlagStatus(USART3, USART_FLAG_ORE) != RESET) //注意！不能使用if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)来判断
-	{
-		USART_ReceiveData(USART3);
-	}
-	//正在处理上一条通讯，接收到数据不处理
-	if (GPSINIT.ATR == true)
-	{
-		USART_ReceiveData(USART3);
-		USART_ClearITPendingBit(USART3, USART_IT_RXNE); //清除接收中断标志
-		return;
-	}
-	if (USART_GetITStatus(USART3, USART_IT_RXNE) != RESET) //接收到数据
-	{
-		datas[counts] = USART_ReceiveData(USART3);
-		if (datas[counts] == '$')
-			datas[0] = '$';
-		if (datas[counts] == '\n')
-		{
-			counts = 0;
-			USART_ClearITPendingBit(USART3, USART_IT_RXNE); //清除接收中断标志
-			GPSINIT.ATR = true;
-			GPSINIT.splitTime=0;
-			return;
-		}
-		counts++;
-		USART_ClearITPendingBit(USART3, USART_IT_RXNE); //清除接收中断标志
-	}
-}
 

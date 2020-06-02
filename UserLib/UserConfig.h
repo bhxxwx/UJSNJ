@@ -1,61 +1,72 @@
 /*
  * UserConfig.h
  *
- *  Created on: 2020Äê4ÔÂ12ÈÕ
+ *  Created on: 2020å¹´4æœˆ12æ—¥
  *      Author: WangXiang
  */
 
 #ifndef USERCONFIG_H_
 #define USERCONFIG_H_
 #include <stddef.h>
-#include "stm32f10x.h"
 #include <string.h>
 #include <misc.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <math.h>
+
+#include "stm32f10x.h"
+#include "stm32f10x_spi.h"
+#include "stm32f10x_gpio.h"
+#include "stm32f10x_usart.h"
+#include "stm32f10x_wwdg.h"
+#include "stm32f10x_tim.h"
+#include "stm32f10x_iwdg.h"
+#include "stm32f10x_dma.h"
+#include "stm32f10x_dbgmcu.h"
+
 #include "Gen/GenLib.h"
 #include "oled/oled.h"
 #include "keys/keys.h"
-#include "Servers.h"
+#include "Functions/Servers.h"
+#include "DATAstruct/DATAstruct.h"
 #include "SPI_FLASH/SPI_FLASH.h"
-#include "stm32f10x_spi.h"
-
-/*---------------------------OLED-IICÉèÖÃ--------------------------*/
-//Èç¹ûÑ¡ÓÃÁËB¶Ë¿Ú¼´ĞŞ¸ÄÎª IIC_SDA_Poart_B¼´¿É
+#include "Functions/BC28orEC20/BC28orEC20.h"
+#include "Functions/GPS/GPS.h"
+#include "Functions/CAN/CAN.h"
+/*---------------------------OLED-IICè®¾ç½®--------------------------*/
+//å¦‚æœé€‰ç”¨äº†Bç«¯å£å³ä¿®æ”¹ä¸º IIC_SDA_Poart_Bå³å¯
 #define IIC_SDA_Poart_A
 
-//Èç¹ûÑ¡ÓÃÁËÆäËûÒı½ÅÈç8ºÅÒı½Å¼´ GPIO_Pin_8¼´¿É
+//å¦‚æœé€‰ç”¨äº†å…¶ä»–å¼•è„šå¦‚8å·å¼•è„šå³ GPIO_Pin_8å³å¯
 #define IIC_SDA_Pin GPIO_Pin_7
 
 #define IIC_SCL_Poart_A
 #define IIC_SCL_Pin GPIO_Pin_6
 
-/*------------------------´®¿Ú»º³åÇø´óĞ¡ÉèÖÃ------------------------*/
+/*------------------------ä¸²å£ç¼“å†²åŒºå¤§å°è®¾ç½®------------------------*/
 #define usart_buffer_size 500
 
-/*-----------------------------PWMÉèÖÃ-----------------------------*/
-//#define PWM_Complementary_B//¶¨ÒåPB¿ÚPWM´æÔÚ»¥²¹Êä³ö,È¡Ïû×¢ÊÍºóPB6ÓÚPB8»¥²¹,PB7ÓÚPB9»¥²¹
-//#define PWM_Complementary_C//¶¨ÒåPC¿ÚPWM´æÔÚ»¥²¹Êä³ö,È¡Ïû×¢ÊÍºóPC6ÓÚPC8»¥²¹,PC7ÓÚPC9»¥²¹
+/*-----------------------------PWMè®¾ç½®-----------------------------*/
+//#define PWM_Complementary_B//å®šä¹‰PBå£PWMå­˜åœ¨äº’è¡¥è¾“å‡º,å–æ¶ˆæ³¨é‡ŠåPB6äºPB8äº’è¡¥,PB7äºPB9äº’è¡¥
+//#define PWM_Complementary_C//å®šä¹‰PCå£PWMå­˜åœ¨äº’è¡¥è¾“å‡º,å–æ¶ˆæ³¨é‡ŠåPC6äºPC8äº’è¡¥,PC7äºPC9äº’è¡¥
 
 /*
- * PWMÄ¬ÈÏÆµÂÊÉèÖÃ
- * PWMÆµÂÊ¼ÆËã¹«Ê½:72000/(899+1)=80kHz
+ * PWMé»˜è®¤é¢‘ç‡è®¾ç½®
+ * PWMé¢‘ç‡è®¡ç®—å…¬å¼:72000/(899+1)=80kHz
  */
-#define PWM_Freq_B 7199//10KHz
+#define PWM_Freq_B 7199 //10KHz
 //#define PWM_Freq_B 1799//40kHz
 //#define PWM_Freq_B 899//80kHz
 //#define PWM_Freq_B 719//100kHz
 
-#define PWM_Freq_C 719//100KHz
+#define PWM_Freq_C 719 //100KHz
 
+/*------------------------CANæ€»çº¿è®¾ç½®------------------------------*/
+#define USE_CAN_PA //ä½¿ç”¨PAå£CANæ€»çº¿<ä¸é‡æ˜ å°„ç®¡è„š>
+//#define USE_CAN_PB	//ä½¿ç”¨PBå£CANæ€»çº¿<é‡æ˜ å°„ç®¡è„š>
 
-/*------------------------CAN×ÜÏßÉèÖÃ------------------------------*/
-#define USE_CAN_PA	//Ê¹ÓÃPA¿ÚCAN×ÜÏß<²»ÖØÓ³Éä¹Ü½Å>
-//#define USE_CAN_PB	//Ê¹ÓÃPB¿ÚCAN×ÜÏß<ÖØÓ³Éä¹Ü½Å>
-
-
-/*------------------------±àÂë¿ª¹ØÒı½ÅÉèÖÃ-------------------------*/
-//ÈôÊ¹ÓÃ»¹ĞèÒªµ½keys/keys.cÀïÃæ¸ÄĞ´ÖĞ¶Ï·şÎñº¯Êı!!
+/*------------------------ç¼–ç å¼€å…³å¼•è„šè®¾ç½®-------------------------*/
+//è‹¥ä½¿ç”¨è¿˜éœ€è¦åˆ°keys/keys.cé‡Œé¢æ”¹å†™ä¸­æ–­æœåŠ¡å‡½æ•°!!
 #define E1_1_Poart_B
 #define E1_1 GPIO_Pin_1
 #define E1_1_IT GPIO_PinSource1

@@ -1,7 +1,7 @@
 /*
  * oled.h
  *
- *  Created on: 2020Äê4ÔÂ11ÈÕ
+ *  Created on: 2020å¹´4æœˆ11æ—¥
  *      Author: WangXiang
  *  LastWrite:2020/4/19
  *  Version:V2.0
@@ -13,34 +13,30 @@
 #include <stdarg.h>
 //#include "Gen/GenLib.h"
 
-#define XLevelL           0x00//µÍÎ»µØÖ·
-#define XLevelH           0x10//¸ßÎ»µØÖ·
-#define XLevel            ((XLevelH&0x0F)*16+XLevelL)
-#define Max_Column        128//×î´óÆÁÄ»ÏñËØ¿í¶È
-#define Max_Row           64 //×î´óÆÁÄ»ÏñËØ¿í¶È
-#define Brightness        0x78 //IICÆğÊ¼µØÖ·
-#define X_WIDTH           128//ÆÁÄ»ÏñËØ¿í¶È
-#define Y_WIDTH           64 //ÆÁÄ»ÏñËØ¸ß¶È
+#define XLevelL 0x00 //ä½ä½åœ°å€
+#define XLevelH 0x10 //é«˜ä½åœ°å€
+#define XLevel ((XLevelH & 0x0F) * 16 + XLevelL)
+#define Max_Column 128  //æœ€å¤§å±å¹•åƒç´ å®½åº¦
+#define Max_Row 64      //æœ€å¤§å±å¹•åƒç´ å®½åº¦
+#define Brightness 0x78 //IICèµ·å§‹åœ°å€
+#define X_WIDTH 128     //å±å¹•åƒç´ å®½åº¦
+#define Y_WIDTH 64      //å±å¹•åƒç´ é«˜åº¦
 
-void IIC_delayus(unsigned int i);//IICÍ¨Ñ¶ÑÓÊ±(Ò»°ãÓÃ²»µ½)
+void IIC_delayus(unsigned int i); //IICé€šè®¯å»¶æ—¶(ä¸€èˆ¬ç”¨ä¸åˆ°)
 
-void IIC_start(void); //¿ªÊ¼IICÍ¨ĞÅ
-void IIC_stop(void); //½áÊøIICÍ¨ĞÅ
-void IIC_writebyte(unsigned char IIC_byte); //Ğ´×Ö½Ú
-void IIC_writecmd(unsigned char IIC_command); //Ğ´ÃüÁî
-void IIC_writedata(unsigned char IIC_data); //Ğ´Êı¾İ
+void IIC_start(void);                         //å¼€å§‹IICé€šä¿¡
+void IIC_stop(void);                          //ç»“æŸIICé€šä¿¡
+void IIC_writebyte(unsigned char IIC_byte);   //å†™å­—èŠ‚
+void IIC_writecmd(unsigned char IIC_command); //å†™å‘½ä»¤
+void IIC_writedata(unsigned char IIC_data);   //å†™æ•°æ®
 
-
-void oled_Set_Pos(unsigned char x, unsigned char y); //ÉèÖÃÏÔÊ¾Î»ÖÃ
-void oled_CLS(void); //ÇåÆÁ
-void oled_Init(void); //OLEDÆÁ³õÊ¼»¯
-void oled_ShowChar(unsigned char x, unsigned char y, unsigned char chr); //ÏÔÊ¾×Ö·û
-void oled_ShowString(unsigned char x, unsigned char y, unsigned char *chr); //ÏÔÊ¾×Ö·û´®
-void oled_ShowNum(unsigned char x, unsigned char y, unsigned long num, unsigned char len, unsigned char size2); //ÏÔÊ¾Êı×Ö
-unsigned long oled_pow(unsigned char m, unsigned char n); //×Ö·ûÇóÃİº¯Êı
-
-
-
+void oled_Set_Pos(unsigned char x, unsigned char y);                                                            //è®¾ç½®æ˜¾ç¤ºä½ç½®
+void oled_CLS(void);                                                                                            //æ¸…å±
+void oled_Init(void);                                                                                           //OLEDå±åˆå§‹åŒ–
+void oled_ShowChar(unsigned char x, unsigned char y, unsigned char chr);                                        //æ˜¾ç¤ºå­—ç¬¦
+void oled_ShowString(unsigned char x, unsigned char y, unsigned char *chr);                                     //æ˜¾ç¤ºå­—ç¬¦ä¸²
+void oled_ShowNum(unsigned char x, unsigned char y, unsigned long num, unsigned char len, unsigned char size2); //æ˜¾ç¤ºæ•°å­—
+unsigned long oled_pow(unsigned char m, unsigned char n);                                                       //å­—ç¬¦æ±‚å¹‚å‡½æ•°
 
 void ts_itoa(char **buf, unsigned int d, int base);
 int ts_formatstring(char *buf, const char *fmt, va_list va);

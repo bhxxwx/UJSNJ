@@ -1,7 +1,7 @@
 /*
  * SPI_FLASH.h
  *
- *  Created on: 2020Äê5ÔÂ22ÈÕ
+ *  Created on: 2020å¹´5æœˆ22æ—¥
  *      Author: WangXiang
  */
 
@@ -9,8 +9,6 @@
 #define SPI_FLASH_SPI_FLASH_H_
 #include "UserConfig.h"
 #include <stdarg.h>
-
-
 
 #define Page1 0x0
 #define Page2 0x200
@@ -269,23 +267,17 @@
 #define Page255 0x1fc00
 #define Page256 0x1fe00
 
+#define CS_HIGH digitalWriteA(GPIO_Pin_4, HIGH)
+#define CS_LOW digitalWriteA(GPIO_Pin_4, LOW)
 
-
-#define CS_HIGH digitalWriteA(GPIO_Pin_4,HIGH)
-#define CS_LOW digitalWriteA(GPIO_Pin_4,LOW)
-
-extern int SPI_printf(uint32_t page,const char *fmt, ...);
+extern int SPI_printf(uint32_t page, const char *fmt, ...);
 
 void SPI_INIT();
 void SPI_write(u8 TxData);
-void SPI_writeStr(uint32_t page,char *str);
-
-
+void SPI_writeStr(uint32_t page, char *str);
 
 void WREN();
 void ERDI();
-
-
 
 void ts_itoa(char **buf, unsigned int d, int base);
 int ts_formatstring(char *buf, const char *fmt, va_list va);

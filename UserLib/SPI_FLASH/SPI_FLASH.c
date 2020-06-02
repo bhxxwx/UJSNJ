@@ -1,75 +1,68 @@
 /*
  * SPI_FLASH.c
  *
- *  Created on: 2020Äê5ÔÂ22ÈÕ
+ *  Created on: 2020å¹´5æœˆ22æ—¥
  *      Author: WangXiang
  */
 #include "SPI_FLASH.h"
 #include "UserConfig.h"
 #include <stdarg.h>
-__attribute__ ((alias("SPI_iprintf"))) int SPI_printf(uint32_t page,const char *fmt, ...);
+__attribute__((alias("SPI_iprintf"))) int SPI_printf(uint32_t page, const char *fmt, ...);
 
 void SPI_INIT()
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
-	SPI_InitTypeDef  SPI_InitStructure;
+	SPI_InitTypeDef SPI_InitStructure;
 
-	RCC_APB2PeriphClockCmd(	RCC_APB2Periph_GPIOA|RCC_APB2Periph_SPI1, ENABLE );
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_SPI1, ENABLE);
 
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;  //¸´ÓÃÍÆÍìÊä³ö
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP; //å¤ç”¨æ¨æŒ½è¾“å‡º
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
+	GPIO_ResetBits(GPIOA, GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7);
 
- 	GPIO_ResetBits(GPIOA,GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7);
+	SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex; //è®¾ç½®SPIå•å‘æˆ–è€…åŒå‘çš„æ•°æ®æ¨¡å¼:SPIè®¾ç½®ä¸ºåŒçº¿åŒå‘å…¨åŒå·¥
+	SPI_InitStructure.SPI_Mode = SPI_Mode_Master;					   //è®¾ç½®SPIå·¥ä½œæ¨¡å¼:è®¾ç½®ä¸ºä¸»SPI
+	SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;				   //è®¾ç½®SPIçš„æ•°æ®å¤§å°:SPIå‘é€æ¥æ”¶8ä½å¸§ç»“æ„
+	SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;						   //é€‰æ‹©äº†ä¸²è¡Œæ—¶é’Ÿçš„ç¨³æ€:æ—¶é’Ÿæ‚¬ç©ºé«˜
+	SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;					   //æ•°æ®æ•è·äºç¬¬äºŒä¸ªæ—¶é’Ÿæ²¿
+	SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;						   //NSSä¿¡å·ç”±ç¡¬ä»¶ï¼ˆNSSç®¡è„šï¼‰è¿˜æ˜¯è½¯ä»¶ï¼ˆä½¿ç”¨SSIä½ï¼‰ç®¡ç†:å†…éƒ¨NSSä¿¡å·æœ‰SSIä½æ§åˆ¶
+	SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_4; //å®šä¹‰æ³¢ç‰¹ç‡é¢„åˆ†é¢‘çš„å€¼:æ³¢ç‰¹ç‡é¢„åˆ†é¢‘å€¼ä¸º8-9M
+	SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;				   //æŒ‡å®šæ•°æ®ä¼ è¾“ä»MSBä½è¿˜æ˜¯LSBä½å¼€å§‹:æ•°æ®ä¼ è¾“ä»MSBä½å¼€å§‹
+	SPI_InitStructure.SPI_CRCPolynomial = 7;						   //CRCå€¼è®¡ç®—çš„å¤šé¡¹å¼
+	SPI_Init(SPI1, &SPI_InitStructure);								   //æ ¹æ®SPI_InitStructä¸­æŒ‡å®šçš„å‚æ•°åˆå§‹åŒ–å¤–è®¾SPIxå¯„å­˜å™¨
 
-	SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;  //ÉèÖÃSPIµ¥Ïò»òÕßË«ÏòµÄÊı¾İÄ£Ê½:SPIÉèÖÃÎªË«ÏßË«ÏòÈ«Ë«¹¤
-	SPI_InitStructure.SPI_Mode = SPI_Mode_Master;		//ÉèÖÃSPI¹¤×÷Ä£Ê½:ÉèÖÃÎªÖ÷SPI
-	SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;		//ÉèÖÃSPIµÄÊı¾İ´óĞ¡:SPI·¢ËÍ½ÓÊÕ8Î»Ö¡½á¹¹
-	SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;		//Ñ¡ÔñÁË´®ĞĞÊ±ÖÓµÄÎÈÌ¬:Ê±ÖÓĞü¿Õ¸ß
-	SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;	//Êı¾İ²¶»ñÓÚµÚ¶ş¸öÊ±ÖÓÑØ
-	SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;		//NSSĞÅºÅÓÉÓ²¼ş£¨NSS¹Ü½Å£©»¹ÊÇÈí¼ş£¨Ê¹ÓÃSSIÎ»£©¹ÜÀí:ÄÚ²¿NSSĞÅºÅÓĞSSIÎ»¿ØÖÆ
-	SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_4;		//¶¨Òå²¨ÌØÂÊÔ¤·ÖÆµµÄÖµ:²¨ÌØÂÊÔ¤·ÖÆµÖµÎª8-9M
-	SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;	//Ö¸¶¨Êı¾İ´«Êä´ÓMSBÎ»»¹ÊÇLSBÎ»¿ªÊ¼:Êı¾İ´«Êä´ÓMSBÎ»¿ªÊ¼
-	SPI_InitStructure.SPI_CRCPolynomial = 7;	//CRCÖµ¼ÆËãµÄ¶àÏîÊ½
-	SPI_Init(SPI1, &SPI_InitStructure);  //¸ù¾İSPI_InitStructÖĞÖ¸¶¨µÄ²ÎÊı³õÊ¼»¯ÍâÉèSPIx¼Ä´æÆ÷
-
-//	SPI_NSSInternalSoftwareConfig(SPI1,SPI_NSSInternalSoft_Reset);
-	pinModeA(GPIO_Pin_4,OUTPUT);
-	SPI_SSOutputCmd(SPI1,ENABLE);
-	SPI_Cmd(SPI1, ENABLE); //Ê¹ÄÜSPIÍâÉè
+	//	SPI_NSSInternalSoftwareConfig(SPI1,SPI_NSSInternalSoft_Reset);
+	pinModeA(GPIO_Pin_4, OUTPUT);
+	SPI_SSOutputCmd(SPI1, ENABLE);
+	SPI_Cmd(SPI1, ENABLE); //ä½¿èƒ½SPIå¤–è®¾
 	CS_HIGH;
 }
 
-
-
 void SPI_write(u8 TxData)
 {
-	u8 retry=0;
+	u8 retry = 0;
 
-	while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET) //¼ì²éÖ¸¶¨µÄSPI±êÖ¾Î»ÉèÖÃÓë·ñ:·¢ËÍ»º´æ¿Õ±êÖ¾Î»
-		{
+	while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET) //æ£€æŸ¥æŒ‡å®šçš„SPIæ ‡å¿—ä½è®¾ç½®ä¸å¦:å‘é€ç¼“å­˜ç©ºæ ‡å¿—ä½
+	{
 		retry++;
-		if(retry>200)
+		if (retry > 200)
 			return;
-		}
-	SPI_I2S_SendData(SPI1, TxData); //Í¨¹ıÍâÉèSPIx·¢ËÍÒ»¸öÊı¾İ
-
-
-
+	}
+	SPI_I2S_SendData(SPI1, TxData); //é€šè¿‡å¤–è®¾SPIxå‘é€ä¸€ä¸ªæ•°æ®
 }
 
-
-void SPI_writeStr(uint32_t page,char *str)
+void SPI_writeStr(uint32_t page, char *str)
 {
-	SPI_write((page>>16)&(0xFF));
-	SPI_write((page>>8)&(0xFF));
-	SPI_write((page)&(0xFF));
+	SPI_write((page >> 16) & (0xFF));
+	SPI_write((page >> 8) & (0xFF));
+	SPI_write((page) & (0xFF));
 	uint16_t j = 0;
-	while (str[j] != '\0') //±éÀú×Ö·û´®£¬Ö±µ½×Ö·û´®Îª¿Õ
+	while (str[j] != '\0') //éå†å­—ç¬¦ä¸²ï¼Œç›´åˆ°å­—ç¬¦ä¸²ä¸ºç©º
 	{
-		if(j<256)
+		if (j < 256)
 		{
 			SPI_write(str[j]);
 			j++;
@@ -78,49 +71,45 @@ void SPI_writeStr(uint32_t page,char *str)
 			break;
 	}
 
-	if(j>=256)
+	if (j >= 256)
 	{
-		SPI_write(((page+256)>>16)&(0xFF));
-		SPI_write(((page+256)>>8)&(0xFF));
-		SPI_write(((page+256))&(0xFF));
-		while (str[j] != '\0') //±éÀú×Ö·û´®£¬Ö±µ½×Ö·û´®Îª¿Õ
+		SPI_write(((page + 256) >> 16) & (0xFF));
+		SPI_write(((page + 256) >> 8) & (0xFF));
+		SPI_write(((page + 256)) & (0xFF));
+		while (str[j] != '\0') //éå†å­—ç¬¦ä¸²ï¼Œç›´åˆ°å­—ç¬¦ä¸²ä¸ºç©º
 		{
-				SPI_write(str[j]);
-				j++;
+			SPI_write(str[j]);
+			j++;
 		}
 	}
-
-
 }
 
 void WREN()
 {
 	CS_LOW;
 	SPI_write(0x60);
-//	delay_us(1);
-	while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) == SET)
+	//	delay_us(1);
+	while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) == SET)
 		;
 	CS_HIGH;
-//	delay_us(1);
+	//	delay_us(1);
 	CS_LOW;
-
-
 }
 void ERDI()
 {
-//	delay_us(1);
-	while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) == SET)
+	//	delay_us(1);
+	while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) == SET)
 		;
 	CS_HIGH;
 	CS_LOW;
 	SPI_write(0x20);
-//	delay_us(1);
-	while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) == SET)
+	//	delay_us(1);
+	while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) == SET)
 		;
 	CS_HIGH;
 }
 
-int SPI_iprintf(uint32_t page,const char *fmt, ...)
+int SPI_iprintf(uint32_t page, const char *fmt, ...)
 {
 	int length = 0;
 	va_list va;
@@ -131,17 +120,15 @@ int SPI_iprintf(uint32_t page,const char *fmt, ...)
 		char buf[length];
 		va_start(va, fmt);
 		length = ts_formatstring(buf, fmt, va);
-//		WREN();
+		//		WREN();
 		CS_LOW;
 		SPI_write(0x02);
 
-
-		SPI_writeStr(page,buf);
+		SPI_writeStr(page, buf);
 		CS_HIGH;
-//		ERDI();
+		//		ERDI();
 
 		va_end(va);
 	}
 	return length;
 }
-

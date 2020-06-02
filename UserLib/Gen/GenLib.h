@@ -1,7 +1,7 @@
 /*
  * GenLib.h
  *
- *  Created on: 2019Äê11ÔÂ10ÈÕ
+ *  Created on: 2019å¹´11æœˆ10æ—¥
  *      Author: WangXiang
  *  LastWrite:2020/4/19
  *  Version:V2.0
@@ -12,8 +12,8 @@
 
 #include "UserConfig.h"
 
-/***************************************************ºê¶¨ÒåÇøÓò**********************************************************/
-//Flash Ò³Ãæºê¶¨Òå
+/***************************************************å®å®šä¹‰åŒºåŸŸ**********************************************************/
+//Flash é¡µé¢å®å®šä¹‰
 #define page250 0x0807D000
 #define page251 0x0807D800
 #define page252 0x0807E000
@@ -21,11 +21,11 @@
 #define page254 0x0807F000
 #define page255 0x0807F800
 
-//¼ÆÊ±Æ÷Æô¶¯/¹Ø±Õ
+//è®¡æ—¶å™¨å¯åŠ¨/å…³é—­
 #define systick_on SysTick->CTRL = 0X01
 #define systick_off SysTick->CTRL = 0x00
 
-//GPIOÄ£Ê½ºê¶¨Òå
+//GPIOæ¨¡å¼å®å®šä¹‰
 #define OUTPUT GPIO_Mode_Out_PP
 #define INPUT GPIO_Mode_IN_FLOATING
 #define AIN GPIO_Mode_AIN
@@ -36,81 +36,81 @@
 #define HIGH 0x1
 #define LOW 0x0
 
-//RTC¶¨Ê±¿ª/¹Ø
-#define RTC_IT_ON 	RTC_WaitForSynchro(),RTC_ITConfig(RTC_IT_SEC, ENABLE),RTC_WaitForLastTask()//¿ªÆôRTCÃ¿ÃëÖĞ¶Ï
-#define RTC_IT_OFF 	RTC_WaitForSynchro(),RTC_ITConfig(RTC_IT_SEC, DISABLE),RTC_WaitForLastTask()//¹Ø±ÕRTCÃ¿ÃëÖĞ¶Ï
+//RTCå®šæ—¶å¼€/å…³
+#define RTC_IT_ON 	RTC_WaitForSynchro(),RTC_ITConfig(RTC_IT_SEC, ENABLE),RTC_WaitForLastTask()//å¼€å¯RTCæ¯ç§’ä¸­æ–­
+#define RTC_IT_OFF 	RTC_WaitForSynchro(),RTC_ITConfig(RTC_IT_SEC, DISABLE),RTC_WaitForLastTask()//å…³é—­RTCæ¯ç§’ä¸­æ–­
 
-/***************************************************º¯ÊıÇøÓò************************************************************/
+/***************************************************å‡½æ•°åŒºåŸŸ************************************************************/
 
-//ÖĞ¶Ï³õÊ¼»¯->×é4->Ö»ÓĞÇÀÕ¼ÓÅÏÈ¼¶->0~15
+//ä¸­æ–­åˆå§‹åŒ–->ç»„4->åªæœ‰æŠ¢å ä¼˜å…ˆçº§->0~15
 void nvic_init();
 
-/***************************************************´®¿Ú Ïà¹Ø²Ù×÷********************************************************/
-//´®¿Ú³õÊ¼»¯
+/***************************************************ä¸²å£ ç›¸å…³æ“ä½œ********************************************************/
+//ä¸²å£åˆå§‹åŒ–
 void usart_1_init(int bandrate);
 void usart_2_init(int bandrate, char nvic_pree);
 void usart_3_init(int bandrate, char nvic_pree);
 
-//´®¿Ú»º³åÇø¼ì²é
+//ä¸²å£ç¼“å†²åŒºæ£€æŸ¥
 int check_usart1_cache();
 int check_usart2_cache();
 
-//¶ÁÈ¡´®¿Ú»º³åÇøÈ«²¿Êı¾İ,²¢ÇåÁã»º³åÇø
+//è¯»å–ä¸²å£ç¼“å†²åŒºå…¨éƒ¨æ•°æ®,å¹¶æ¸…é›¶ç¼“å†²åŒº
 char *usart1_readToEnd();
 char *usart2_readToEnd();
 
-//´®¿Ú·¢ËÍÊı¾İ,´®¿Ú1Ê¹ÓÃprintfº¯Êı¹ÊÒ»°ã²»ÓÃusart_1_send()
+//ä¸²å£å‘é€æ•°æ®,ä¸²å£1ä½¿ç”¨printfå‡½æ•°æ•…ä¸€èˆ¬ä¸ç”¨usart_1_send()
 void usart_1_send(uint8_t *data, int length);
 void usart_2_send(uint8_t *data, int length);
 void usart_3_send(uint8_t *data, int length);
 
-/***************************************************Ê±ÖÓÆµÂÊ Ïà¹Ø²Ù×÷****************************************************/
-//ÉèÖÃCPUÊ±ÖÓÎª72MHz,·µ»ØÏµÍ³¸÷Ê±ÖÓÆµÂÊÊıÖµ
+/***************************************************æ—¶é’Ÿé¢‘ç‡ ç›¸å…³æ“ä½œ****************************************************/
+//è®¾ç½®CPUæ—¶é’Ÿä¸º72MHz,è¿”å›ç³»ç»Ÿå„æ—¶é’Ÿé¢‘ç‡æ•°å€¼
 RCC_ClocksTypeDef set_cpu_72MHz();
 
-/***************************************************¶¨Ê± Ïà¹Ø²Ù×÷********************************************************/
-void delay_us(__IO u32 time); //Èí¼şÑÓÊ±
-void delay_tick_us(u32 time); //Ó²¼şÑÓÊ±,Ê¹ÓÃ²Ù×÷ÏµÍ³Ê±²»¿ÉÊ¹ÓÃ
+/***************************************************å®šæ—¶ ç›¸å…³æ“ä½œ********************************************************/
+void delay_us(__IO u32 time); //è½¯ä»¶å»¶æ—¶
+void delay_tick_us(u32 time); //ç¡¬ä»¶å»¶æ—¶,ä½¿ç”¨æ“ä½œç³»ç»Ÿæ—¶ä¸å¯ä½¿ç”¨
 
-/***************************************************¼ÆÊ± Ïà¹Ø²Ù×÷********************************************************/
-void RTC_1s_it_init(); //RTC¼ÆÊ±1s³õÊ¼»¯
-void RTC_Handler(void (*temp_function)); //RTCÖĞ¶Ïº¯Êı´«µİº¯Êı
+/***************************************************è®¡æ—¶ ç›¸å…³æ“ä½œ********************************************************/
+void RTC_1s_it_init(); //RTCè®¡æ—¶1såˆå§‹åŒ–
+void RTC_Handler(void (*temp_function)); //RTCä¸­æ–­å‡½æ•°ä¼ é€’å‡½æ•°
 
-//ÏµÍ³¼ÆÊ±Æ÷SystemTick,Ê¹ÓÃ²Ù×÷ÏµÍ³Ê±²»¿ÉÊ¹ÓÃ
-void systick_delay(u32 time, void (*temp_function)); //ÏµÍ³¼ÆÊ±Æ÷SystemTick¶¨Ê±ÖĞ¶Ï
+//ç³»ç»Ÿè®¡æ—¶å™¨SystemTick,ä½¿ç”¨æ“ä½œç³»ç»Ÿæ—¶ä¸å¯ä½¿ç”¨
+void systick_delay(u32 time, void (*temp_function)); //ç³»ç»Ÿè®¡æ—¶å™¨SystemTickå®šæ—¶ä¸­æ–­
 
-void time_counter_init(); //¼ÆÊ±Æ÷³õÊ¼»¯
-int time_counter_value(); //ÏµÍ³¼ÆÊ±Æ÷·µ»Ø¼ÆÊ±Öµ
+void time_counter_init(); //è®¡æ—¶å™¨åˆå§‹åŒ–
+int time_counter_value(); //ç³»ç»Ÿè®¡æ—¶å™¨è¿”å›è®¡æ—¶å€¼
 
 void TIM7_init(uint16_t times);
 
-/***************************************************GPIO Ïà¹Ø²Ù×÷********************************************************/
-//GPIOÄ£Ê½Éè¶¨
+/***************************************************GPIO ç›¸å…³æ“ä½œ********************************************************/
+//GPIOæ¨¡å¼è®¾å®š
 void pinModeA(uint16_t GPIO_Pin, GPIOMode_TypeDef GPIO_Mode);
 void pinModeB(uint16_t GPIO_Pin, GPIOMode_TypeDef GPIO_Mode);
 void pinModeC(uint16_t GPIO_Pin, GPIOMode_TypeDef GPIO_Mode);
 void pinModeD(uint16_t GPIO_Pin, GPIOMode_TypeDef GPIO_Mode);
 
-//GPIOÒı½Å¸ßµÍµçÆ½Éè¶¨
+//GPIOå¼•è„šé«˜ä½ç”µå¹³è®¾å®š
 #define digitalWriteA(GPIO_Pin, GPIO_Mode) GPIO_WriteBit(GPIOA, GPIO_Pin, GPIO_Mode)
 #define digitalWriteB(GPIO_Pin, GPIO_Mode) GPIO_WriteBit(GPIOB, GPIO_Pin, GPIO_Mode)
 #define digitalWriteC(GPIO_Pin, GPIO_Mode) GPIO_WriteBit(GPIOC, GPIO_Pin, GPIO_Mode)
 #define digitalWriteD(GPIO_Pin, GPIO_Mode) GPIO_WriteBit(GPIOD, GPIO_Pin, GPIO_Mode)
 
-//¶ÁÈ¡GPIOÒı½ÅµçÆ½
+//è¯»å–GPIOå¼•è„šç”µå¹³
 #define digitalReadA(GPIO_Pin) GPIO_ReadInputDataBit(GPIOA, GPIO_Pin)
 #define digitalReadB(GPIO_Pin) GPIO_ReadInputDataBit(GPIOB, GPIO_Pin)
 #define digitalReadC(GPIO_Pin) GPIO_ReadInputDataBit(GPIOC, GPIO_Pin)
 #define digitalReadD(GPIO_Pin) GPIO_ReadInputDataBit(GPIOD, GPIO_Pin)
 
-//¶ÁÈ¡ADC
+//è¯»å–ADC
 uint16_t analogeReadA(uint16_t GPIO_Pin);
 uint16_t analogeReadC(uint16_t GPIO_Pin);
 
-//Ğ´DAC
+//å†™DAC
 void analogWrite(uint16_t GPIO_Pin, uint16_t value);
 
-//ÉèÖÃPWMÕ¼¿Õ±È
+//è®¾ç½®PWMå ç©ºæ¯”
 void DutyCycleB(uint16_t GPIO_Pin, uint8_t Duty);
 void DutyCycleC(uint16_t GPIO_Pin, uint8_t Duty);
 
@@ -118,7 +118,7 @@ void SetPWMfreq(GPIO_TypeDef* GPIOx, int freq);
 
 void adc_init();
 
-/***************************************************CAN×ÜÏßÏà¹Ø²Ù×÷*******************************************************/
+/***************************************************CANæ€»çº¿ç›¸å…³æ“ä½œ*******************************************************/
 void CAN_INIT();
 
 void CAN_POLLING_INIT();
@@ -129,21 +129,25 @@ void CAN_IT_INIT();
 void CAN_IT_SEND(CanTxMsg TxMessage);
 //CanRxMsg CAN_IT_REC();
 
-/***************************************************Flash Ïà¹Ø²Ù×÷********************************************************/
+/***************************************************çœ‹é—¨ç‹—ç›¸å…³æ“ä½œ*******************************************************/
+void IWDG_INIT(uint8_t Div,u16 No);
+void IWDG_Feed(void);
+
+/***************************************************å†…ç½®Flashç›¸å…³æ“ä½œ********************************************************/
 /*
- * FLASHÊ¹ÓÃ×¢ÒâÊÂÏî
- *	FLASHÖ»½ÓÊÜ16Î»Ğ´Èë·½Ê½£¬µÚÒ»´ÎĞ´µØÖ·Îª0x0807F800£¬ÄÇÏÂÒ»´ÎÎª0x0807F802£¬
- *	FLASHÖĞ£¬µØÖ·Ã¿¼ÓÒ»´ú±í1¸ö×Ö½Ú8Î»£¬
- *	FLASHÖĞ£¬ËùÎ½µÄĞ´²Ù×÷¶¼ÊÇ°´Î»Óë£¬
+ * FLASHä½¿ç”¨æ³¨æ„äº‹é¡¹
+ *	FLASHåªæ¥å—16ä½å†™å…¥æ–¹å¼ï¼Œç¬¬ä¸€æ¬¡å†™åœ°å€ä¸º0x0807F800ï¼Œé‚£ä¸‹ä¸€æ¬¡ä¸º0x0807F802ï¼Œ
+ *	FLASHä¸­ï¼Œåœ°å€æ¯åŠ ä¸€ä»£è¡¨1ä¸ªå­—èŠ‚8ä½ï¼Œ
+ *	FLASHä¸­ï¼Œæ‰€è°“çš„å†™æ“ä½œéƒ½æ˜¯æŒ‰ä½ä¸ï¼Œ
  */
 /*
- * Àı:
- *   addr = FlashWrite_8bitbuffer(page254, (uint8_t*) "hello", 5); //Ïòpage254Ğ´Èë5¸ö8Î»Êı¾İ"hello",²¢µÃµ½×îºóÒ»¸öÊı¾İµÄflashµØÖ·
+ * ä¾‹:
+ *   addr = FlashWrite_8bitbuffer(page254, (uint8_t*) "hello", 5); //å‘page254å†™å…¥5ä¸ª8ä½æ•°æ®"hello",å¹¶å¾—åˆ°æœ€åä¸€ä¸ªæ•°æ®çš„flashåœ°å€
  *
- *   //FLASHÖ»½ÓÊÜ16Î»Ğ´Èë·½Ê½£¬Òò´ËÏÂ´ÎĞ´ÈëĞèÒª½«addr+2
- *   FlashWrite_16bitbuffer(addr + 2, &temp, 1); //ÏòaddrÏÂÒ»¸öµØÖ·Ğ´Èë0x1234µÄ16Î»Êı¾İ
+ *   //FLASHåªæ¥å—16ä½å†™å…¥æ–¹å¼ï¼Œå› æ­¤ä¸‹æ¬¡å†™å…¥éœ€è¦å°†addr+2
+ *   FlashWrite_16bitbuffer(addr + 2, &temp, 1); //å‘addrä¸‹ä¸€ä¸ªåœ°å€å†™å…¥0x1234çš„16ä½æ•°æ®
  *
- *   addr = FlashRead_8bitbuffer(page254, clean, 3); //Á¬Ğø¶Á³ö3¸ö8Î»Êı¾İ,·µ»Ø×îºóÒ»¸ö¶Á³öÊı¾İµÄµØÖ·(uint8_t clean[6] = { 0x00 };)
+ *   addr = FlashRead_8bitbuffer(page254, clean, 3); //è¿ç»­è¯»å‡º3ä¸ª8ä½æ•°æ®,è¿”å›æœ€åä¸€ä¸ªè¯»å‡ºæ•°æ®çš„åœ°å€(uint8_t clean[6] = { 0x00 };)
  */
 void Flash_Erase(uint32_t page);
 uint32_t FlashWrite_8bitbuffer(uint32_t page, uint8_t *buffer, uint32_t length);
