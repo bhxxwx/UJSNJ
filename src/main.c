@@ -1,14 +1,16 @@
-/*		½­ËÕ´óÑ§
- * Å©Òµ×°±¸Ñ§Ôº¹¤³ÌÑ§Ôº
+/*		æ±Ÿè‹å¤§å­¦
+ * å†œä¸šè£…å¤‡å­¦é™¢å·¥ç¨‹å­¦é™¢
  *
- * ÊÕ¸î»úÏîÄ¿,Ê¹ÓÃFreeRTOS²Ù×÷ÏµÍ³
- * Ê¹ÓÃ Github ½øĞĞ°æ±¾¿ØÖÆ
+ * æ”¶å‰²æœºé¡¹ç›®,ä½¿ç”¨FreeRTOSæ“ä½œç³»ç»Ÿ
+ * ä½¿ç”¨ Github è¿›è¡Œç‰ˆæœ¬æ§åˆ¶
  *
  * Author: WangXiang
  *
  */
 
 //wx pullup
+
+//123
 
 /*include*/
 #include "stm32f10x.h"
@@ -37,7 +39,7 @@ Cach5 Pack5;
 Cach6 Pack6;
 Cach7 Pack7;
 
-char receives[15][10][100]; //¿ÉÖ§³Ö19ÌõÖ¸Áî(1~19)[0ÉáÆú²»ÓÃ],Ã¿ÌõÖ¸Áî¿É½ÓÊÕ5µ÷·µ»ØĞÅÏ¢(0~4),Ã¿Ìõ·µ»ØĞÅÏ¢³¤¶È×î³¤98(0~97)[99×÷Îªµ¥ÌõĞÅÏ¢³¤¶ÈÊı¾İ¼ÇÂ¼Î»]
+char receives[15][10][100]; //å¯æ”¯æŒ19æ¡æŒ‡ä»¤(1~19)[0èˆå¼ƒä¸ç”¨],æ¯æ¡æŒ‡ä»¤å¯æ¥æ”¶5è°ƒè¿”å›ä¿¡æ¯(0~4),æ¯æ¡è¿”å›ä¿¡æ¯é•¿åº¦æœ€é•¿98(0~97)[99ä½œä¸ºå•æ¡ä¿¡æ¯é•¿åº¦æ•°æ®è®°å½•ä½]
 uint8_t x_axis = 0, y_axis = 0, cmd_axis = 0;
 int time_count = 0;
 int count = 0;
@@ -52,11 +54,11 @@ int main(void)
 	usart_1_init(9600);
 	usart_3_init(9600, 1);
 
-	void RTC_1s_it_init(); //RTC¼ÆÊ±1s³õÊ¼»¯
-	void RTC_Handler(void (*temp_function)); //RTCÖĞ¶Ïº¯Êı´«µİº¯Êı
+	void RTC_1s_it_init(); //RTCè®¡æ—¶1såˆå§‹åŒ–
+	void RTC_Handler(void (*temp_function)); //RTCä¸­æ–­å‡½æ•°ä¼ é€’å‡½æ•°
 
-//	CAN_INIT();	//³õÊ¼»¯CAN×ÜÏß
-//	CAN_IT_INIT();	//³õÊ¼»¯CAN×ÜÏßÖĞ¶Ï
+//	CAN_INIT();	//åˆå§‹åŒ–CANæ€»çº¿
+//	CAN_IT_INIT();	//åˆå§‹åŒ–CANæ€»çº¿ä¸­æ–­
 //	delay_us(9000000);	//15s
 //	printf("ok");
 //	BC28_Init();
@@ -64,7 +66,7 @@ int main(void)
 	int count = 0;
 	while (1)
 	{
-//		Pack1.Mail_Box[1].ATW = true;	//½ÓÊÕ1ºÅ°üÊı¾İ
+//		Pack1.Mail_Box[1].ATW = true;	//æ¥æ”¶1å·åŒ…æ•°æ®
 //		Pack2.Mail_Box[1].ATW = true;
 //		Pack3.Mail_Box[1].ATW = true;
 //		Pack4.Mail_Box[1].ATW = true;
@@ -92,10 +94,10 @@ int main(void)
 void USART1_IRQHandler(void)
 {
 	char temp;
-	if (USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)	//½ÓÊÕµ½Êı¾İ
+	if (USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)	//æ¥æ”¶åˆ°æ•°æ®
 	{
-		USART_ClearITPendingBit(USART1, USART_IT_RXNE); //Çå³ı½ÓÊÕÖĞ¶Ï±êÖ¾
-		temp = USART_ReceiveData(USART1); //½ÓÊÕ´®¿Ú1Êı¾İµ½buff»º³åÇø
+		USART_ClearITPendingBit(USART1, USART_IT_RXNE); //æ¸…é™¤æ¥æ”¶ä¸­æ–­æ ‡å¿—
+		temp = USART_ReceiveData(USART1); //æ¥æ”¶ä¸²å£1æ•°æ®åˆ°buffç¼“å†²åŒº
 		receives[cmd_axis][y_axis][x_axis] = temp;
 		x_axis++;
 		if (temp == '\n')
@@ -114,18 +116,18 @@ int counts = 0;
 void USART3_IRQHandler(void)
 {
 //	GPSINIT.ATR=false;
-	if (USART_GetFlagStatus(USART3, USART_FLAG_ORE) != RESET) //×¢Òâ£¡²»ÄÜÊ¹ÓÃif(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)À´ÅĞ¶Ï
+	if (USART_GetFlagStatus(USART3, USART_FLAG_ORE) != RESET) //æ³¨æ„ï¼ä¸èƒ½ä½¿ç”¨if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)æ¥åˆ¤æ–­
 	{
 		USART_ReceiveData(USART3);
 	}
-	//ÕıÔÚ´¦ÀíÉÏÒ»ÌõÍ¨Ñ¶£¬½ÓÊÕµ½Êı¾İ²»´¦Àí
+	//æ­£åœ¨å¤„ç†ä¸Šä¸€æ¡é€šè®¯ï¼Œæ¥æ”¶åˆ°æ•°æ®ä¸å¤„ç†
 	if (GPSINIT.ATR == true)
 	{
 		USART_ReceiveData(USART3);
-		USART_ClearITPendingBit(USART3, USART_IT_RXNE); //Çå³ı½ÓÊÕÖĞ¶Ï±êÖ¾
+		USART_ClearITPendingBit(USART3, USART_IT_RXNE); //æ¸…é™¤æ¥æ”¶ä¸­æ–­æ ‡å¿—
 		return;
 	}
-	if (USART_GetITStatus(USART3, USART_IT_RXNE) != RESET) //½ÓÊÕµ½Êı¾İ
+	if (USART_GetITStatus(USART3, USART_IT_RXNE) != RESET) //æ¥æ”¶åˆ°æ•°æ®
 	{
 		datas[counts] = USART_ReceiveData(USART3);
 		if (datas[counts] == '$')
@@ -133,13 +135,13 @@ void USART3_IRQHandler(void)
 		if (datas[counts] == '\n')
 		{
 			counts = 0;
-			USART_ClearITPendingBit(USART3, USART_IT_RXNE); //Çå³ı½ÓÊÕÖĞ¶Ï±êÖ¾
+			USART_ClearITPendingBit(USART3, USART_IT_RXNE); //æ¸…é™¤æ¥æ”¶ä¸­æ–­æ ‡å¿—
 			GPSINIT.ATR = true;
 			GPSINIT.splitTime=0;
 			return;
 		}
 		counts++;
-		USART_ClearITPendingBit(USART3, USART_IT_RXNE); //Çå³ı½ÓÊÕÖĞ¶Ï±êÖ¾
+		USART_ClearITPendingBit(USART3, USART_IT_RXNE); //æ¸…é™¤æ¥æ”¶ä¸­æ–­æ ‡å¿—
 	}
 }
 
