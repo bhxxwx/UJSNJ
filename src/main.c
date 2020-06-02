@@ -8,6 +8,7 @@
  *
  */
 
+//wx pullup
 
 /*include*/
 #include "stm32f10x.h"
@@ -45,7 +46,6 @@ GPS_DATA GPSDATA = { .ATW = false };
 GPS_INIT GPSINIT = { .matchCount = 0, .cmdHead = false, .match[0]='G', .match[1]='N', .match[2]='R',
         .match[3]='M', .match[4]='C', .splitTime = 0, .dataCount = 0 };
 
-void anaGPS();
 
 int main(void)
 {
@@ -89,23 +89,23 @@ int main(void)
 	}
 }
 
-//void USART1_IRQHandler(void)
-//{
-//	char temp;
-//	if (USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)	//接收到数据
-//	{
-//		USART_ClearITPendingBit(USART1, USART_IT_RXNE); //清除接收中断标志
-//		temp = USART_ReceiveData(USART1); //接收串口1数据到buff缓冲区
-//		receives[cmd_axis][y_axis][x_axis] = temp;
-//		x_axis++;
-//		if (temp == '\n')
-//		{
-//			receives[cmd_axis][y_axis][99] = x_axis;
-//			y_axis++;
-//			x_axis = 0;
-//		}
-//	}
-//}
+void USART1_IRQHandler(void)
+{
+	char temp;
+	if (USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)	//接收到数据
+	{
+		USART_ClearITPendingBit(USART1, USART_IT_RXNE); //清除接收中断标志
+		temp = USART_ReceiveData(USART1); //接收串口1数据到buff缓冲区
+		receives[cmd_axis][y_axis][x_axis] = temp;
+		x_axis++;
+		if (temp == '\n')
+		{
+			receives[cmd_axis][y_axis][99] = x_axis;
+			y_axis++;
+			x_axis = 0;
+		}
+	}
+}
 
 char GpstempChar;
 char GpsCharToConvert[20];
@@ -141,79 +141,5 @@ void USART3_IRQHandler(void)
 		counts++;
 		USART_ClearITPendingBit(USART3, USART_IT_RXNE); //清除接收中断标志
 	}
-}
-
-void anaGPS()
-{
-	int x, y;
-	if (GPSDATA.ATW == false)
-	{
-		return;
-	}
-	if (GPSINIT.ATR)
-	{
-		GPSINIT.splitTime = 0;
-		clearStr(GpsCharToConvert, 20);
-		GPSINIT.dataCount = 0;
-
-		for (GPSINIT.matchCount = 1; GPSINIT.matchCount <= 5; GPSINIT.matchCount++)
-		{
-			if (datas[GPSINIT.matchCount] != GPSINIT.match[GPSINIT.matchCount - 1])
-			{
-				clearStr(datas, 100);
-				GPSINIT.ATR = false;
-				GPSINIT.splitTime=0;
-				return;
-			}
-		}
-
-		for (x = 0, y = 0; datas[x] != '\r'; x++)
-		{
-			if (datas[x] != ',')
-			{
-				GpsCharToConvert[y] = datas[x];
-				y++;
-			} else
-			{
-				y = 0;
-
-				GPSINIT.splitTime++;
-				switch (GPSINIT.splitTime)
-				{
-					case 2:
-						writeUTC(GPSDATA.UTCtime, GpsCharToConvert), clearStr(GpsCharToConvert, 20), GPSINIT.dataCount =
-						        0;
-						continue;
-					case 3:
-						GPSDATA.AorP = GpsCharToConvert[0], clearStr(GpsCharToConvert, 20), GPSINIT.dataCount =
-						        0;
-						continue;
-					case 4:
-						writeL(GPSDATA.latitude, GpsCharToConvert), clearStr(GpsCharToConvert, 20), GPSINIT.dataCount =
-						        0;
-						continue;
-					case 5:
-						GPSDATA.NorS = GpsCharToConvert[0], clearStr(GpsCharToConvert, 20), GPSINIT.dataCount =
-						        0;
-						continue;
-					case 6:
-						writeL(GPSDATA.longitude, GpsCharToConvert), clearStr(GpsCharToConvert, 20), GPSINIT.dataCount =
-						        0;
-						continue;
-					case 7:
-						GPSDATA.EorW = GpsCharToConvert[0], clearStr(GpsCharToConvert, 20), GPSINIT.dataCount =
-						        0;
-						continue;
-					case 8:
-						GPSDATA.ATW = false, GPSINIT.ATR = false,GPSINIT.splitTime=0;return;
-				}
-				clearStr(GpsCharToConvert, 20);
-				GPSINIT.dataCount = 0;
-				continue;
-			}
-
-		}
-	}
-
 }
 

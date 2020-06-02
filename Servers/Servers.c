@@ -23,6 +23,11 @@ extern uint8_t x_axis, y_axis, cmd_axis;
 //static int time_count = 0;
 extern int count ;
 
+extern char GpsCharToConvert[20],datas[100];
+
+extern GPS_DATA GPSDATA;
+extern GPS_INIT GPSINIT;
+
 /*
  * 解析CAN接收数据包的ID和数据格式
  */
@@ -417,3 +422,79 @@ void clearStr(char *str,uint8_t i)
 		str[j]='\0';
 	}
 }
+
+
+void anaGPS()
+{
+	int x, y;
+	if (GPSDATA.ATW == false)
+	{
+		return;
+	}
+	if (GPSINIT.ATR)
+	{
+		GPSINIT.splitTime = 0;
+		clearStr(GpsCharToConvert, 20);
+		GPSINIT.dataCount = 0;
+
+		for (GPSINIT.matchCount = 1; GPSINIT.matchCount <= 5; GPSINIT.matchCount++)
+		{
+			if (datas[GPSINIT.matchCount] != GPSINIT.match[GPSINIT.matchCount - 1])
+			{
+				clearStr(datas, 100);
+				GPSINIT.ATR = false;
+				GPSINIT.splitTime=0;
+				return;
+			}
+		}
+
+		for (x = 0, y = 0; datas[x] != '\r'; x++)
+		{
+			if (datas[x] != ',')
+			{
+				GpsCharToConvert[y] = datas[x];
+				y++;
+			} else
+			{
+				y = 0;
+
+				GPSINIT.splitTime++;
+				switch (GPSINIT.splitTime)
+				{
+					case 2:
+						writeUTC(GPSDATA.UTCtime, GpsCharToConvert), clearStr(GpsCharToConvert, 20), GPSINIT.dataCount =
+						        0;
+						continue;
+					case 3:
+						GPSDATA.AorP = GpsCharToConvert[0], clearStr(GpsCharToConvert, 20), GPSINIT.dataCount =
+						        0;
+						continue;
+					case 4:
+						writeL(GPSDATA.latitude, GpsCharToConvert), clearStr(GpsCharToConvert, 20), GPSINIT.dataCount =
+						        0;
+						continue;
+					case 5:
+						GPSDATA.NorS = GpsCharToConvert[0], clearStr(GpsCharToConvert, 20), GPSINIT.dataCount =
+						        0;
+						continue;
+					case 6:
+						writeL(GPSDATA.longitude, GpsCharToConvert), clearStr(GpsCharToConvert, 20), GPSINIT.dataCount =
+						        0;
+						continue;
+					case 7:
+						GPSDATA.EorW = GpsCharToConvert[0], clearStr(GpsCharToConvert, 20), GPSINIT.dataCount =
+						        0;
+						continue;
+					case 8:
+						GPSDATA.ATW = false, GPSINIT.ATR = false,GPSINIT.splitTime=0;return;
+				}
+				clearStr(GpsCharToConvert, 20);
+				GPSINIT.dataCount = 0;
+				continue;
+			}
+
+		}
+	}
+
+}
+

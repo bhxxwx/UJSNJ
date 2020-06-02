@@ -224,6 +224,8 @@ void writeUTC(char *time,char *data);
 void writeL(char *lan,char *data);
 void clearStr(char *str,uint8_t i);
 
+void anaGPS();
+
 uint8_t get_pack_currentPack(CanRxMsg CANRX);
 
 
