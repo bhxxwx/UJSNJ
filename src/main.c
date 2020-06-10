@@ -6,9 +6,8 @@
  *
  * Author: WangXiang
  * 20200610
- *
- *///hahahaha
-//THIS IS ZRH 123
+ */
+
 /*include*/
 #include "stm32f10x.h"
 #include <stdio.h>
