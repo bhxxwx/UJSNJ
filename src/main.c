@@ -1,20 +1,20 @@
-/*		姹熻嫃澶у
- * 鍐滀笟瑁呭瀛﹂櫌宸ョ▼瀛﹂櫌
+/*		江苏大学
+ * 农业装备学院工程学院
  *
- * 鏀跺壊鏈洪」鐩�,浣跨敤FreeRTOS鎿嶄綔绯荤粺
- * 浣跨敤 Github 杩涜鐗堟湰鎺у埗
+ * 收割机项目,使用FreeRTOS操作系统
+ * 使用 Github 进行版本控制
  *
  * Author: WangXiang
  * 20200610
- */
-
+ *
+ *///hahahaha123
 /*include*/
 #include "stm32f10x.h"
 #include <stdio.h>
 #include <stddef.h>
-#include "UserConfig.h"//鐢ㄦ埛搴撹皟鐢�
+#include "UserConfig.h"//用户库调用
 
-/*鎿嶄綔绯荤粺搴撳嚱鏁拌皟鐢�*/
+/*操作系统库函数调用*/
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
@@ -41,11 +41,11 @@ int main(void)
 
 
 
-	void RTC_1s_it_init(); //RTC璁℃椂1s鍒濆鍖�
-	void RTC_Handler(void (*temp_function)); //RTC涓柇鍑芥暟浼犻�掑嚱鏁�
+	void RTC_1s_it_init(); //RTC计时1s初始化
+	void RTC_Handler(void (*temp_function)); //RTC中断函数传递函数
 
-//	CAN_INIT();	//鍒濆鍖朇AN鎬荤嚎
-//	CAN_IT_INIT();	//鍒濆鍖朇AN鎬荤嚎涓柇
+//	CAN_INIT();	//初始化CAN总线
+//	CAN_IT_INIT();	//初始化CAN总线中断
 //	delay_us(9000000);	//15s
 //	printf("ok");
 //	BC28_Init();
@@ -53,7 +53,7 @@ int main(void)
 	int count = 0;
 	while (1)
 	{
-//		Pack1.Mail_Box[1].ATW = true;	//鎺ユ敹1鍙峰寘鏁版嵁
+//		Pack1.Mail_Box[1].ATW = true;	//接收1号包数据
 //		Pack2.Mail_Box[1].ATW = true;
 //		Pack3.Mail_Box[1].ATW = true;
 //		Pack4.Mail_Box[1].ATW = true;
