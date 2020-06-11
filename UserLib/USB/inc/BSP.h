@@ -8,7 +8,7 @@
 * Author        : whq
 * Mode          : Thumb2
 * Toolchain     : 
-* Description   : BSPӲ����ʼ��
+* Description   : BSP硬件初始化
 *                
 * History       :
 * Date          : 2013.07.21
@@ -22,7 +22,7 @@
 #include <stdint.h>
 #include <stddef.h>
 
-/******************************ϵͳ����****************************************/
+/******************************系统配置****************************************/
 
 typedef enum {
     eLED_0,
@@ -34,21 +34,21 @@ typedef enum {
 
 
 
-/******************************�궨��******************************************/
+/******************************宏定义******************************************/
 
-//LED��
-#define LED_OFF(a)              BSP_GpioSetm(a)
-//LED��
-#define LED_ON(a)               BSP_GpioResetm(a)
+//LED关
+#define LED_OFF(a)              BSP_GpioSet(a)
+//LED开
+#define LED_ON(a)               BSP_GpioReset(a)
 
 
-//IO�ø�
+//IO置高
 #define IO_SET(a)               BSP_GpioSet(a)
-//IO�õ�
+//IO置低
 #define IO_RESET(a)             BSP_GpioReset(a)
-//��IO���ϵĵ�ƽ
+//读IO口上的电平
 #define IO_READ(a)              BSP_GpioRead(a)
-//IO��ƽ��ת
+//IO电平翻转
 #define IO_TOGGLE(a)            BSP_GpioToggle(a)
 
 
@@ -59,16 +59,10 @@ typedef enum {
 /******************************************************************************/
 
 
-void Delay(volatile int32_t nCount);
 void IWDG_Init(void);
 void SysTickInit(void);
 void WDG_Clear(void);
-void BSP_Init(void);
 
-void BSP_GpioSet(int32_t n);
-void BSP_GpioReset(int32_t n);
-int32_t BSP_GpioRead(int32_t n);
-void BSP_GpioToggle(int n);
 
 void BSP_PortWrite(int32_t n, int32_t value);
 void BSP_SystemReset(void);

@@ -8,7 +8,7 @@
 * Author        : whq
 * Mode          : Thumb2
 * Toolchain     : 
-* Description   : ¶¨Ê±Æ÷ Çı¶¯³ÌĞò Í·ÎÄ¼ş
+* Description   : å®šæ—¶å™¨ é©±åŠ¨ç¨‹åº å¤´æ–‡ä»¶
 *                
 * History       :
 * Date          : 2013.07.25
@@ -30,8 +30,8 @@
 #define TIM_8_EN                1
 
 
-#define TIM_IRQEnter()                  //½øÖĞ¶ÏÖ´ĞĞº¯Êı
-#define TIM_IRQExit()                   //³öÖĞ¶ÏÖ´ĞĞº¯Êı
+#define TIM_IRQEnter()                  //è¿›ä¸­æ–­æ‰§è¡Œå‡½æ•°
+#define TIM_IRQExit()                   //å‡ºä¸­æ–­æ‰§è¡Œå‡½æ•°
 
 typedef enum {
 #if TIM_1_EN
@@ -122,7 +122,7 @@ typedef enum {
 #define BSP_TIM8_IRQn                       TIM8_UP_IRQn
 
 
-/******************************º¯ÊıÉùÃ÷****************************************/
+/******************************å‡½æ•°å£°æ˜****************************************/
 void BSP_TimOpen(uint8_t TIM_x, uint32_t prescaler, uint32_t autoreload, void(*CallBack)(void));
 void BSP_TimClose(uint8_t TIM_x);
 void BSP_TimITStateSet(uint8_t TIM_x, uint8_t state);

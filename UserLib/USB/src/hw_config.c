@@ -299,6 +299,12 @@ static void IntToUnicode(uint32_t value, uint8_t *pbuf, uint8_t len)
 	}
 }
 
+/*
+ * 配置USB连接
+ * 		enable:
+ * 			1 -> 打开USB连接
+ * 			0 -> 断开USB连接
+ */
 void USB_Port_Set(u8 enable)
 {
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE); //使能PORTA时钟

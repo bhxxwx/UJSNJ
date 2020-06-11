@@ -31,29 +31,19 @@
 
 
 
-typedef enum
-{
-	ERR = 0, OK, ONLINE
-
-} NB_STAT;
-
-
-
-
-
-
-
-
 int main(void)
 {
-//	DBGMCU_IWDG_STOP;
+	DBGMCU_Config(DBGMCU_IWDG_STOP,ENABLE);//DEBUG时看门狗关闭
+	nvic_init();
 
-	void RTC_1s_it_init(); //RTC计时1s初始化
-	void RTC_Handler(void (*temp_function)); //RTC中断函数传递函数
 
-//	CAN_INIT();	//初始化CAN总线
-//	CAN_IT_INIT();	//初始化CAN总线中断
-//	delay_us(9000000);	//15s
+    USB_Port_Set(0);
+    USB_Port_Set(1);
+    USB_Config();
+
+	CAN_INIT();	//初始化CAN总线
+	CAN_IT_INIT();	//初始化CAN总线中断
+	delay_us(9000000);	//15s
 //	printf("ok");
 //	BC28_Init();
 
@@ -79,7 +69,7 @@ int main(void)
 //		while (GPSDATA.ATW == true)
 //			;
 
-			anaGPS();
+//			anaGPS();
 		count++;
 
 	}

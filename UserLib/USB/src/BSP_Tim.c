@@ -8,7 +8,7 @@
 * Author        : whq
 * Mode          : Thumb2
 * Toolchain     : 
-* Description   : ��ʱ�� ��������
+* Description   : 定时器 驱动程序
 *                
 * History       :
 * Date          : 2013.07.25
@@ -109,12 +109,12 @@ static const uint8_t TIM_IRQn[TIMn] = {
 
 /*******************************************************************************
 * Function Name : void BSP_TimOpen(uint8_t TIM_x, uint32_t autoreload, FunVoidVoid *CallBack)
-* Description   : ��ʱ����
+* Description   : 定时器打开
 * Input         :   TIM_x: TIM_1~ TIM_8
-                    prescaler:  ʱ��Ԥ��Ƶֵ
-                    period:     ʱ������ֵ      
+                    prescaler:  时钟预分频值
+                    period:     时钟重载值
 * Output        : 
-* Other         :   ��Ƶֵ������ֵ���ڲ�������1����(�ⲿ�����1)
+* Other         :   分频值，重载值，内部以做减1处理。(外部无需减1)
 * Date          : 2013.07.25
 *******************************************************************************/
 void BSP_TimOpen(uint8_t TIM_x, uint32_t prescaler, uint32_t autoreload, void(*CallBack)(void))
@@ -148,10 +148,10 @@ void BSP_TimOpen(uint8_t TIM_x, uint32_t prescaler, uint32_t autoreload, void(*C
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
 
-    //װ�ػص�����
+    //装载回调函数
     TIM_CALLBACK[TIM_x] = CallBack;
     
-    //ʹ�� Ԥ���ؼĴ���    
+    //使能 预加载寄存器
     TIM_ARRPreloadConfig(TIM_NUM[TIM_x], ENABLE);
     
     /* TIM enable counter */
@@ -186,15 +186,15 @@ void BSP_TimClose(uint8_t TIM_x)
 
     TIM_ITConfig(TIM_NUM[TIM_x], TIM_IT_Update, DISABLE);  
 
-    //��ջص�����
+    //清空回调函数
     TIM_CALLBACK[TIM_x] = (void *)0;
 }
 
 /*******************************************************************************
 * Function Name : void BSP_TimAutoreloadSet(uint8_t TIM_x, uint32_t autoreload)
-* Description   : ��������ֵ
+* Description   : 设置重载值
 * Input         :   TIM_x:      TIM_2-TIM_14
-                    autoreload  ����ֵ
+                    autoreload  重载值
 * Output        : 
 * Other         : 
 * Date          : 2013.08.16
@@ -207,7 +207,7 @@ void BSP_TimAutoreloadSet(uint8_t TIM_x, uint32_t autoreload)
 
 /*******************************************************************************
 * Function Name : uint32_t BSP_TimCounterGet(uint8_t TIM_x)
-* Description   : ��ȡ����ֵ
+* Description   : 获取计数值
 * Input         : TIM_x:        TIM_2-TIM_14
 * Output        : 
 * Other         : 
@@ -220,9 +220,9 @@ uint32_t BSP_TimCounterGet(uint8_t TIM_x)
 
 /*******************************************************************************
 * Function Name : void BSP_TimCounterSet(uint8_t TIM_x, uint32_t Counter)
-* Description   : �趨����ֵ
+* Description   : 设定计数值
 * Input         :   TIM_x:      TIM_2-TIM_14
-                    Counter     �趨����ֵ
+                    Counter     设定计数值
 * Output        : 
 * Other         : 
 * Date          : 2013.08.16
@@ -234,7 +234,7 @@ void BSP_TimCounterSet(uint8_t TIM_x, uint32_t Counter)
 
 /*******************************************************************************
 * Function Name : uint32_t BSP_TimClockGet(uint8_t TIM_x)
-* Description   : ��ȡָ����ʱ��ʱ��Ƶ��
+* Description   : 获取指定定时器时钟频率
 * Input         : TIM_x:      TIM_2-TIM_14
 * Output        : 
 * Other         : 
@@ -247,8 +247,8 @@ uint32_t BSP_TimClockGet(void)
 
 /*******************************************************************************
 * Function Name : void BSP_TimITStateSet(uint8_t TIM_x, uint8_t state)
-* Description   : ���ö�ʱ�� �ж�״̬
-* Input         : state :   0)���ж�    1)���ж�
+* Description   : 设置定时器 中断状态
+* Input         : state :   0)关中断    1)开中断
 * Output        : 
 * Other         : 
 * Date          : 2013.08.16
@@ -260,7 +260,7 @@ void BSP_TimITStateSet(uint8_t TIM_x, uint8_t state)
 
 /*******************************************************************************
 * Function Name : void BSP_TimIRQCallbackSet(uint8_t TIM_x, void(*CallBack)(void))
-* Description   : �趨�жϻص�����
+* Description   : 设定中断回调函数
 * Input         : 
 * Output        : 
 * Other         : 
@@ -273,7 +273,7 @@ void BSP_TimIRQCallbackSet(uint8_t TIM_x, void(*CallBack)(void))
 
 /*******************************************************************************
 * Function Name : static void _UpIRQHandler(TIM_x)
-* Description   : �жϴ������
+* Description   : 中断处理程序
 * Input         : TIM_x: TIM_1~ TIM_8
 * Output        : 
 * Other         : 
