@@ -8,7 +8,7 @@
 #ifndef FUNCTIONS_CAN_CAN_H_
 #define FUNCTIONS_CAN_CAN_H_
 #include "UserConfig.h"
-
+#include "DATAstruct/DATAstruct.h"
 #define P1ID 0x0CFF1081
 #define P2ID 0x10FF1182
 #define P3ID 0x10FF1283
@@ -23,7 +23,7 @@ void SetFalgATW();
 CANpacks GetCANRx();
 uint8_t CheckATW();
 
-
+uint8_t get_pack_currentPack(CanRxMsg CANRX);
 
 
 #endif /* FUNCTIONS_CAN_CAN_H_ */

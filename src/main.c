@@ -4,10 +4,19 @@
  * 收割机项目,使用FreeRTOS操作系统
  * 使用 Github 进行版本控制
  *
+ * 本项目的UserLib将作为独立驱动项目<已完成与Servers文件的解耦工作>,请注意保持该文件夹的独立性!!
+ *
+ * 本项目所有标点均为英文标点!
+ *
+ * 所有非驱动服务函数请在Servers文件夹内开发,
+ * 		其中:DATAstruct文件夹内为自定义的数据结构体,
+ * 			 Functions文件夹内为服务函数.
+ *
+ * UserLib为底层驱动文件夹.
+ *
  * Author: WangXiang
  * 20200610
- *
- *///hahahaha123
+ */
 /*include*/
 #include "stm32f10x.h"
 #include <stdio.h>
@@ -38,8 +47,6 @@ typedef enum
 int main(void)
 {
 //	DBGMCU_IWDG_STOP;
-
-
 
 	void RTC_1s_it_init(); //RTC计时1s初始化
 	void RTC_Handler(void (*temp_function)); //RTC中断函数传递函数

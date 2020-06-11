@@ -8,7 +8,7 @@
 #ifndef FUNCTIONS_BC28OREC20_BC28OREC20_H_
 #define FUNCTIONS_BC28OREC20_BC28OREC20_H_
 #include "UserConfig.h"
-
+#include "DATAstruct/DATAstruct.h"
 void ClearCmdBuffer();
 
 void IOT_Reset();

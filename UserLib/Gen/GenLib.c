@@ -1091,14 +1091,14 @@ void TIM7_init(uint16_t times)
 	TIM_ClearFlag(TIM7, TIM_FLAG_Update);
 }
 
-void TIM7_IRQHandler(void)
-{
-	if (TIM_GetITStatus(TIM7, TIM_IT_Update) == SET)
-	{
-		delay_us(100);
-		TIM_ClearFlag(TIM7, TIM_FLAG_Update);
-	}
-}
+//void TIM7_IRQHandler(void)
+//{
+//	if (TIM_GetITStatus(TIM7, TIM_IT_Update) == SET)
+//	{
+//		delay_us(100);
+//		TIM_ClearFlag(TIM7, TIM_FLAG_Update);
+//	}
+//}
 
 /***************************************************CAN总线相关操作*******************************************************/
 /*
@@ -1286,13 +1286,14 @@ void CAN_IT_SEND(CanTxMsg TxMessage)
 //CanRxMsg CAN_IT_REC();
 
 /*
- * CAN总线接收中断
+ * CAN/USB总线接收中断
  */
 void USB_LP_CAN1_RX0_IRQHandler(void)
 {
 	CanRxMsg RxMessage;
 	CAN_Receive(CAN1, CAN_FIFO0, &RxMessage);
-	Analysys(RxMessage);
+
+	USB_Istr();
 
 }
 

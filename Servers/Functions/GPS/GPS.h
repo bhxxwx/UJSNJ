@@ -8,7 +8,7 @@
 #ifndef FUNCTIONS_GPS_GPS_H_
 #define FUNCTIONS_GPS_GPS_H_
 #include "UserConfig.h"
-
+#include "DATAstruct/DATAstruct.h"
 void GPS_init();
 
 uint8_t CheckHead();

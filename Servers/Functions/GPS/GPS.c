@@ -135,10 +135,10 @@ void anaGPS()
 		clearStr(GpsCharToConvert, 20);//缓冲区清零
 		GPSINIT.dataCount = 0;
 
-switch(CheckHead())
-{
-	case GPGGA:
-}
+//switch(CheckHead())
+//{
+//	case GPGGA:
+//}
 
 		for (x = 0, y = 0; datas[x] != '\r'; x++)
 		{
