@@ -22,7 +22,7 @@ int USB_iprintf(const char *fmt, ...)
 		va_start(va, fmt);
 		length = ts_formatstring(buf, fmt, va);
 
-		 USB_TxWrite(buf, length);
+		 USB_TxWrite((uint8_t *)buf, length);
 		va_end(va);
 	}
 	return length;

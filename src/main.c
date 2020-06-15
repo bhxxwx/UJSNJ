@@ -29,6 +29,9 @@
 #include "queue.h"
 #include "timers.h"
 
+/*
+ * TODO BC28orEC20函数中接收缓冲区过于庞大,需要精简;
+ */
 
 
 int main(void)
