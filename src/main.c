@@ -36,16 +36,29 @@ int main(void)
 	DBGMCU_Config(DBGMCU_IWDG_STOP,ENABLE);//DEBUG时看门狗关闭
 	nvic_init();
 
-
     USB_Port_Set(0);
     USB_Port_Set(1);
     USB_Config();
 
-	CAN_INIT();	//初始化CAN总线
-	CAN_IT_INIT();	//初始化CAN总线中断
-	delay_us(9000000);	//15s
+//	CAN_INIT();	//初始化CAN总线
+//	CAN_IT_INIT();	//初始化CAN总线中断
+
 //	printf("ok");
 //	BC28_Init();
+
+
+	SPI_INIT();
+
+
+
+	CS_LOW;
+//	SPI_write(0X06);
+	SPI_write(0X03);
+	SPI_write(0X00);
+	SPI_write(0X00);
+	SPI_write(0X01);
+//	CS_HIGH;
+	SPI_I2S_ReceiveData(SPI1);
 
 	int count = 0;
 	while (1)

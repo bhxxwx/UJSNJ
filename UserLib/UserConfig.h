@@ -36,6 +36,7 @@
 #include "USB/inc/BSP_tim.h"
 #include "USB/inc/HW_Config.h"
 #include "USB/inc/usb_istr.h"
+#include "USB/inc/usb_printf.h"
 /*---------------------------OLED-IIC设置--------------------------*/
 //如果选用了B端口即修改为 IIC_SDA_Poart_B即可
 #define IIC_SDA_Poart_A
