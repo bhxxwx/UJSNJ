@@ -1057,11 +1057,13 @@ void SetPWMfreq(GPIO_TypeDef* GPIOx, int freq)
 	}
 }
 
+#ifdef STM32F10X_HD
 /*
  * 计时器中断!!!不准，还没有测试
  * 时钟频率为2kHz,最小时基为0.5ms,最大计时时间为32s
  * 参数:
  * 		times 计时时间,范围(1~32000)单位:毫秒
+ * 	中断函数在BSP_Tim.c文件中
  */
 void TIM7_init(uint16_t times)
 {
@@ -1090,15 +1092,16 @@ void TIM7_init(uint16_t times)
 	TIM_ITConfig(TIM7, TIM_IT_Update, ENABLE); //清除标志位
 	TIM_ClearFlag(TIM7, TIM_FLAG_Update);
 }
+#endif
 
-void TIM7_IRQHandler(void)
-{
-	if (TIM_GetITStatus(TIM7, TIM_IT_Update) == SET)
-	{
-		delay_us(100);
-		TIM_ClearFlag(TIM7, TIM_FLAG_Update);
-	}
-}
+//void TIM7_IRQHandler(void)
+//{
+//	if (TIM_GetITStatus(TIM7, TIM_IT_Update) == SET)
+//	{
+//		delay_us(100);
+//		TIM_ClearFlag(TIM7, TIM_FLAG_Update);
+//	}
+//}
 
 /***************************************************CAN总线相关操作*******************************************************/
 /*
@@ -1232,7 +1235,7 @@ CanRxMsg CAN_POLLING_REC()
 
 /*
  * CAN总线中断方式初始化
- * 设置总线模式,总线频率(目前250kHz),过滤器
+ * 设置总线模式,总线频率(目前250kHz)
  */
 void CAN_IT_INIT()
 {
@@ -1241,7 +1244,6 @@ void CAN_IT_INIT()
 
 	/* CAN register init */
 	CAN_DeInit(CAN1);
-//	CAN_OperatingModeRequest(CAN1, CAN_OperatingMode_Initialization);
 	CAN_StructInit(&CAN_InitStructure);
 
 	/* CAN cell init */
@@ -1257,7 +1259,7 @@ void CAN_IT_INIT()
 	CAN_InitStructure.CAN_BS2 = CAN_BS2_3tq;
 	CAN_InitStructure.CAN_Prescaler = 12;   //  36M/(1+8+3)/12=250k
 	CAN_Init(CAN1, &CAN_InitStructure);
-//	CAN_OperatingModeRequest(CAN1, CAN_OperatingMode_Normal);
+
 	/* CAN filter init */
 	CAN_FilterInitStructure.CAN_FilterNumber = 1;
 	CAN_FilterInitStructure.CAN_FilterMode = CAN_FilterMode_IdMask;
@@ -1272,7 +1274,6 @@ void CAN_IT_INIT()
 
 	/* CAN FIFO0 message pending interrupt enable */
 	CAN_ITConfig(CAN1, CAN_IT_FMP0, ENABLE);
-
 }
 
 /*
@@ -1286,13 +1287,14 @@ void CAN_IT_SEND(CanTxMsg TxMessage)
 //CanRxMsg CAN_IT_REC();
 
 /*
- * CAN总线接收中断
+ * CAN/USB总线接收中断
  */
 void USB_LP_CAN1_RX0_IRQHandler(void)
 {
 	CanRxMsg RxMessage;
 	CAN_Receive(CAN1, CAN_FIFO0, &RxMessage);
-	Analysys(RxMessage);
+
+	USB_Istr();
 
 }
 

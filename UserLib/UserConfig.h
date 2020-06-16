@@ -27,12 +27,16 @@
 #include "Gen/GenLib.h"
 #include "oled/oled.h"
 #include "keys/keys.h"
-#include "Functions/Servers.h"
-#include "DATAstruct/DATAstruct.h"
+
+//#include "Servers.h"
+
 #include "SPI_FLASH/SPI_FLASH.h"
-#include "Functions/BC28orEC20/BC28orEC20.h"
-#include "Functions/GPS/GPS.h"
-#include "Functions/CAN/CAN.h"
+
+#include "USB/inc/BSP.h"
+#include "USB/inc/BSP_tim.h"
+#include "USB/inc/HW_Config.h"
+#include "USB/inc/usb_istr.h"
+#include "USB/inc/usb_printf.h"
 /*---------------------------OLED-IIC设置--------------------------*/
 //如果选用了B端口即修改为 IIC_SDA_Poart_B即可
 #define IIC_SDA_Poart_A

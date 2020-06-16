@@ -41,7 +41,6 @@
 #define RTC_IT_OFF 	RTC_WaitForSynchro(),RTC_ITConfig(RTC_IT_SEC, DISABLE),RTC_WaitForLastTask()//关闭RTC每秒中断
 
 /***************************************************函数区域************************************************************/
-
 //中断初始化->组4->只有抢占优先级->0~15
 void nvic_init();
 
