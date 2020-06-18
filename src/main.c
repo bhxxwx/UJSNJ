@@ -23,6 +23,8 @@
 #include <stddef.h>
 #include "UserConfig.h"//用户库调用
 
+#include "stm32f10x_spi.h"
+
 /*操作系统库函数调用*/
 #include "FreeRTOS.h"
 #include "task.h"
@@ -38,15 +40,7 @@ int main(void)
 	DBGMCU_Config(DBGMCU_IWDG_STOP, ENABLE); //DEBUG时看门狗关闭
 	nvic_init();
 	pinModeB(GPIO_Pin_5, OUTPUT);
-
-	IOT_Reset(); //物联网设备复位
-	delay_us(10000000);
-	usart_1_init(115200);
 	IOT_init();
-//    USB_Port_Set(0);
-//    delay_us(100000);
-//    USB_Port_Set(1);
-//    USB_Config();
 
 	int count = 0;
 	while (1)

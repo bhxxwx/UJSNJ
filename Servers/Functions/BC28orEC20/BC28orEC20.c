@@ -68,10 +68,9 @@ void send_cmd(char *str)
  */
 void IOT_init()
 {
-//	IOT_Reset(); //物联网设备复位
-//	delay_us(12000000);
-//
-//	usart_1_init(115200);
+	IOT_Reset(); //物联网设备复位
+	delay_us(12000000);
+	usart_1_init(115200);
 
 	send_cmd("ATE0 \r\n"); //第1条指令,对应cmd_axis为1
 	delay_us(200000); //延时0.2s
@@ -88,20 +87,31 @@ void IOT_init()
 
 	if (check_receives(3, "ERROR"))
 	{
-		FullSystemReset();
+		NVIC_SystemReset();
 	}
 	delay_us(500000);
 	if (check_receives(3, "+QMTOPEN: 0,-1"))
 	{
-		FullSystemReset();
+		NVIC_SystemReset();
 	}
-	delay_us(1000000); //1s
+	if (check_receives(3, "+QMTOPEN: 0,3"))
+	{
+		NVIC_SystemReset();
+	}
+	if (check_receives(3, "+QMTOPEN: 0,2"))
+	{
+		NVIC_SystemReset();
+	}
 
 	send_cmd("AT+QMTCONN=0,\"ZRH_4G\" \r\n"); //第4条指令
 	delay_us(10000000);						  //1s
 	if (check_receives(4, "ERROR"))
 	{
-		FullSystemReset();
+		NVIC_SystemReset();
+	}
+	if (check_receives(4, "+QMTCONN: 0,1"))
+	{
+		NVIC_SystemReset();
 	}
 	cmd_axis = 6; //使用12号数组检测是否发送成功。
 	printf("AT+QMTPUB=0,0,0,1,\"/a1f2CH9BSx7/ZRH_4G/user/put\" \r\n");
@@ -120,7 +130,7 @@ void IOT_init()
 				for (int j = 0; j < 100; j++)
 					receives[12][i][j] = '\0';
 			}
-			FullSystemReset();
+			NVIC_SystemReset();
 			break;
 		}
 	}
@@ -161,7 +171,6 @@ void USART1_IRQHandler(void)
 	}
 }
 
-
 bool iscontants(char *str, char *cmd)
 {
 	int i = 0, start = 0, count = 0;
@@ -195,7 +204,7 @@ bool iscontants(char *str, char *cmd)
 bool check_receives(uint8_t cmd_number, char *cmd)
 {
 	int i = 0, j = 0;
-	char str[20] = {'\0'};
+	char str[20] = { '\0' };
 	for (i = 0; i < y_axis; i++)
 	{
 		for (j = 0; j < receives[cmd_number][i][99] - 2; j++)
@@ -205,32 +214,30 @@ bool check_receives(uint8_t cmd_number, char *cmd)
 		if (str[0] == '\0' || str[0] == '\r' || str[0] == '\n')
 		{
 			continue;
-		}
-		else if (iscontants(str, cmd))
+		} else if (iscontants(str, cmd))
 			return true;
 	}
 	return false;
 }
 
-
 void SendToCloud()
 {
 	printf("AT+QMTPUB=0,0,0,1,\"/a1f2CH9BSx7/ZRH_4G/user/put\"\r\n");
 	delay_us(100000); //0.1s
-		x_axis = 0;
-		y_axis = 0;
-		//	printf(
-		//		"{\"Mark\":\"A1001\",\"Time\":\"16:04:09\",\"N\":\"230.125\",\"E\":\"1920.658\",\"Bohelun\":\"%d\",\"Zuoye\":\"%d\",\"Fukuan\":\"%d\",\"Getai\":\"%d\",\"Shusongzhou\":\"%d\",\"Chesu\":\"%d\",\"QieLTL\":\"%d\",\"ZongZTL\":\"%d\",\"FongJZS\":\"%d\",\"QuDL\":\"%d\",\"ZhengDS\":\"%d\",\"LiZSP\":\"%d\",\"ZaYSP\":\"%d\",\"GeCGD\":\"%d\",\"QinXSS\":\"%d\",\"JiaDSS\":\"%d\",\"YuLSD\":\"%d\",\"HanZL\":\"%d\",\"PoSL\":\"%d\",\"LiZLL\":\"%d\"} \r\n",
-		//		Pack1.Mail_Box[1].whell_speed, Pack1.Mail_Box[1].is_on_work,
-		//		Pack1.Mail_Box[1].ultrasonic_sensor, Pack1.Mail_Box[1].rotating_speed,
-		//		Pack1.Mail_Box[1].drive_speed, Pack1.Mail_Box[1].car_speed,
-		//		Pack2.Mail_Box[1].roller_speed, Pack2.Mail_Box[1].Yroller_speed,
-		//		Pack2.Mail_Box[1].wind_speed, Pack2.Mail_Box[1].driver_speed,
-		//		Pack3.Mail_Box[1].shock_speed, Pack3.Mail_Box[1].Xroller_speed,
-		//		Pack3.Mail_Box[1].Xrest_speed, Pack4.Mail_Box[1].high,
-		//		Pack5.Mail_Box[1].cleanlost_sensor, Pack5.Mail_Box[1].cliplost_sensor,
-		//		Pack5.Mail_Box[1].angle, Pack6.Mail_Box[1].pure_value, Pack6.Mail_Box[1].break_value,
-		//		Pack7.Mail_Box[1].float_value);
+	x_axis = 0;
+	y_axis = 0;
+	//	printf(
+	//		"{\"Mark\":\"A1001\",\"Time\":\"16:04:09\",\"N\":\"230.125\",\"E\":\"1920.658\",\"Bohelun\":\"%d\",\"Zuoye\":\"%d\",\"Fukuan\":\"%d\",\"Getai\":\"%d\",\"Shusongzhou\":\"%d\",\"Chesu\":\"%d\",\"QieLTL\":\"%d\",\"ZongZTL\":\"%d\",\"FongJZS\":\"%d\",\"QuDL\":\"%d\",\"ZhengDS\":\"%d\",\"LiZSP\":\"%d\",\"ZaYSP\":\"%d\",\"GeCGD\":\"%d\",\"QinXSS\":\"%d\",\"JiaDSS\":\"%d\",\"YuLSD\":\"%d\",\"HanZL\":\"%d\",\"PoSL\":\"%d\",\"LiZLL\":\"%d\"} \r\n",
+	//		Pack1.Mail_Box[1].whell_speed, Pack1.Mail_Box[1].is_on_work,
+	//		Pack1.Mail_Box[1].ultrasonic_sensor, Pack1.Mail_Box[1].rotating_speed,
+	//		Pack1.Mail_Box[1].drive_speed, Pack1.Mail_Box[1].car_speed,
+	//		Pack2.Mail_Box[1].roller_speed, Pack2.Mail_Box[1].Yroller_speed,
+	//		Pack2.Mail_Box[1].wind_speed, Pack2.Mail_Box[1].driver_speed,
+	//		Pack3.Mail_Box[1].shock_speed, Pack3.Mail_Box[1].Xroller_speed,
+	//		Pack3.Mail_Box[1].Xrest_speed, Pack4.Mail_Box[1].high,
+	//		Pack5.Mail_Box[1].cleanlost_sensor, Pack5.Mail_Box[1].cliplost_sensor,
+	//		Pack5.Mail_Box[1].angle, Pack6.Mail_Box[1].pure_value, Pack6.Mail_Box[1].break_value,
+	//		Pack7.Mail_Box[1].float_value);
 }
 
 void pack_to_aliyun()

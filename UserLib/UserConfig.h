@@ -27,6 +27,7 @@
 #include "Gen/GenLib.h"
 #include "oled/oled.h"
 #include "keys/keys.h"
+#include "Functions/BC28orEC20/BC28orEC20.h"
 
 //#include "Servers.h"
 
