@@ -29,16 +29,32 @@ void SPI_INIT()
 	SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;						   //选择了串行时钟的稳态:时钟悬空高
 	SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;					   //数据捕获于第二个时钟沿
 	SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;						   //NSS信号由硬件（NSS管脚）还是软件（使用SSI位）管理:内部NSS信号有SSI位控制
-	SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_4; //定义波特率预分频的值:波特率预分频值为8-9M
+	SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_256; //定义波特率预分频的值:波特率预分频值为8-9M
 	SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;				   //指定数据传输从MSB位还是LSB位开始:数据传输从MSB位开始
 	SPI_InitStructure.SPI_CRCPolynomial = 7;						   //CRC值计算的多项式
 	SPI_Init(SPI1, &SPI_InitStructure);								   //根据SPI_InitStruct中指定的参数初始化外设SPIx寄存器
 
 	//	SPI_NSSInternalSoftwareConfig(SPI1,SPI_NSSInternalSoft_Reset);
 	pinModeA(GPIO_Pin_4, OUTPUT);
-	SPI_SSOutputCmd(SPI1, ENABLE);
+//	SPI_SSOutputCmd(SPI1, ENABLE);
 	SPI_Cmd(SPI1, ENABLE); //使能SPI外设
 	CS_HIGH;
+
+	u8 retry=0;
+	while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET) //检查指定的SPI标志位设置与否:发送缓存空标志位
+		{
+		retry++;
+		if(retry>200)return ;
+		}
+	SPI_I2S_SendData(SPI1, 0xFF); //通过外设SPIx发送一个数据
+	retry=0;
+
+	while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET)//检查指定的SPI标志位设置与否:接受缓存非空标志位
+		{
+		retry++;
+		if(retry>200)return ;
+		}
+	SPI_I2S_ReceiveData(SPI1); //返回通过SPIx最近接收的数据
 }
 
 void SPI_write(u8 TxData)
@@ -84,16 +100,30 @@ void SPI_writeStr(uint32_t page, char *str)
 	}
 }
 
-void WREN()
+void WriteEN()
 {
 	CS_LOW;
-	SPI_write(0x60);
-	//	delay_us(1);
+	SPI_write(FLASH_WRITE_ENABLE_CMD);
 	while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) == SET)
 		;
 	CS_HIGH;
-	//	delay_us(1);
-	CS_LOW;
+}
+
+void CheckBusy()
+{
+	uint8_t flag;
+
+	while(flag)
+	{
+		CS_LOW;
+		SPI_write(FLASH_READ_SR_CMD);
+		flag=SPI_MasterSendReceiveByte(0x00);
+
+		delay_us(1);
+		CS_HIGH;
+	}
+
+
 }
 void ERDI()
 {
@@ -131,4 +161,21 @@ int SPI_iprintf(uint32_t page, const char *fmt, ...)
 		va_end(va);
 	}
 	return length;
+}
+
+
+
+
+
+uint8_t SPI_MasterSendReceiveByte(uint8_t spi_byte)
+{
+	uint8_t count=0;
+	SPI_write(spi_byte);
+	while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET)//检查指定的SPI标志位设置与否:接受缓存非空标志位
+	{
+		count++;
+		if(count>200)
+			return false;
+	}
+	return SPI_I2S_ReceiveData(SPI1); //返回通过SPIx最近接收的数据
 }

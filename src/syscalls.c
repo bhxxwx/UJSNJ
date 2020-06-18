@@ -79,9 +79,14 @@ int _write(int32_t file, uint8_t *ptr, int32_t len)
 {
 	/* Implement your write code here, this is used by puts and printf for example */
 	/* return len; */
-	
+	int i=0;
+	for(;i<len;i++)
+	{
+		while(USART_GetFlagStatus(USART1,USART_FLAG_TXE)!=SET);
+		USART_SendData(USART1, *(ptr+i));
+	}
 	errno = ENOSYS;
-	return -1;
+	return len;
 }
 
 void * _sbrk(int32_t incr)
