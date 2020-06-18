@@ -68,10 +68,10 @@ void send_cmd(char *str)
  */
 void IOT_init()
 {
-	IOT_Reset(); //物联网设备复位
-	delay_us(12000000);
-
-	usart_1_init(9600);
+//	IOT_Reset(); //物联网设备复位
+//	delay_us(12000000);
+//
+//	usart_1_init(115200);
 
 	send_cmd("ATE0 \r\n"); //第1条指令,对应cmd_axis为1
 	delay_us(200000); //延时0.2s
@@ -99,11 +99,11 @@ void IOT_init()
 
 	send_cmd("AT+QMTCONN=0,\"ZRH_4G\" \r\n"); //第4条指令
 	delay_us(10000000);						  //1s
-	if (check_receives(10, "ERROR"))
+	if (check_receives(4, "ERROR"))
 	{
 		FullSystemReset();
 	}
-	cmd_axis = 12; //使用12号数组检测是否发送成功。
+	cmd_axis = 6; //使用12号数组检测是否发送成功。
 	printf("AT+QMTPUB=0,0,0,1,\"/a1f2CH9BSx7/ZRH_4G/user/put\" \r\n");
 	delay_us(100000); //0.1s
 	x_axis = 0;
@@ -111,9 +111,9 @@ void IOT_init()
 	printf("~ \r\n");
 
 	delay_us(200000);
-	while (!check_receives(12, "+QMTPUB: 0,0,0"))
+	while (!check_receives(6, "+QMTPUB: 0,0,0"))
 	{
-		if (check_receives(12, "ERROR"))
+		if (check_receives(6, "ERROR"))
 		{
 			for (int i = 0; i < 10; i++)
 			{

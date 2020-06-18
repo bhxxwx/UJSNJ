@@ -33,12 +33,16 @@
  * TODO BC28orEC20函数中接收缓冲区过于庞大,需要精简;
  */
 
-
 int main(void)
 {
-	DBGMCU_Config(DBGMCU_IWDG_STOP,ENABLE);//DEBUG时看门狗关闭
+	DBGMCU_Config(DBGMCU_IWDG_STOP, ENABLE); //DEBUG时看门狗关闭
 	nvic_init();
+	pinModeB(GPIO_Pin_5, OUTPUT);
 
+	IOT_Reset(); //物联网设备复位
+	delay_us(10000000);
+	usart_1_init(115200);
+	IOT_init();
 //    USB_Port_Set(0);
 //    delay_us(100000);
 //    USB_Port_Set(1);
@@ -50,6 +54,4 @@ int main(void)
 		count++;
 	}
 }
-
-
 
