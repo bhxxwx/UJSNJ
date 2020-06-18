@@ -39,7 +39,7 @@ int main(void)
 {
 	DBGMCU_Config(DBGMCU_IWDG_STOP, ENABLE); //DEBUG时看门狗关闭
 	nvic_init();
-	pinModeB(GPIO_Pin_5, OUTPUT);
+	pinModeB(GPIO_Pin_5, OUTPUT);			 //IOT设备复位引脚
 	IOT_init();
 
 	int count = 0;
