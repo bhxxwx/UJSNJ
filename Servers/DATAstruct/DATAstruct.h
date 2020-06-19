@@ -112,7 +112,7 @@ typedef struct
 typedef struct
 {
 	ID_INFO ID_INFO;				//ID数据解析结构体
-	Mail_Box1 Mail_Box;			//数据缓存区
+	Mail_Box1 Mail_Box;				//数据缓存区
 	uint32_t ID;					//完整ID
 } Cach1;
 
@@ -176,7 +176,6 @@ typedef struct
 	uint32_t ID;
 } Cach7;
 
-
 typedef struct
 {
 	Cach1 CANpack1;
@@ -196,7 +195,7 @@ typedef struct
 	char NorS;
 	char EorW;
 	char AorP;
-	char High[9];//高度
+	char High[9];					//高度
 	bool ATW;
 
 	char time_new_status;	 //time时间刷新标志位。0未刷新，1刷新
@@ -218,4 +217,86 @@ typedef struct
 	bool ATR;
 } GPS_INIT;
 
+/*
+ * CAN数据包1——main函数使用
+ * 为了解耦而新建的传参结构体
+ */
+typedef struct
+{
+	uint8_t whell_speed; 			//拨禾轮转速/转速传感器
+	bool is_on_work; 				//作业状态
+	uint16_t ultrasonic_sensor; 	//幅宽/超声波传感器
+	uint8_t rotating_speed; 		//割台搅龙转速/转速传感器
+	uint16_t drive_speed; 			//输送槽主动轴转速/转速传感器
+	uint8_t car_speed; 				//车速/车速雷达传感器
+	bool ATW;
+} CAN_buffer1;
+
+/*
+ * CAN数据包2——main函数使用
+ * 为了解耦而新建的传参结构体
+ */
+typedef struct
+{
+	uint16_t roller_speed;			//切流脱粒滚筒/转速传感器
+	uint16_t Yroller_speed;			//纵轴流脱粒滚筒/转速传感器
+	uint16_t wind_speed;			//风机转速/转速传感器
+	uint8_t driver_speed;			//驱动轮转速/转速传感器
+	bool ATW;
+} CAN_buffer2;
+
+/*
+ * CAN数据包3——main函数使用
+ * 为了解耦而新建的传参结构体
+ */
+typedef struct
+{
+	uint16_t shock_speed;			//振动筛驱动轴转速/转速传感器
+	uint16_t Xroller_speed;			//籽粒水平搅龙转速/转速传感器
+	uint16_t Xrest_speed;			//杂余水平搅龙转/转速传感器
+	bool ATW;
+} CAN_buffer3;
+
+/*
+ * CAN数据包4——main函数使用
+ * 为了解耦而新建的传参结构体
+ */
+typedef struct
+{
+	uint16_t high;					//割茬高度/割茬高度传感器
+	bool ATW;
+} CAN_buffer4;
+
+/*
+ * CAN数据包5——main函数使用
+ * 为了解耦而新建的传参结构体
+ */
+typedef struct
+{
+	uint16_t cleanlost_sensor;		//清选损失/清选损失传感器
+	uint16_t cliplost_sensor;		//夹带损失/夹带损失传感器
+	uint8_t angle;
+	bool ATW;
+} CAN_buffer5;
+
+/*
+ * CAN数据包6——main函数使用
+ * 为了解耦而新建的传参结构体
+ */
+typedef struct
+{
+	uint8_t pure_value;				//含杂率/含杂率传感器
+	uint8_t break_value;			//破碎率/破碎率传感器
+	bool ATW;
+} CAN_buffer6;
+
+/*
+ * CAN数据包7——main函数使用
+ * 为了解耦而新建的传参结构体
+ */
+typedef struct
+{
+	uint8_t float_value;			//籽粒流量/籽粒流量监测传感器
+	bool ATW;
+} CAN_buffer7;
 #endif /* DATASTRUCT_DATASTRUCT_H_ */

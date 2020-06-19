@@ -134,7 +134,7 @@ void IOT_init()
 			break;
 		}
 	}
-	delay_us(1000000); //1s
+	delay_us(100000); //0.1s
 }
 
 /*

@@ -23,6 +23,7 @@
 #include <stddef.h>
 #include "UserConfig.h"//用户库调用
 
+
 #include "stm32f10x_spi.h"
 
 /*操作系统库函数调用*/
@@ -31,9 +32,53 @@
 #include "queue.h"
 #include "timers.h"
 
-/*
- * TODO BC28orEC20函数中接收缓冲区过于庞大,需要精简;
- */
+/*标志位、变量定义*/
+char CANerr = 0;														//CAN bus interrupt flag
+char GPSerr = 0;														//GPS interrupt flag
+int time_count = 0;														//Global variable ———— timing time
+#define Timeout_time 2													//Constant —— defines the timeout time
+
+/*RTC timing time*/
+void time_break_function()
+{
+	time_count++;
+}
+
+/* Buffer for CAN bus parameter transmission */
+CAN_buffer1 CAN_Buffer_1;
+CAN_buffer2 CAN_Buffer_2;
+CAN_buffer3 CAN_Buffer_3;
+CAN_buffer4 CAN_Buffer_4;
+CAN_buffer5 CAN_Buffer_5;
+CAN_buffer6 CAN_Buffer_6;
+CAN_buffer7 CAN_Buffer_7;
+
+/*Operating system thread 1 for CAN*/
+void CAN_Analysis()
+{
+	while (1)
+	{
+		Clear_CAN_Box();								//清零CAN数据包，防止旧数据干扰
+		SetFalgATW();									//允许CAN总线刷新获取数据
+		Get_CAN_data(CAN_Buffer_1,CAN_Buffer_2,CAN_Buffer_3,CAN_Buffer_4,CAN_Buffer_5,CAN_Buffer_6,CAN_Buffer_7);//Get CAN bus data packet
+		while (!(CAN_Buffer_1.ATW == false || CAN_Buffer_2.ATW == false			//有一个CAN包被刷新，则退出循环
+		        || CAN_Buffer_3.ATW == false || CAN_Buffer_4.ATW == false
+		        || CAN_Buffer_5.ATW == false || CAN_Buffer_6.ATW == false
+		        || CAN_Buffer_7.ATW == false))
+		{
+			Get_CAN_data(CAN_Buffer_1,CAN_Buffer_2,CAN_Buffer_3,CAN_Buffer_4,CAN_Buffer_5,CAN_Buffer_6,CAN_Buffer_7);//Get CAN bus data packet
+			if (time_count > Timeout_time)
+			{
+				time_count = 0;
+				CANerr = 1;
+				break;
+			}
+			CANerr = 0;
+		}
+
+		vTaskDelay(100);    //单位2ms
+	}
+}
 
 int main(void)
 {
@@ -42,10 +87,12 @@ int main(void)
 	pinModeB(GPIO_Pin_5, OUTPUT);			 //IOT设备复位引脚
 	IOT_init();
 
-	int count = 0;
+	xTaskCreate(CAN_Analysis, "GetCAN", 1024, NULL, 3, NULL);
+	vTaskStartScheduler();
+
 	while (1)
 	{
-		count++;
+
 	}
 }
 
