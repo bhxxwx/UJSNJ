@@ -37,6 +37,8 @@ char CANerr = 0;														//CAN bus interrupt flag
 char GPSerr = 0;														//GPS interrupt flag
 int time_count = 0;														//Global variable ———— timing time
 #define Timeout_time 2													//Constant —— defines the timeout time
+char CAN_new_message=0;													//Global variable ———— CAN get new message
+char GPS_new_message=0;													//Global variable ———— GPS get new message
 
 /*RTC timing time*/
 void time_break_function()
@@ -60,6 +62,7 @@ void CAN_Analysis()
 	{
 		Clear_CAN_Box();								//清零CAN数据包，防止旧数据干扰
 		SetFalgATW();									//允许CAN总线刷新获取数据
+		vTaskDelay(20);   								//单位2ms
 		Get_CAN_data(CAN_Buffer_1,CAN_Buffer_2,CAN_Buffer_3,CAN_Buffer_4,CAN_Buffer_5,CAN_Buffer_6,CAN_Buffer_7);//Get CAN bus data packet
 		while (!(CAN_Buffer_1.ATW == false || CAN_Buffer_2.ATW == false			//有一个CAN包被刷新，则退出循环
 		        || CAN_Buffer_3.ATW == false || CAN_Buffer_4.ATW == false
@@ -71,11 +74,12 @@ void CAN_Analysis()
 			{
 				time_count = 0;
 				CANerr = 1;
+				CAN_new_message=1;						//Set CAN new message flag
 				break;
 			}
+			CAN_new_message=1;							//Set CAN new message flag
 			CANerr = 0;
 		}
-
 		vTaskDelay(100);    //单位2ms
 	}
 }
