@@ -33,23 +33,23 @@ void GPS_Begin_analysis()
 	GPSDATA.ATW = true;
 }
 
-/* GPS set x lock flag*/
-void GPS_set_xlock()
-{
-	GPSDATA.xlock = 1;
-}
-
-/* GPS clear x lock flag*/
-void GPS_clear_xlock()
-{
-	GPSDATA.xlock = 0;
-}
-
-/* GPS read x lock flag*/
-bool GPS_read_xlock()
-{
-	return GPSDATA.xlock;
-}
+///* GPS set x lock flag*/
+//void GPS_set_xlock()
+//{
+//	GPSDATA.xlock = 1;
+//}
+//
+///* GPS clear x lock flag*/
+//void GPS_clear_xlock()
+//{
+//	GPSDATA.xlock = 0;
+//}
+//
+///* GPS read x lock flag*/
+//bool GPS_read_xlock()
+//{
+//	return GPSDATA.xlock;
+//}
 
 void USART3_IRQHandler(void)
 {

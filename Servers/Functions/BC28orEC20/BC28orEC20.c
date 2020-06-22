@@ -10,7 +10,7 @@
 //可支持19条指令(1~19)[0另作他用],每条指令可接收10条返回信息(0~9),每条返回信息长度最长97(0~96)[98为溢出标记位][99作为单条信息长度数据记录位]
 //char receives[20][10][100]; //BC28或者EC20返回数据的缓冲区
 char receives[8][4][40];
-
+extern char IOTerr;															//IOT interrupt flag
 /*	无符号8位整型变量
  *  x_axis:横轴计数,即串口单次接受的数据长度(以\r\n作为一条数据结束标记)
  *  y_axis:纵轴计数,即串口同一条命令下接受的数据条数(以\r\n作为一条数据结束标记)
@@ -68,10 +68,9 @@ void send_cmd(char *str)
  */
 void IOT_init()
 {
-	IOT_Reset(); //物联网设备复位
-	delay_us(12000000);
+//	IOT_Reset(); //物联网设备复位
+	delay_us(10000000);
 	usart_1_init(115200);
-
 	send_cmd("ATE0 \r\n"); //第1条指令,对应cmd_axis为1
 	delay_us(200000); //延时0.2s
 	while (!check_receives(1, "OK"))
@@ -87,33 +86,45 @@ void IOT_init()
 
 	if (check_receives(3, "ERROR"))
 	{
-		NVIC_SystemReset();
+//		NVIC_SystemReset();
+		IOT_Reset();
+		return;
 	}
 	delay_us(500000);
 	if (check_receives(3, "+QMTOPEN: 0,-1"))
 	{
-		NVIC_SystemReset();
+//		NVIC_SystemReset();
+		IOT_Reset();
+		return;
 	}
 	if (check_receives(3, "+QMTOPEN: 0,3"))
 	{
-		NVIC_SystemReset();
+//		NVIC_SystemReset();
+		IOT_Reset();
+		return;
 	}
 	if (check_receives(3, "+QMTOPEN: 0,2"))
 	{
-		NVIC_SystemReset();
+//		NVIC_SystemReset();
+		IOT_Reset();
+		return;
 	}
 
 	send_cmd("AT+QMTCONN=0,\"ZRH_4G\" \r\n"); //第4条指令
 	delay_us(10000000);						  //1s
 	if (check_receives(4, "ERROR"))
 	{
-		NVIC_SystemReset();
+//		NVIC_SystemReset();
+		IOT_Reset();
+		return;
 	}
 	if (check_receives(4, "+QMTCONN: 0,1"))
 	{
-		NVIC_SystemReset();
+//		NVIC_SystemReset();
+		IOT_Reset();
+		return;
 	}
-	cmd_axis = 6; //使用12号数组检测是否发送成功。
+	cmd_axis = 6; //使用6号数组检测是否发送成功。
 	printf("AT+QMTPUB=0,0,0,1,\"/a1f2CH9BSx7/ZRH_4G/user/put\" \r\n");
 	delay_us(100000); //0.1s
 	x_axis = 0;
@@ -130,10 +141,12 @@ void IOT_init()
 				for (int j = 0; j < 100; j++)
 					receives[12][i][j] = '\0';
 			}
-			NVIC_SystemReset();
-			break;
+//			NVIC_SystemReset();
+			IOT_Reset();
+			return;
 		}
 	}
+	IOTerr=0;											//IOT工作正常
 	delay_us(100000); //0.1s
 }
 
@@ -220,6 +233,7 @@ bool check_receives(uint8_t cmd_number, char *cmd)
 	return false;
 }
 
+/*
 void SendToCloud()
 {
 	printf("AT+QMTPUB=0,0,0,1,\"/a1f2CH9BSx7/ZRH_4G/user/put\"\r\n");
@@ -239,13 +253,15 @@ void SendToCloud()
 	//		Pack5.Mail_Box[1].angle, Pack6.Mail_Box[1].pure_value, Pack6.Mail_Box[1].break_value,
 	//		Pack7.Mail_Box[1].float_value);
 }
+*/
 
 void pack_to_aliyun()
 {
 	printf("AT+QMTPUB=0,0,0,1,\"/a1f2CH9BSx7/ZRH_4G/user/put\" \r\n");
 	delay_us(100000); //0.1s
-//	x_axis = 0;
-//	y_axis = 0;
+	x_axis = 0;
+	y_axis = 0;
+	cmd_axis = 6; //使用6号数组检测是否发送成功。
 //	printf(
 //		"{\"Mark\":\"A1001\",\"Time\":\"16:04:09\",\"N\":\"230.125\",\"E\":\"1920.658\",\"Bohelun\":\"%d\",\"Zuoye\":\"%d\",\"Fukuan\":\"%d\",\"Getai\":\"%d\",\"Shusongzhou\":\"%d\",\"Chesu\":\"%d\",\"QieLTL\":\"%d\",\"ZongZTL\":\"%d\",\"FongJZS\":\"%d\",\"QuDL\":\"%d\",\"ZhengDS\":\"%d\",\"LiZSP\":\"%d\",\"ZaYSP\":\"%d\",\"GeCGD\":\"%d\",\"QinXSS\":\"%d\",\"JiaDSS\":\"%d\",\"YuLSD\":\"%d\",\"HanZL\":\"%d\",\"PoSL\":\"%d\",\"LiZLL\":\"%d\"} \r\n",
 //		Pack1.Mail_Box[1].whell_speed, Pack1.Mail_Box[1].is_on_work,
@@ -259,18 +275,19 @@ void pack_to_aliyun()
 //		Pack5.Mail_Box[1].angle, Pack6.Mail_Box[1].pure_value, Pack6.Mail_Box[1].break_value,
 //		Pack7.Mail_Box[1].float_value);
 //
-//	delay_us(500000); //0.5s
-//	while (!check_receives(12, "+QMTPUB: 0,0,0"))
-//	{
-//		if (check_receives(12, "ERROR")) //检测指令2返回的数据中是否包含"ok"
-//		{
-//			for (int i = 0; i < 10; i++)
-//			{
-//				for (int j = 0; j < 99; j++)
-//					receives[12][i][j] = '\0';
-//			}
-//			BC28_Init();
-//			break;
-//		}
-//	}
+	delay_us(500000); //0.5s
+	while (!check_receives(12, "+QMTPUB: 0,0,0"))
+	{
+		if (check_receives(12, "ERROR")) //检测指令2返回的数据中是否包含"ok"
+		{
+			for (int i = 0; i < 10; i++)
+			{
+				for (int j = 0; j < 99; j++)
+					receives[12][i][j] = '\0';
+			}
+			IOTerr=1;										//IOT掉线，等待重启
+	//			BC28_Init();
+			break;
+		}
+	}
 }

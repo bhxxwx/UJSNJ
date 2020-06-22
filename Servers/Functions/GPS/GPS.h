@@ -10,9 +10,9 @@
 #include "UserConfig.h"
 #include "DATAstruct/DATAstruct.h"
 void GPS_init();
-void GPS_set_xlock();
-void GPS_clear_xlock();
-bool GPS_read_xlock();
+//void GPS_set_xlock();
+//void GPS_clear_xlock();
+//bool GPS_read_xlock();
 void GPS_Begin_analysis();
 void anaGPS();
 

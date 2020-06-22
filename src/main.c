@@ -33,6 +33,7 @@
 /*标志位、变量定义*/
 char CANerr = 0;														//CAN bus interrupt flag
 char GPSerr = 0;														//GPS interrupt flag
+char IOTerr=0;															//IOT interrupt flag
 int time_count = 0;										//Global variable ———— CAN timing time
 #define Timeout_time 2													//Constant —— defines the timeout time
 char CAN_new_message = 0;								//Global variable ———— CAN get new message
@@ -62,7 +63,7 @@ void CAN_Analysis()
 	while (1)
 	{
 		Clear_CAN_Box();								//清零CAN数据包，防止旧数据干扰
-		SetFalgATW();									//允许CAN总线刷新获取数据
+		SetCANFalgATW();									//允许CAN总线刷新获取数据
 		vTaskDelay(20);   								//单位2ms
 		Get_CAN_data(CAN_Buffer_1, CAN_Buffer_2, CAN_Buffer_3, CAN_Buffer_4, CAN_Buffer_5,
 		        CAN_Buffer_6, CAN_Buffer_7);   							//Get CAN bus data packet
@@ -93,11 +94,11 @@ void GPS_Analysis()
 {
 	while (1)
 	{
-		while (GPS_Buffer.xlock == 1)
-		{
-			vTaskDelay(20);   								//单位2ms,释放线程，等待上报函数释放GPS buffer
-		}
-		GPS_set_xlock();									//对GPS buffer上锁，防止上报脏数据
+//		while (GPS_Buffer.xlock == 1)
+//		{
+//			vTaskDelay(20);   								//单位2ms,释放线程，等待上报函数释放GPS buffer
+//		}
+//		GPS_set_xlock();									//对GPS buffer上锁，防止上报脏数据
 		GPS_Begin_analysis();								//GPS允许解析数据
 		anaGPS();											//GPS analysis
 		GPS_get_message();									//Refresh GPS
@@ -116,11 +117,26 @@ void GPS_Analysis()
 			GPS_new_message = 1;							//Set GPS new message flag
 			GPSerr = 0;
 		}
-		GPS_clear_xlock();									//对GPS buffer解锁，允许上报函数读取
-		vTaskDelay(100);    //单位2ms
+//		GPS_clear_xlock();									//对GPS buffer解锁，允许上报函数读取
+		vTaskDelay(100);    								//单位2ms
 	}
 }
 
+/*Operating system thread 1 for upload or store*/
+void upload_or_store()
+{
+	while(1)
+	{
+		if(GPS_new_message == 1||CAN_new_message == 1)	//CAN,GPS有一个刷新完成就上报
+		{
+
+		}
+		vTaskDelay(10);    								//单位2ms,每20ms请求一次上报
+	}
+}
+
+/*Operating system thread 1 for abnormal detection*/
+void
 int main(void)
 {
 	DBGMCU_Config(DBGMCU_IWDG_STOP, ENABLE); //DEBUG时看门狗关闭
@@ -129,6 +145,8 @@ int main(void)
 	IOT_init();
 
 	xTaskCreate(CAN_Analysis, "GetCAN", 1024, NULL, 3, NULL);
+	xTaskCreate(GPS_Analysis, "GetGPS", 1024, NULL, 3, NULL);
+	xTaskCreate(upload_or_store, "up/store", 1024, NULL, 2, NULL);
 	vTaskStartScheduler();
 
 	while (1)

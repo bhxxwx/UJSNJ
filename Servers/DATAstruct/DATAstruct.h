@@ -197,7 +197,7 @@ typedef struct
 	char AorP;
 	char High[9];						//高度
 	bool ATW;
-	bool xlock;							//x锁，防止读脏数据
+//	bool xlock;							//x锁，防止读脏数据
 	char time_new_status;	 			//time时间刷新标志位。0未刷新，1刷新
 	char gps_new_status;	 			//GPS刷新标志位。0未刷新，1刷新
 } GPS_DATA;

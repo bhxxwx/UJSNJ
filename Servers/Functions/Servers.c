@@ -21,7 +21,7 @@ void GPS_get_message()
 	GPS_Buffer.AorP=GPSDATA.AorP;
 	GPS_Buffer.High[9]=GPSDATA.High[9];
 	GPS_Buffer.ATW=GPSDATA.ATW;
-	GPS_Buffer.xlock=GPSDATA.xlock;
+//	GPS_Buffer.xlock=GPSDATA.xlock;
 	GPS_Buffer.time_new_status=GPSDATA.time_new_status;
 	GPS_Buffer.gps_new_status=GPSDATA.gps_new_status;
 }

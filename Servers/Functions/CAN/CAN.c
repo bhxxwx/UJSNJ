@@ -175,7 +175,7 @@ void Analysys_DATA(uint8_t Pack_NO, CanRxMsg CANRX)
 /*
  *将所有CAN数据接收缓冲区的ATW标记为置位
  */
-void SetFalgATW()
+void SetCANFalgATW()
 {
 	Pack1.Mail_Box.ATW = true;						//允许CAN总线刷新获取数据
 	Pack2.Mail_Box.ATW = true;
