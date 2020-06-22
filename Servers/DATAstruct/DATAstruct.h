@@ -195,11 +195,11 @@ typedef struct
 	char NorS;
 	char EorW;
 	char AorP;
-	char High[9];					//高度
+	char High[9];						//高度
 	bool ATW;
-
-	char time_new_status;	 //time时间刷新标志位。0未刷新，1刷新
-	char gps_new_status;	 //GPS刷新标志位。0未刷新，1刷新
+	bool xlock;							//x锁，防止读脏数据
+	char time_new_status;	 			//time时间刷新标志位。0未刷新，1刷新
+	char gps_new_status;	 			//GPS刷新标志位。0未刷新，1刷新
 } GPS_DATA;
 
 /*
@@ -299,4 +299,6 @@ typedef struct
 	uint8_t float_value;			//籽粒流量/籽粒流量监测传感器
 	bool ATW;
 } CAN_buffer7;
+
+
 #endif /* DATASTRUCT_DATASTRUCT_H_ */

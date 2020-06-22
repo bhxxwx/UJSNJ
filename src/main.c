@@ -22,8 +22,6 @@
 #include <stdio.h>
 #include <stddef.h>
 #include "UserConfig.h"//用户库调用
-
-
 #include "stm32f10x_spi.h"
 
 /*操作系统库函数调用*/
@@ -35,10 +33,10 @@
 /*标志位、变量定义*/
 char CANerr = 0;														//CAN bus interrupt flag
 char GPSerr = 0;														//GPS interrupt flag
-int time_count = 0;														//Global variable ———— timing time
+int time_count = 0;										//Global variable ———— CAN timing time
 #define Timeout_time 2													//Constant —— defines the timeout time
-char CAN_new_message=0;													//Global variable ———— CAN get new message
-char GPS_new_message=0;													//Global variable ———— GPS get new message
+char CAN_new_message = 0;								//Global variable ———— CAN get new message
+char GPS_new_message = 0;								//Global variable ———— GPS get new message
 
 /*RTC timing time*/
 void time_break_function()
@@ -55,6 +53,9 @@ CAN_buffer5 CAN_Buffer_5;
 CAN_buffer6 CAN_Buffer_6;
 CAN_buffer7 CAN_Buffer_7;
 
+/* Buffer for GPS parameter transmission */
+GPS_DATA GPS_Buffer;
+
 /*Operating system thread 1 for CAN*/
 void CAN_Analysis()
 {
@@ -63,23 +64,59 @@ void CAN_Analysis()
 		Clear_CAN_Box();								//清零CAN数据包，防止旧数据干扰
 		SetFalgATW();									//允许CAN总线刷新获取数据
 		vTaskDelay(20);   								//单位2ms
-		Get_CAN_data(CAN_Buffer_1,CAN_Buffer_2,CAN_Buffer_3,CAN_Buffer_4,CAN_Buffer_5,CAN_Buffer_6,CAN_Buffer_7);//Get CAN bus data packet
+		Get_CAN_data(CAN_Buffer_1, CAN_Buffer_2, CAN_Buffer_3, CAN_Buffer_4, CAN_Buffer_5,
+		        CAN_Buffer_6, CAN_Buffer_7);   							//Get CAN bus data packet
+
 		while (!(CAN_Buffer_1.ATW == false || CAN_Buffer_2.ATW == false			//有一个CAN包被刷新，则退出循环
-		        || CAN_Buffer_3.ATW == false || CAN_Buffer_4.ATW == false
-		        || CAN_Buffer_5.ATW == false || CAN_Buffer_6.ATW == false
-		        || CAN_Buffer_7.ATW == false))
+		|| CAN_Buffer_3.ATW == false || CAN_Buffer_4.ATW == false || CAN_Buffer_5.ATW == false
+		        || CAN_Buffer_6.ATW == false || CAN_Buffer_7.ATW == false))
 		{
-			Get_CAN_data(CAN_Buffer_1,CAN_Buffer_2,CAN_Buffer_3,CAN_Buffer_4,CAN_Buffer_5,CAN_Buffer_6,CAN_Buffer_7);//Get CAN bus data packet
+			Get_CAN_data(CAN_Buffer_1, CAN_Buffer_2, CAN_Buffer_3, CAN_Buffer_4, CAN_Buffer_5,
+			        CAN_Buffer_6, CAN_Buffer_7);			//Get CAN bus data packet
 			if (time_count > Timeout_time)
 			{
 				time_count = 0;
 				CANerr = 1;
-				CAN_new_message=1;						//Set CAN new message flag
+				CAN_new_message = 1;						//Set CAN new message flag
 				break;
 			}
-			CAN_new_message=1;							//Set CAN new message flag
+			time_count = 0;
+			CAN_new_message = 1;							//Set CAN new message flag
 			CANerr = 0;
 		}
+		vTaskDelay(100);    //单位2ms
+	}
+}
+
+/*Operating system thread 1 for GPS*/
+void GPS_Analysis()
+{
+	while (1)
+	{
+		while (GPS_Buffer.xlock == 1)
+		{
+			vTaskDelay(20);   								//单位2ms,释放线程，等待上报函数释放GPS buffer
+		}
+		GPS_set_xlock();									//对GPS buffer上锁，防止上报脏数据
+		GPS_Begin_analysis();								//GPS允许解析数据
+		anaGPS();											//GPS analysis
+		GPS_get_message();									//Refresh GPS
+		while (!GPS_Buffer.ATW == false)
+		{
+			anaGPS();
+			GPS_get_message();
+			if (time_count > Timeout_time)
+			{
+				time_count = 0;
+				GPSerr = 1;
+				GPS_new_message = 1;						//Set GPS new message flag
+				break;
+			}
+			time_count = 0;
+			GPS_new_message = 1;							//Set GPS new message flag
+			GPSerr = 0;
+		}
+		GPS_clear_xlock();									//对GPS buffer解锁，允许上报函数读取
 		vTaskDelay(100);    //单位2ms
 	}
 }
