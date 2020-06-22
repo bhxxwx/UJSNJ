@@ -136,7 +136,13 @@ void upload_or_store()
 }
 
 /*Operating system thread 1 for abnormal detection*/
-void
+void Abnormal_detection()
+{
+	if(IOTerr==1)
+	{
+		IOT_init();
+	}
+}
 int main(void)
 {
 	DBGMCU_Config(DBGMCU_IWDG_STOP, ENABLE); //DEBUG时看门狗关闭

@@ -68,7 +68,7 @@ void send_cmd(char *str)
  */
 void IOT_init()
 {
-//	IOT_Reset(); //物联网设备复位
+	IOT_Reset(); //物联网设备复位
 	delay_us(10000000);
 	usart_1_init(115200);
 	send_cmd("ATE0 \r\n"); //第1条指令,对应cmd_axis为1
@@ -87,26 +87,30 @@ void IOT_init()
 	if (check_receives(3, "ERROR"))
 	{
 //		NVIC_SystemReset();
-		IOT_Reset();
+//		IOT_Reset();
+		IOTerr=1;
 		return;
 	}
 	delay_us(500000);
 	if (check_receives(3, "+QMTOPEN: 0,-1"))
 	{
 //		NVIC_SystemReset();
-		IOT_Reset();
+//		IOT_Reset();
+		IOTerr=1;
 		return;
 	}
 	if (check_receives(3, "+QMTOPEN: 0,3"))
 	{
 //		NVIC_SystemReset();
-		IOT_Reset();
+//		IOT_Reset();
+		IOTerr=1;
 		return;
 	}
 	if (check_receives(3, "+QMTOPEN: 0,2"))
 	{
 //		NVIC_SystemReset();
-		IOT_Reset();
+//		IOT_Reset();
+		IOTerr=1;
 		return;
 	}
 
@@ -115,13 +119,15 @@ void IOT_init()
 	if (check_receives(4, "ERROR"))
 	{
 //		NVIC_SystemReset();
-		IOT_Reset();
+//		IOT_Reset();
+		IOTerr=1;
 		return;
 	}
 	if (check_receives(4, "+QMTCONN: 0,1"))
 	{
 //		NVIC_SystemReset();
-		IOT_Reset();
+//		IOT_Reset();
+		IOTerr=1;
 		return;
 	}
 	cmd_axis = 6; //使用6号数组检测是否发送成功。
@@ -142,7 +148,8 @@ void IOT_init()
 					receives[12][i][j] = '\0';
 			}
 //			NVIC_SystemReset();
-			IOT_Reset();
+//			IOT_Reset();
+			IOTerr=1;
 			return;
 		}
 	}
