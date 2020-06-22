@@ -37,6 +37,7 @@ SOFTWARE.
 #include <time.h>
 #include <sys/time.h>
 #include <sys/times.h>
+#include "UserConfig.h"
 
 
 /* Variables */
