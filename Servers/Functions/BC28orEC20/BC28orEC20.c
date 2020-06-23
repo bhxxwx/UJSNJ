@@ -7,9 +7,30 @@
 
 #include "BC28orEC20.h"
 
+/*操作系统库函数调用*/
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
+#include "timers.h"
+
 //可支持19条指令(1~19)[0另作他用],每条指令可接收10条返回信息(0~9),每条返回信息长度最长97(0~96)[98为溢出标记位][99作为单条信息长度数据记录位]
 //char receives[20][10][100]; //BC28或者EC20返回数据的缓冲区
 char receives[8][4][40];
+
+/* Buffer for GPS parameter transmission */
+extern GPS_DATA GPS_Buffer;
+extern char CANerr;														//CAN bus interrupt flag
+extern char GPSerr;														//GPS interrupt flag
+
+/* Buffer for CAN bus parameter transmission */
+CAN_buffer1 CAN_Buffer_1;
+CAN_buffer2 CAN_Buffer_2;
+CAN_buffer3 CAN_Buffer_3;
+CAN_buffer4 CAN_Buffer_4;
+CAN_buffer5 CAN_Buffer_5;
+CAN_buffer6 CAN_Buffer_6;
+CAN_buffer7 CAN_Buffer_7;
+
 extern char IOTerr;															//IOT interrupt flag
 /*	无符号8位整型变量
  *  x_axis:横轴计数,即串口单次接受的数据长度(以\r\n作为一条数据结束标记)
@@ -69,75 +90,83 @@ void send_cmd(char *str)
 void IOT_init()
 {
 	IOT_Reset(); //物联网设备复位
-	delay_us(10000000);
+//	delay_us(10000000);
+	vTaskDelay(5000);					//释放总线10s
 	usart_1_init(115200);
 	send_cmd("ATE0 \r\n"); //第1条指令,对应cmd_axis为1
-	delay_us(200000); //延时0.2s
+//	delay_us(200000); //延时0.2s
+	vTaskDelay(100);					//释放总线0.2s
 	while (!check_receives(1, "OK"))
 		//检测指令1返回的数据中是否包含"ok"
 		;
 
 	send_cmd(
 	        "AT+QMTCFG=\"aliauth\",0,\"a1f2CH9BSx7\",\"ZRH_4G\",\"TEnbrWdkBXfLkca73A9Nhyzqe9o19HM6\" \r\n"); //第2条指令
-	delay_us(500000); //延时0.5s
+//	delay_us(500000); //延时0.5s
+	vTaskDelay(250);					//释放总线0.5s
 
 	send_cmd("AT+QMTOPEN=0,\"iot-as-mqtt.cn-shanghai.aliyuncs.com\",1883 \r\n"); //第3条指令
-	delay_us(1000000); //延时1s
+//	delay_us(1000000); //延时1s
+	vTaskDelay(500);					//释放总线1s
 
 	if (check_receives(3, "ERROR"))
 	{
 //		NVIC_SystemReset();
 //		IOT_Reset();
-		IOTerr=1;
+		IOTerr = 1;
 		return;
 	}
-	delay_us(500000);
+//	delay_us(500000);
+	vTaskDelay(250);					//释放总线0.5s
 	if (check_receives(3, "+QMTOPEN: 0,-1"))
 	{
 //		NVIC_SystemReset();
 //		IOT_Reset();
-		IOTerr=1;
+		IOTerr = 1;
 		return;
 	}
 	if (check_receives(3, "+QMTOPEN: 0,3"))
 	{
 //		NVIC_SystemReset();
 //		IOT_Reset();
-		IOTerr=1;
+		IOTerr = 1;
 		return;
 	}
 	if (check_receives(3, "+QMTOPEN: 0,2"))
 	{
 //		NVIC_SystemReset();
 //		IOT_Reset();
-		IOTerr=1;
+		IOTerr = 1;
 		return;
 	}
 
 	send_cmd("AT+QMTCONN=0,\"ZRH_4G\" \r\n"); //第4条指令
-	delay_us(10000000);						  //1s
+//	delay_us(10000000);						  //1s
+	vTaskDelay(500);					//释放总线1s
 	if (check_receives(4, "ERROR"))
 	{
 //		NVIC_SystemReset();
 //		IOT_Reset();
-		IOTerr=1;
+		IOTerr = 1;
 		return;
 	}
 	if (check_receives(4, "+QMTCONN: 0,1"))
 	{
 //		NVIC_SystemReset();
 //		IOT_Reset();
-		IOTerr=1;
+		IOTerr = 1;
 		return;
 	}
 	cmd_axis = 6; //使用6号数组检测是否发送成功。
 	printf("AT+QMTPUB=0,0,0,1,\"/a1f2CH9BSx7/ZRH_4G/user/put\" \r\n");
-	delay_us(100000); //0.1s
+//	delay_us(100000); //0.1s
+	vTaskDelay(50);					//释放总线0.1s
 	x_axis = 0;
 	y_axis = 0;
 	printf("~ \r\n");
 
-	delay_us(200000);
+//	delay_us(200000);
+	vTaskDelay(100);					//释放总线0.2s
 	while (!check_receives(6, "+QMTPUB: 0,0,0"))
 	{
 		if (check_receives(6, "ERROR"))
@@ -149,12 +178,13 @@ void IOT_init()
 			}
 //			NVIC_SystemReset();
 //			IOT_Reset();
-			IOTerr=1;
+			IOTerr = 1;
 			return;
 		}
 	}
-	IOTerr=0;											//IOT工作正常
-	delay_us(100000); //0.1s
+	IOTerr = 0;											//IOT工作正常
+//	delay_us(100000); //0.1s
+	vTaskDelay(50);					//释放总线0.1s
 }
 
 /*
@@ -241,26 +271,26 @@ bool check_receives(uint8_t cmd_number, char *cmd)
 }
 
 /*
-void SendToCloud()
-{
-	printf("AT+QMTPUB=0,0,0,1,\"/a1f2CH9BSx7/ZRH_4G/user/put\"\r\n");
-	delay_us(100000); //0.1s
-	x_axis = 0;
-	y_axis = 0;
-	//	printf(
-	//		"{\"Mark\":\"A1001\",\"Time\":\"16:04:09\",\"N\":\"230.125\",\"E\":\"1920.658\",\"Bohelun\":\"%d\",\"Zuoye\":\"%d\",\"Fukuan\":\"%d\",\"Getai\":\"%d\",\"Shusongzhou\":\"%d\",\"Chesu\":\"%d\",\"QieLTL\":\"%d\",\"ZongZTL\":\"%d\",\"FongJZS\":\"%d\",\"QuDL\":\"%d\",\"ZhengDS\":\"%d\",\"LiZSP\":\"%d\",\"ZaYSP\":\"%d\",\"GeCGD\":\"%d\",\"QinXSS\":\"%d\",\"JiaDSS\":\"%d\",\"YuLSD\":\"%d\",\"HanZL\":\"%d\",\"PoSL\":\"%d\",\"LiZLL\":\"%d\"} \r\n",
-	//		Pack1.Mail_Box[1].whell_speed, Pack1.Mail_Box[1].is_on_work,
-	//		Pack1.Mail_Box[1].ultrasonic_sensor, Pack1.Mail_Box[1].rotating_speed,
-	//		Pack1.Mail_Box[1].drive_speed, Pack1.Mail_Box[1].car_speed,
-	//		Pack2.Mail_Box[1].roller_speed, Pack2.Mail_Box[1].Yroller_speed,
-	//		Pack2.Mail_Box[1].wind_speed, Pack2.Mail_Box[1].driver_speed,
-	//		Pack3.Mail_Box[1].shock_speed, Pack3.Mail_Box[1].Xroller_speed,
-	//		Pack3.Mail_Box[1].Xrest_speed, Pack4.Mail_Box[1].high,
-	//		Pack5.Mail_Box[1].cleanlost_sensor, Pack5.Mail_Box[1].cliplost_sensor,
-	//		Pack5.Mail_Box[1].angle, Pack6.Mail_Box[1].pure_value, Pack6.Mail_Box[1].break_value,
-	//		Pack7.Mail_Box[1].float_value);
-}
-*/
+ void SendToCloud()
+ {
+ printf("AT+QMTPUB=0,0,0,1,\"/a1f2CH9BSx7/ZRH_4G/user/put\"\r\n");
+ delay_us(100000); //0.1s
+ x_axis = 0;
+ y_axis = 0;
+ //	printf(
+ //		"{\"Mark\":\"A1001\",\"Time\":\"16:04:09\",\"N\":\"230.125\",\"E\":\"1920.658\",\"Bohelun\":\"%d\",\"Zuoye\":\"%d\",\"Fukuan\":\"%d\",\"Getai\":\"%d\",\"Shusongzhou\":\"%d\",\"Chesu\":\"%d\",\"QieLTL\":\"%d\",\"ZongZTL\":\"%d\",\"FongJZS\":\"%d\",\"QuDL\":\"%d\",\"ZhengDS\":\"%d\",\"LiZSP\":\"%d\",\"ZaYSP\":\"%d\",\"GeCGD\":\"%d\",\"QinXSS\":\"%d\",\"JiaDSS\":\"%d\",\"YuLSD\":\"%d\",\"HanZL\":\"%d\",\"PoSL\":\"%d\",\"LiZLL\":\"%d\"} \r\n",
+ //		Pack1.Mail_Box[1].whell_speed, Pack1.Mail_Box[1].is_on_work,
+ //		Pack1.Mail_Box[1].ultrasonic_sensor, Pack1.Mail_Box[1].rotating_speed,
+ //		Pack1.Mail_Box[1].drive_speed, Pack1.Mail_Box[1].car_speed,
+ //		Pack2.Mail_Box[1].roller_speed, Pack2.Mail_Box[1].Yroller_speed,
+ //		Pack2.Mail_Box[1].wind_speed, Pack2.Mail_Box[1].driver_speed,
+ //		Pack3.Mail_Box[1].shock_speed, Pack3.Mail_Box[1].Xroller_speed,
+ //		Pack3.Mail_Box[1].Xrest_speed, Pack4.Mail_Box[1].high,
+ //		Pack5.Mail_Box[1].cleanlost_sensor, Pack5.Mail_Box[1].cliplost_sensor,
+ //		Pack5.Mail_Box[1].angle, Pack6.Mail_Box[1].pure_value, Pack6.Mail_Box[1].break_value,
+ //		Pack7.Mail_Box[1].float_value);
+ }
+ */
 
 void pack_to_aliyun()
 {
@@ -269,31 +299,31 @@ void pack_to_aliyun()
 	x_axis = 0;
 	y_axis = 0;
 	cmd_axis = 6; //使用6号数组检测是否发送成功。
-//	printf(
-//		"{\"Mark\":\"A1001\",\"Time\":\"16:04:09\",\"N\":\"230.125\",\"E\":\"1920.658\",\"Bohelun\":\"%d\",\"Zuoye\":\"%d\",\"Fukuan\":\"%d\",\"Getai\":\"%d\",\"Shusongzhou\":\"%d\",\"Chesu\":\"%d\",\"QieLTL\":\"%d\",\"ZongZTL\":\"%d\",\"FongJZS\":\"%d\",\"QuDL\":\"%d\",\"ZhengDS\":\"%d\",\"LiZSP\":\"%d\",\"ZaYSP\":\"%d\",\"GeCGD\":\"%d\",\"QinXSS\":\"%d\",\"JiaDSS\":\"%d\",\"YuLSD\":\"%d\",\"HanZL\":\"%d\",\"PoSL\":\"%d\",\"LiZLL\":\"%d\"} \r\n",
-//		Pack1.Mail_Box[1].whell_speed, Pack1.Mail_Box[1].is_on_work,
-//		Pack1.Mail_Box[1].ultrasonic_sensor, Pack1.Mail_Box[1].rotating_speed,
-//		Pack1.Mail_Box[1].drive_speed, Pack1.Mail_Box[1].car_speed,
-//		Pack2.Mail_Box[1].roller_speed, Pack2.Mail_Box[1].Yroller_speed,
-//		Pack2.Mail_Box[1].wind_speed, Pack2.Mail_Box[1].driver_speed,
-//		Pack3.Mail_Box[1].shock_speed, Pack3.Mail_Box[1].Xroller_speed,
-//		Pack3.Mail_Box[1].Xrest_speed, Pack4.Mail_Box[1].high,
-//		Pack5.Mail_Box[1].cleanlost_sensor, Pack5.Mail_Box[1].cliplost_sensor,
-//		Pack5.Mail_Box[1].angle, Pack6.Mail_Box[1].pure_value, Pack6.Mail_Box[1].break_value,
-//		Pack7.Mail_Box[1].float_value);
-//
+	printf(
+	        "{\"Mark\":\"A1001\",\"Time\":\"%s\",\"N\":\"%s\",\"E\":\"%s\",\"Bohelun\":\"%d\",\"Zuoye\":\"%d\",\"Fukuan\":\"%d\",\"Getai\":\"%d\",\"Shusongzhou\":\"%d\",\"Chesu\":\"%d\",\"QieLTL\":\"%d\",\"ZongZTL\":\"%d\",\"FongJZS\":\"%d\",\"QuDL\":\"%d\",\"ZhengDS\":\"%d\",\"LiZSP\":\"%d\",\"ZaYSP\":\"%d\",\"GeCGD\":\"%d\",\"QinXSS\":\"%d\",\"JiaDSS\":\"%d\",\"YuLSD\":\"%d\",\"HanZL\":\"%d\",\"PoSL\":\"%d\",\"LiZLL\":\"%d\",\"CANerr\":\"%d\",\"GPSerr\":\"%d\"} \r\n",
+	        GPS_Buffer.UTCtime, GPS_Buffer.latitude, GPS_Buffer.longitude, CAN_Buffer_1.whell_speed,
+	        CAN_Buffer_1.is_on_work, CAN_Buffer_1.ultrasonic_sensor,
+	        CAN_Buffer_1.rotating_speed, CAN_Buffer_1.drive_speed,
+	        CAN_Buffer_1.car_speed, CAN_Buffer_2.roller_speed,
+	        CAN_Buffer_2.Yroller_speed, CAN_Buffer_2.wind_speed,
+	        CAN_Buffer_2.driver_speed, CAN_Buffer_3.shock_speed,
+	        CAN_Buffer_3.Xroller_speed, CAN_Buffer_3.Xrest_speed, CAN_Buffer_4.high,
+	        CAN_Buffer_5.cleanlost_sensor, CAN_Buffer_5.cliplost_sensor,
+	        CAN_Buffer_5.angle, CAN_Buffer_6.pure_value, CAN_Buffer_6.break_value,
+	        CAN_Buffer_7.float_value, CANerr, GPSerr);
+
 	delay_us(500000); //0.5s
-	while (!check_receives(12, "+QMTPUB: 0,0,0"))
+	while (!check_receives(6, "+QMTPUB: 0,0,0"))
 	{
-		if (check_receives(12, "ERROR")) //检测指令2返回的数据中是否包含"ok"
+		if (check_receives(6, "ERROR")) //检测指令2返回的数据中是否包含"ok"
 		{
 			for (int i = 0; i < 10; i++)
 			{
 				for (int j = 0; j < 99; j++)
-					receives[12][i][j] = '\0';
+					receives[6][i][j] = '\0';
 			}
-			IOTerr=1;										//IOT掉线，等待重启
-	//			BC28_Init();
+			IOTerr = 1;										//IOT掉线，等待重启
+			//			BC28_Init();
 			break;
 		}
 	}

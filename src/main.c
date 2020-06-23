@@ -33,7 +33,8 @@
 /*标志位、变量定义*/
 char CANerr = 0;														//CAN bus interrupt flag
 char GPSerr = 0;														//GPS interrupt flag
-char IOTerr=0;															//IOT interrupt flag
+char IOTerr = 0;															//IOT interrupt flag
+char Historical_data = 0;													//Historical data flag
 int time_count = 0;										//Global variable ———— CAN timing time
 #define Timeout_time 2													//Constant —— defines the timeout time
 char CAN_new_message = 0;								//Global variable ———— CAN get new message
@@ -125,9 +126,16 @@ void GPS_Analysis()
 /*Operating system thread 1 for upload or store*/
 void upload_or_store()
 {
-	while(1)
+	while (1)
 	{
-		if(GPS_new_message == 1||CAN_new_message == 1)	//CAN,GPS有一个刷新完成就上报
+		if ((GPS_new_message == 1 || CAN_new_message == 1) && IOTerr == 0)	//CAN,GPS有一个刷新完成就上报
+		{
+			pack_to_aliyun();
+		} else if ((GPS_new_message == 1 || CAN_new_message == 1) && IOTerr == 1)	//IOT掉线，写入SPI
+		{
+
+		} else if (GPS_new_message == 0 && CAN_new_message == 0 && IOTerr == 0
+		        && Historical_data == 1)		//上报历史数据
 		{
 
 		}
@@ -138,7 +146,7 @@ void upload_or_store()
 /*Operating system thread 1 for abnormal detection*/
 void Abnormal_detection()
 {
-	if(IOTerr==1)
+	if (IOTerr == 1)
 	{
 		IOT_init();
 	}
@@ -153,6 +161,7 @@ int main(void)
 	xTaskCreate(CAN_Analysis, "GetCAN", 1024, NULL, 3, NULL);
 	xTaskCreate(GPS_Analysis, "GetGPS", 1024, NULL, 3, NULL);
 	xTaskCreate(upload_or_store, "up/store", 1024, NULL, 2, NULL);
+	xTaskCreate(Abnormal_detection, "err", 1024, NULL, 4, NULL);
 	vTaskStartScheduler();
 
 	while (1)
