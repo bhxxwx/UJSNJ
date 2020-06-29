@@ -10,8 +10,6 @@
 #include "UserConfig.h"
 #include <stdarg.h>
 
-
-
 #define  FLASH_WRITE_ENABLE_CMD 		0x06
 #define  FLASH_WRITE_DISABLE_CMD		0x04
 #define  FLASH_READ_SR_CMD				0x05
@@ -19,41 +17,33 @@
 #define  FLASH_READ_DATA				0x03
 #define  FLASH_FASTREAD_DATA			0x0b
 #define  FLASH_WRITE_PAGE				0x02
-#define  FLASH_ERASE_PAGE      			0x81
-#define  FLASH_ERASE_SECTOR       		0x20
-#define	 FLASH_ERASE_BLOCK				0xd8
-#define	 FLASH_ERASE_CHIP				0xc7
-#define  FLASH_POWER_DOWN				0xb9
-#define  FLASH_RELEASE_POWER_DOWN       0xab
-#define  FLASH_READ_DEVICE_ID      		0x90
-#define  FLASH_READ_JEDEC_ID      		0x9f
 
-#define 	FLASH_SIZE	 (1*1024*1024)	// 1M字节
-#define		PAGE_SIZE			8192	// 256 bytes
-#define 	SECTOR_SIZE		512	 // 4-Kbyte
-#define		BLOCK_SIZE		32	// 64-Kbyte
+#define CS_HIGH 	while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);digitalWriteA(GPIO_Pin_4, HIGH)
+#define CS_LOW  digitalWriteA(GPIO_Pin_4, LOW)
 
-#define PAGE_LEN		255	 //一页256字节
+extern int SPI_printf(const char *fmt, ...);
 
-#define CS_HIGH digitalWriteA(GPIO_Pin_4, HIGH)
-#define CS_LOW digitalWriteA(GPIO_Pin_4, LOW)
-
-extern int SPI_printf(uint32_t page, const char *fmt, ...);
-
+//----------------------对外调用接口----------------------//
 void SPI_INIT();
-void SPI_write(u8 TxData);
-void SPI_writeStr(uint32_t page, char *str);
+void WriteEN();
+void SPI_EraseChip();
+void SPI_FlashReset();
+void SPI_FlashFindHeadPage();
+void SPI_FlashLostPower();
 
-void Flash_WriteEnable(void);
+//----------------------中间调用函数----------------------//
+void SPI_write(u8 TxData);
+int SPI_writeStr(uint32_t page, char *str);
 
 uint8_t SPI_MasterSendReceiveByte(uint8_t spi_byte);
 
-void SPI_MasterSendReceiveMultipeByte(uint8_t *spi_byte);
+//void SPI_MasterSendReceiveMultipeByte(uint8_t *spi_byte);
 
-void WriteEN();
-void SPI_WriteFlash();
-void ERDI();
+void SPI_WriteFlashPageByte(uint32_t page, uint8_t str);
+void SPI_FlashReadPage(uint32_t page, char *str);
+void SPI_FlashReadPageByte(uint32_t page, uint8_t number, uint8_t str[]);
 
+void SPI_EraseSector(uint32_t sector);
 void CheckBusy();
 
 void ts_itoa(char **buf, unsigned int d, int base);

@@ -35,100 +35,23 @@
  * TODO BC28orEC20函数中接收缓冲区过于庞大,需要精简;
  */
 
-
+char read[256];
 int main(void)
 {
 	DBGMCU_Config(DBGMCU_IWDG_STOP, ENABLE); //DEBUG时看门狗关闭
-	nvic_init();
-	int i = 0;
-	uint16_t data[20] = { 0 };
-
-//    USB_Port_Set(0);
-//    delay_us(100000);
-//    USB_Port_Set(1);
-//    USB_Config();
-
-	SPI_INIT();
-	SPI_I2S_ReceiveData(SPI1);
-//	SPI_DataSizeConfig(SPI1, SPI_DataSize_8b);
-
-	WriteEN();
-//	CheckBusy();
-	delay_us(1000);
-	CS_LOW;
-	SPI_write(FLASH_ERASE_PAGE);
-	SPI_write(0x00);
-	SPI_write(0x00);
-	SPI_write(0x00);
-
-	CS_HIGH;
-//	CheckBusy();
-	delay_us(22000);
-	CS_LOW;
-	SPI_write(FLASH_READ_SR_CMD);
+	nvic_init(); //中断初始化
 
 
-//	while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET)
-//	{
-//	} //等待接收
+	SPI_INIT();//SPI协议初始化
+	SPI_FlashReset();//SPI-Flash复位
+	SPI_EraseChip();//SPI-Flash全片擦除
+	SPI_FlashFindHeadPage();//查找上次断电前保存的最后写入位置
+	int number = 0;
+	for (number = 0; number < 65500; number++)
+		SPI_printf("hello,this is the %d message at page %d sector %d", number + 1,17 + number, (16 + number) / 16 + 1);
 
+	SPI_FlashLostPower();//如果flash断电,调用该函数保存最后一次写入位置
 
-	SPI_I2S_SendData(SPI1,FLASH_READ_SR_CMD); //发送数据
-		while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET)
-		{
-		} //等待接收
-	SPI_I2S_SendData(SPI1, 0xFF); //发送数据
-		while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET)
-		{
-		} //等待接收
-
-	data[i] = SPI_I2S_ReceiveData(SPI1);
-
-
-	CS_HIGH;
-
-
-
-
-	WriteEN();
-//	CheckBusy();
-	delay_us(1000);
-	CS_LOW;
-	SPI_write(FLASH_WRITE_PAGE);
-	SPI_write(0x00);
-	SPI_write(0x00);
-	SPI_write(0x00);
-
-	SPI_write(0x01);
-	SPI_write(0x02);
-	SPI_write(0x03);
-	CS_HIGH;
-
-//	CheckBusy();
-
-
-	delay_us(1000);
-	CS_LOW;
-
-	SPI_write(FLASH_FASTREAD_DATA);
-	SPI_write(0x00);
-	SPI_write(0x00);
-	SPI_write(0x00);
-	for (i = 0; i < 9; i++)
-	{
-		while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET)
-		{
-		} //等待发送区为空
-		SPI_I2S_SendData(SPI1, 0x00); //发送数据
-
-		while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET)
-		{
-		} //等待接收
-		data[i] = SPI_I2S_ReceiveData(SPI1);
-
-	}
-	delay_us(1000);
-	CS_HIGH;
 
 	int count = 0;
 	while (1)
