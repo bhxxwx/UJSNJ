@@ -27,8 +27,10 @@
 #include "Gen/GenLib.h"
 #include "oled/oled.h"
 #include "keys/keys.h"
-
-//#include "Servers.h"
+#include "Functions/BC28orEC20/BC28orEC20.h"
+#include "Functions/CAN/CAN.h"
+#include "DATAstruct/DATAstruct.h"
+#include "Functions/Servers.h"
 
 #include "SPI_FLASH/SPI_FLASH.h"
 

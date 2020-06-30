@@ -6,12 +6,9 @@
  */
 #include "GPS.h"
 
-
 enum
 {
-	err=0,
-	GPGGA,
-	GPVTG,
+	err = 0, GPGGA, GPVTG,
 };
 
 void GPS_init()
@@ -22,14 +19,37 @@ void GPS_init()
 char GpsCharToConvert[20], datas[100];
 
 GPS_DATA GPSDATA;
-GPS_INIT GPSINIT = { .matchCount = 0, .cmdHead = false, .match1[0]='G', .match1[1]='P', .match1[2]='G',
-        .match1[3]='G', .match1[4]='A',.match2[0]='G', .match2[1]='P', .match2[2]='V',
+GPS_INIT GPSINIT = { .matchCount = 0, .cmdHead = false, .match1[0]='G', .match1[1]='P', .match1[2
+        ]='G', .match1[3]='G', .match1[4]='A', .match2[0]='G', .match2[1]='P', .match2[2]='V',
         .match2[3]='T', .match2[4]='G', .splitTime = 0, .dataCount = 0 };
-
 
 char GpstempChar;
 char GpsCharToConvert[20];
 char datas[100];
+
+/* GPS begin analysis*/
+void GPS_Begin_analysis()
+{
+	GPSDATA.ATW = true;
+}
+
+///* GPS set x lock flag*/
+//void GPS_set_xlock()
+//{
+//	GPSDATA.xlock = 1;
+//}
+//
+///* GPS clear x lock flag*/
+//void GPS_clear_xlock()
+//{
+//	GPSDATA.xlock = 0;
+//}
+//
+///* GPS read x lock flag*/
+//bool GPS_read_xlock()
+//{
+//	return GPSDATA.xlock;
+//}
 
 void USART3_IRQHandler(void)
 {
@@ -63,7 +83,6 @@ void USART3_IRQHandler(void)
 	}
 }
 
-
 void writeUTC(char *time, char *data)
 {
 	time[0] = data[0];
@@ -94,11 +113,10 @@ void clearStr(char *str, uint8_t i)
 	}
 }
 
-
 uint8_t CheckHead()
 {
-	uint8_t matchCount=0;
-	for (matchCount=1; matchCount <= 5; matchCount++)//检测包头是否符合规范
+	uint8_t matchCount = 0;
+	for (matchCount = 1; matchCount <= 5; matchCount++) //检测包头是否符合规范
 	{
 		if (datas[matchCount] != GPSINIT.match1[matchCount - 1])
 		{
@@ -109,9 +127,9 @@ uint8_t CheckHead()
 		}
 	}
 	return GPGGA;
-	for (matchCount=1; matchCount <= 5; matchCount++)
+	for (matchCount = 1; matchCount <= 5; matchCount++)
 	{
-		if(datas[matchCount] != GPSINIT.match2[matchCount - 1])
+		if (datas[matchCount] != GPSINIT.match2[matchCount - 1])
 		{
 			clearStr(datas, 100);
 			GPSINIT.ATR = false;
@@ -125,14 +143,14 @@ uint8_t CheckHead()
 void anaGPS()
 {
 	int x, y;
-	if (GPSDATA.ATW == false)//不允许写入缓冲区
+	if (GPSDATA.ATW == false) //不允许写入缓冲区
 	{
 		return;
 	}
-	if (GPSINIT.ATR)//允许读取数据
+	if (GPSINIT.ATR) //允许读取数据
 	{
-		GPSINIT.splitTime = 0;//分隔符计数
-		clearStr(GpsCharToConvert, 20);//缓冲区清零
+		GPSINIT.splitTime = 0; //分隔符计数
+		clearStr(GpsCharToConvert, 20); //缓冲区清零
 		GPSINIT.dataCount = 0;
 
 //switch(CheckHead())
@@ -146,35 +164,40 @@ void anaGPS()
 			{
 				GpsCharToConvert[y] = datas[x];
 				y++;
-			}
-			else
+			} else
 			{
 				y = 0;
 
 				GPSINIT.splitTime++;
 				switch (GPSINIT.splitTime)
 				{
-				case 2:
-					writeUTC(GPSDATA.UTCtime, GpsCharToConvert), clearStr(GpsCharToConvert, 20), GPSINIT.dataCount = 0;
-					continue;
-				case 3:
-					GPSDATA.AorP = GpsCharToConvert[0], clearStr(GpsCharToConvert, 20), GPSINIT.dataCount = 0;
-					continue;
-				case 4:
-					writeL(GPSDATA.latitude, GpsCharToConvert), clearStr(GpsCharToConvert, 20), GPSINIT.dataCount = 0;
-					continue;
-				case 5:
-					GPSDATA.NorS = GpsCharToConvert[0], clearStr(GpsCharToConvert, 20), GPSINIT.dataCount = 0;
-					continue;
-				case 6:
-					writeL(GPSDATA.longitude, GpsCharToConvert), clearStr(GpsCharToConvert, 20), GPSINIT.dataCount = 0;
-					continue;
-				case 7:
-					GPSDATA.EorW = GpsCharToConvert[0], clearStr(GpsCharToConvert, 20), GPSINIT.dataCount = 0;
-					continue;
-				case 8:
-					GPSDATA.ATW = false, GPSINIT.ATR = false, GPSINIT.splitTime = 0;
-					return;
+					case 2:
+						writeUTC(GPSDATA.UTCtime, GpsCharToConvert), clearStr(GpsCharToConvert, 20), GPSINIT.dataCount =
+						        0;
+						continue;
+					case 3:
+						GPSDATA.AorP = GpsCharToConvert[0], clearStr(GpsCharToConvert, 20), GPSINIT.dataCount =
+						        0;
+						continue;
+					case 4:
+						writeL(GPSDATA.latitude, GpsCharToConvert), clearStr(GpsCharToConvert, 20), GPSINIT.dataCount =
+						        0;
+						continue;
+					case 5:
+						GPSDATA.NorS = GpsCharToConvert[0], clearStr(GpsCharToConvert, 20), GPSINIT.dataCount =
+						        0;
+						continue;
+					case 6:
+						writeL(GPSDATA.longitude, GpsCharToConvert), clearStr(GpsCharToConvert, 20), GPSINIT.dataCount =
+						        0;
+						continue;
+					case 7:
+						GPSDATA.EorW = GpsCharToConvert[0], clearStr(GpsCharToConvert, 20), GPSINIT.dataCount =
+						        0;
+						continue;
+					case 8:
+						GPSDATA.ATW = false, GPSINIT.ATR = false, GPSINIT.splitTime = 0;
+						return;
 				}
 				clearStr(GpsCharToConvert, 20);
 				GPSINIT.dataCount = 0;

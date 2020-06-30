@@ -356,13 +356,13 @@ RCC_ClocksTypeDef set_cpu_72MHz()
 {
 	RCC_ClocksTypeDef get_rcc_clock;
 	//set the CPU clock as 72MHz
-//	RCC_HSEConfig(RCC_HSE_OFF);
-//	RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_9);
-//	RCC_HSEConfig(RCC_HSE_ON);
-//	RCC_PCLK1Config(RCC_HCLK_Div4); //APB1
-//	RCC_WaitForHSEStartUp();
-//	RCC_HCLKConfig(RCC_SYSCLK_Div1);
-//	RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
+	RCC_HSEConfig(RCC_HSE_OFF);
+	RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_9);
+	RCC_HSEConfig(RCC_HSE_ON);
+	RCC_PCLK1Config(RCC_HCLK_Div4); //APB1
+	RCC_WaitForHSEStartUp();
+	RCC_HCLKConfig(RCC_SYSCLK_Div1);
+	RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
 	RCC_GetClocksFreq(&get_rcc_clock);
 	return get_rcc_clock;
 }
@@ -496,16 +496,10 @@ void systick_delay(u32 time, void (*temp_function))
 //	SysTick->VAL = 0x00;    //当前值清零
 }
 
-//#ifndef FREERTOS_CONFIG_H
-//
-//void SysTick_Handler(void)
-//{
-//	systick_handler();
-//}
-//#endif
+
 /*
  * flash初始化
- * 擦除一页需22ms,且过程中CPU不能做任何事情
+ * 擦除一页需22ms
  * page:初始化页地址
  */
 void Flash_Erase(uint32_t page)
@@ -1094,14 +1088,6 @@ void TIM7_init(uint16_t times)
 }
 #endif
 
-//void TIM7_IRQHandler(void)
-//{
-//	if (TIM_GetITStatus(TIM7, TIM_IT_Update) == SET)
-//	{
-//		delay_us(100);
-//		TIM_ClearFlag(TIM7, TIM_FLAG_Update);
-//	}
-//}
 
 /***************************************************CAN总线相关操作*******************************************************/
 /*
@@ -1302,13 +1288,13 @@ void USB_LP_CAN1_RX0_IRQHandler(void)
  * 看门狗初始化,并且使能
  * 参数:
  * 		Div:分频系数选择,可为以下值:
-  *     	@arg IWDG_Prescaler_4: IWDG prescaler set to 4
-  *     	@arg IWDG_Prescaler_8: IWDG prescaler set to 8
-  *     	@arg IWDG_Prescaler_16: IWDG prescaler set to 16
-  *     	@arg IWDG_Prescaler_32: IWDG prescaler set to 32
-  *     	@arg IWDG_Prescaler_64: IWDG prescaler set to 64
-  *     	@arg IWDG_Prescaler_128: IWDG prescaler set to 128
-  *     	@arg IWDG_Prescaler_256: IWDG prescaler set to 256
+ *     	@arg IWDG_Prescaler_4: IWDG prescaler set to 4
+ *     	@arg IWDG_Prescaler_8: IWDG prescaler set to 8
+ *     	@arg IWDG_Prescaler_16: IWDG prescaler set to 16
+ *     	@arg IWDG_Prescaler_32: IWDG prescaler set to 32
+ *     	@arg IWDG_Prescaler_64: IWDG prescaler set to 64
+ *     	@arg IWDG_Prescaler_128: IWDG prescaler set to 128
+ *     	@arg IWDG_Prescaler_256: IWDG prescaler set to 256
  *
  *      No:计数数值
  *

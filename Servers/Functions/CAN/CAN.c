@@ -6,6 +6,7 @@
  */
 #include "CAN.h"
 
+/*Define CAN bus structure variables*/
 Cach1 Pack1;
 Cach2 Pack2;
 Cach3 Pack3;
@@ -174,15 +175,15 @@ void Analysys_DATA(uint8_t Pack_NO, CanRxMsg CANRX)
 /*
  *将所有CAN数据接收缓冲区的ATW标记为置位
  */
-void SetFalgATW()
+void SetCANFalgATW()
 {
-	Pack1.Mail_Box.ATW=true;
-	Pack2.Mail_Box.ATW=true;
-	Pack3.Mail_Box.ATW=true;
-	Pack4.Mail_Box.ATW=true;
-	Pack5.Mail_Box.ATW=true;
-	Pack6.Mail_Box.ATW=true;
-	Pack7.Mail_Box.ATW=true;
+	Pack1.Mail_Box.ATW = true;						//允许CAN总线刷新获取数据
+	Pack2.Mail_Box.ATW = true;
+	Pack3.Mail_Box.ATW = true;
+	Pack4.Mail_Box.ATW = true;
+	Pack5.Mail_Box.ATW = true;
+	Pack6.Mail_Box.ATW = true;
+	Pack7.Mail_Box.ATW = true;
 }
 
 /*
@@ -191,13 +192,13 @@ void SetFalgATW()
 CANpacks GetCANRx()
 {
 	CANpacks packs;
-	packs.CANpack1=Pack1;
-	packs.CANpack2=Pack2;
-	packs.CANpack3=Pack3;
-	packs.CANpack4=Pack4;
-	packs.CANpack5=Pack5;
-	packs.CANpack6=Pack6;
-	packs.CANpack7=Pack7;
+	packs.CANpack1 = Pack1;
+	packs.CANpack2 = Pack2;
+	packs.CANpack3 = Pack3;
+	packs.CANpack4 = Pack4;
+	packs.CANpack5 = Pack5;
+	packs.CANpack6 = Pack6;
+	packs.CANpack7 = Pack7;
 	return packs;
 }
 
@@ -206,20 +207,79 @@ CANpacks GetCANRx()
  */
 uint8_t CheckATW()
 {
-	uint8_t number=0;
-	if(Pack1.Mail_Box.ATW)
+	uint8_t number = 0;
+	if (Pack1.Mail_Box.ATW)
 		number++;
-	if(Pack2.Mail_Box.ATW)
+	if (Pack2.Mail_Box.ATW)
 		number++;
-	if(Pack3.Mail_Box.ATW)
+	if (Pack3.Mail_Box.ATW)
 		number++;
-	if(Pack4.Mail_Box.ATW)
+	if (Pack4.Mail_Box.ATW)
 		number++;
-	if(Pack5.Mail_Box.ATW)
+	if (Pack5.Mail_Box.ATW)
 		number++;
-	if(Pack6.Mail_Box.ATW)
+	if (Pack6.Mail_Box.ATW)
 		number++;
-	if(Pack7.Mail_Box.ATW)
+	if (Pack7.Mail_Box.ATW)
 		number++;
 	return number;
+}
+
+/* Clear CAN bus data packets */
+void Clear_CAN_Box()
+{
+	Pack1.Mail_Box.whell_speed = 0;
+	Pack1.Mail_Box.is_on_work = 0;
+	Pack1.Mail_Box.ultrasonic_sensor = 0;
+	Pack1.Mail_Box.rotating_speed = 0;
+	Pack1.Mail_Box.drive_speed = 0;
+	Pack1.Mail_Box.car_speed = 0;
+	Pack2.Mail_Box.roller_speed = 0;
+	Pack2.Mail_Box.Yroller_speed = 0;
+	Pack2.Mail_Box.wind_speed = 0;
+	Pack2.Mail_Box.driver_speed = 0;
+	Pack3.Mail_Box.shock_speed = 0;
+	Pack3.Mail_Box.Xroller_speed = 0;
+	Pack3.Mail_Box.Xrest_speed = 0;
+	Pack4.Mail_Box.high = 0;
+	Pack5.Mail_Box.cleanlost_sensor = 0;
+	Pack5.Mail_Box.cliplost_sensor = 0;
+	Pack5.Mail_Box.angle = 0;
+	Pack6.Mail_Box.pure_value = 0;
+	Pack6.Mail_Box.break_value = 0;
+	Pack7.Mail_Box.float_value = 0;
+}
+
+/* Get CAN bus data */
+void Get_CAN_data(CAN_buffer1 CAN_Buffer_1, CAN_buffer2 CAN_Buffer_2, CAN_buffer3 CAN_Buffer_3,
+        CAN_buffer4 CAN_Buffer_4, CAN_buffer5 CAN_Buffer_5, CAN_buffer6 CAN_Buffer_6,
+        CAN_buffer7 CAN_Buffer_7)
+{
+	CAN_Buffer_1.whell_speed = Pack1.Mail_Box.whell_speed;
+	CAN_Buffer_1.is_on_work = Pack1.Mail_Box.is_on_work;
+	CAN_Buffer_1.ultrasonic_sensor = Pack1.Mail_Box.ultrasonic_sensor;
+	CAN_Buffer_1.rotating_speed = Pack1.Mail_Box.rotating_speed;
+	CAN_Buffer_1.drive_speed = Pack1.Mail_Box.drive_speed;
+	CAN_Buffer_1.car_speed = Pack1.Mail_Box.car_speed;
+	CAN_Buffer_2.roller_speed = Pack2.Mail_Box.roller_speed;
+	CAN_Buffer_2.Yroller_speed = Pack2.Mail_Box.Yroller_speed;
+	CAN_Buffer_2.wind_speed = Pack2.Mail_Box.wind_speed;
+	CAN_Buffer_2.driver_speed = Pack2.Mail_Box.driver_speed;
+	CAN_Buffer_3.shock_speed = Pack3.Mail_Box.shock_speed;
+	CAN_Buffer_3.Xroller_speed = Pack3.Mail_Box.Xroller_speed;
+	CAN_Buffer_3.Xrest_speed = Pack3.Mail_Box.Xrest_speed;
+	CAN_Buffer_4.high = Pack4.Mail_Box.high;
+	CAN_Buffer_5.cleanlost_sensor = Pack5.Mail_Box.cleanlost_sensor;
+	CAN_Buffer_5.cliplost_sensor = Pack5.Mail_Box.cliplost_sensor;
+	CAN_Buffer_5.angle = Pack5.Mail_Box.angle;
+	CAN_Buffer_6.pure_value = Pack6.Mail_Box.pure_value;
+	CAN_Buffer_6.break_value = Pack6.Mail_Box.break_value;
+	CAN_Buffer_7.float_value = Pack7.Mail_Box.float_value;
+	CAN_Buffer_1.ATW = Pack1.Mail_Box.ATW;
+	CAN_Buffer_2.ATW = Pack2.Mail_Box.ATW;
+	CAN_Buffer_3.ATW = Pack3.Mail_Box.ATW;
+	CAN_Buffer_4.ATW = Pack4.Mail_Box.ATW;
+	CAN_Buffer_5.ATW = Pack5.Mail_Box.ATW;
+	CAN_Buffer_6.ATW = Pack6.Mail_Box.ATW;
+	CAN_Buffer_7.ATW = Pack7.Mail_Box.ATW;
 }

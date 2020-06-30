@@ -81,6 +81,9 @@ void systick_delay(u32 time, void (*temp_function)); //系统计时器SystemTick
 void time_counter_init(); //计时器初始化
 int time_counter_value(); //系统计时器返回计时值
 
+/*
+ * 定时器相关操作在BSP_Tim.c中
+ */
 void TIM7_init(uint16_t times);
 
 /***************************************************GPIO 相关操作********************************************************/
