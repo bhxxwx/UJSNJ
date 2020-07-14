@@ -164,18 +164,24 @@ int main(void)
 	DBGMCU_Config(DBGMCU_IWDG_STOP, ENABLE); //DEBUG时看门狗关闭
 
 	/*------------------------------SPI FLASH使用示例------------------------------------*/
+//	char receives[257];
+//	for(cc=0;cc<256;cc++)
+//		receives[cc]='1';
 //	SPI_INIT();//SPI协议初始化
 //	SPI_FlashReset();//SPI-Flash复位
 //	SPI_EraseChip();//SPI-Flash全片擦除
 //	SPI_FlashFindHeadPage();//查找上次断电前保存的最后写入位置
 //	int number = 0;
-//	for (number = 0; number < 65500; number++)
+//	for (number = 0; number < 65; number++)
 //		SPI_printf("hello,this is the %d message at page %d sector %d", number + 1,17 + number, (16 + number) / 16 + 1);
 //	SPI_FlashLostPower();//如果flash断电,调用该函数保存最后一次写入位置
+//	SPI_FlashReadPage(17, receives);
 	/*------------------------------SPI FLASH使用示例------------------------------------*/
 	//BSP_TimOpen(TIM_7, 36000 - 1, 1000 * 2 - 1, test);//定时器相关函数
 
 	int count = 0;
+
+
 
 	nvic_init();
 	pinModeB(GPIO_Pin_5, OUTPUT);			 //IOT设备复位引脚

@@ -38,8 +38,8 @@ int SPI_writeStr(uint32_t page, char *str);
 uint8_t SPI_MasterSendReceiveByte(uint8_t spi_byte);
 
 //void SPI_MasterSendReceiveMultipeByte(uint8_t *spi_byte);
-
-void SPI_WriteFlashPageByte(uint32_t page, uint8_t str);
+//----------------------SPI Flash接口--------------------------------//
+void SPI_WriteFlashPageByte(uint32_t page, uint8_t offset, char str[]);
 void SPI_FlashReadPage(uint32_t page, char *str);
 void SPI_FlashReadPageByte(uint32_t page, uint8_t number, uint8_t str[]);
 

@@ -154,7 +154,7 @@ void CheckBusy()
 		;
 		delay_us(100);
 		count++;
-		if (count > 50000)
+		if (count > 100000)
 			return;
 	}
 }
@@ -174,7 +174,7 @@ int SPI_iprintf(const char *fmt, ...)
 		char buf[length];
 		va_start(va, fmt);
 		length = ts_formatstring(buf, fmt, va);
-		if (HeadPage == 65521)
+		if (HeadPage == 65530)
 		{
 			CheckBusy();
 			SPI_EraseSector(2);
@@ -286,14 +286,14 @@ void SPI_FlashReadPageByte(uint32_t page, uint8_t number, uint8_t str[])
 		str[data] = SPI_MasterSendReceiveByte(0xFF);
 	CS_HIGH
 	;
-
 }
 
 /*
- * SPI协议W25Q128 Flash储存芯片写入指定页面的第一个字节
+ * SPI协议W25Q128 Flash储存芯片写入指定页面的指定偏移量位置写入不定长度的字符串
  */
-void SPI_WriteFlashPageByte(uint32_t page, uint8_t str)
+void SPI_WriteFlashPageByte(uint32_t page, uint8_t offset, char str[])
 {
+	int i = 0;
 	CheckBusy();
 	WriteEN();
 	CS_LOW;
@@ -301,7 +301,12 @@ void SPI_WriteFlashPageByte(uint32_t page, uint8_t str)
 	SPI_write((((page - 1) * 0x100) >> 16) & (0xFF));
 	SPI_write((((page - 1) * 0x100) >> 8) & (0xFF));
 	SPI_write((((page - 1) * 0x100)) & (0xFF));
-	SPI_write(str);
+	for (; offset > 0; offset--)
+	{
+		SPI_write(0XFF);
+	}
+	for (i = 0; str[i] != '\0' ; i++)
+		SPI_write(str[i]);
 	CS_HIGH
 	;
 }
@@ -320,7 +325,7 @@ void SPI_FlashFindHeadPage()
 
 	SPI_FlashReadPageByte(2, 2, tempData);
 	Page2Data = (tempData[0] << 8) + tempData[1];
-	if (Page1Data == 0xFF)
+	if (Page1Data == 0xFFFF)
 	{
 		SPI_EraseSector(2);
 		HeadPage = 17;
@@ -341,7 +346,6 @@ void SPI_FlashFindHeadPage()
 void SPI_FlashLostPower()
 {
 	uint8_t data[5] = { '\0' };
-//	data[0] = (HeadPage >> 16) & 0xFF;
 	data[0] = (HeadPage >> 8) & 0xFF;
 	data[1] = (HeadPage) & 0xFF;
 
@@ -356,7 +360,6 @@ void SPI_FlashLostPower()
 	CS_HIGH
 	;
 
-//	data[0] = (HeadSector >> 16) & 0xFF;
 	data[0] = (HeadSector >> 8) & 0xFF;
 	data[1] = (HeadSector) & 0xFF;
 
@@ -367,6 +370,5 @@ void SPI_FlashLostPower()
 	SPI_writeStr(2, (char *) data);
 	CS_HIGH
 	;
-//	SPI_WriteFlashPageByte(1, HeadPage);
-//	SPI_WriteFlashPageByte(2, HeadSector);
+
 }
