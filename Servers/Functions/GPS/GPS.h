@@ -22,7 +22,8 @@ void DecodeGGA();
 /*-------------------GPS相关函数接口-------------------------*/
 void GPS_init();
 void GPS_Begin_analysis();
-void anaGPS();
+void GPS_Stop_analysis();
+GPS_DATA anaGPS();
 
 
 #endif /* FUNCTIONS_GPS_GPS_H_ */

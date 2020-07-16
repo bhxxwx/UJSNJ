@@ -174,12 +174,19 @@ int main(void)
 //	int number = 0;
 //	for (number = 0; number < 65; number++)
 //		SPI_printf("hello,this is the %d message at page %d sector %d", number + 1,17 + number, (16 + number) / 16 + 1);
-//	SPI_FlashLostPower();//如果flash断电,调用该函数保存最后一次写入位置
+//	SPI_FlashLostPower();//如果即将断电,调用该函数保存最后一次写入位置
 //	SPI_FlashReadPage(17, receives);
 	/*------------------------------SPI FLASH使用示例------------------------------------*/
-	//BSP_TimOpen(TIM_7, 36000 - 1, 1000 * 2 - 1, test);//定时器相关函数
-	int count = 0;
-vu32 qq;
+
+
+	//BSP_TimOpen(TIM_7, 36000 - 1, 1000 * 2 - 1, test);//定时器示例函数
+
+	/*------------------------------GPS使用示例------------------------------------------*/
+	GPS_init();
+	GPS_Begin_analysis();
+	anaGPS();
+	/*------------------------------GPS使用示例------------------------------------------*/
+
 
 	nvic_init();
 	pinModeB(GPIO_Pin_5, OUTPUT);			 //IOT设备复位引脚

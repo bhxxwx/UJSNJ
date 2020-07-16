@@ -35,9 +35,17 @@ void GPS_init()
 /*
  * 允许将解析到的数据写入GPS数据结构体
  */
-void GPS_Begin_analysis()
+inline void GPS_Begin_analysis()
 {
 	GPSDATA.ATW = true;
+}
+
+/*
+ * 不允许将解析到的数据写入GPS数据结构体
+ */
+inline void GPS_Stop_analysis()
+{
+	GPSDATA.ATW = false;
 }
 
 /*
@@ -156,14 +164,17 @@ uint8_t CheckHead()
 /*
  * 解析GPS数据
  * 解析条件:
- * 		ATW为true:允许更新数据到结构体中,通过GPS_Begin_analysis()函数置位,
+ * 		ATW为true:允许更新数据到结构体中,通过GPS_Begin_analysis()函数置位,或者直接GPSDATA.ATW=true
  * 		ATR为true:缓冲区数据已经更新
+ * 返回值:
+ * 		GPS_DATA类型数据
+ * 		无论是否解析数据,都返回当前GPSDATA数据
  */
-void anaGPS()
+GPS_DATA anaGPS()
 {
 	if (GPSDATA.ATW == false) //不允许写入数据结构体,GPS不解析
 	{
-		return;
+		return GPSDATA;
 	}
 	if (GPSINIT.ATR) //允许读取数据,缓冲区数据更新完成
 	{
@@ -175,6 +186,8 @@ void anaGPS()
 		if(CheckHead()==GNGGA)
 			DecodeGGA();
 	}
+	return GPSDATA;
+
 }
 
 /*
