@@ -194,10 +194,14 @@ typedef struct
 	char longitude[15];					//经度
 	char NorS;
 	char EorW;
-	char AorP;
 	char High[9];						//高度
 	bool ATW;
-//	bool xlock;							//x锁，防止读脏数据
+	char SIspeed[7];					//国际标准单位速度
+	char SpeedinKnots[6];					//速度,单位:节
+	char CourseovergroundDegrees[6];
+	char CourseovergroundTrue[6];
+	char CourseovergroundMagnetic[6];
+
 	char time_new_status;	 			//time时间刷新标志位。0未刷新，1刷新
 	char gps_new_status;	 			//GPS刷新标志位。0未刷新，1刷新
 } GPS_DATA;
@@ -207,13 +211,9 @@ typedef struct
  */
 typedef struct
 {
-	bool cmdHead;
-	uint8_t matchCount;
-	uint8_t dataCount;
 	const char match1[5];
 	const char match2[5];
 	uint8_t splitTime;
-	uint8_t totalmatch;
 	bool ATR;
 } GPS_INIT;
 

@@ -320,10 +320,10 @@ void SPI_FlashFindHeadPage()
 	uint8_t tempData[5] = { '\0' };
 	CheckBusy();
 
-	SPI_FlashReadPageByte(1, 2, tempData);
+	SPI_FlashReadPageByte(1, 2, tempData);//读取当前写入的page
 	Page1Data = (tempData[0] << 8) | tempData[1] | 0x000000;
 
-	SPI_FlashReadPageByte(2, 2, tempData);
+	SPI_FlashReadPageByte(2, 2, tempData);//读取当前写入的sector
 	Page2Data = (tempData[0] << 8) + tempData[1];
 	if (Page1Data == 0xFFFF)
 	{

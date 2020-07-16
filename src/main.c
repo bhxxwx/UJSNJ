@@ -178,10 +178,8 @@ int main(void)
 //	SPI_FlashReadPage(17, receives);
 	/*------------------------------SPI FLASH使用示例------------------------------------*/
 	//BSP_TimOpen(TIM_7, 36000 - 1, 1000 * 2 - 1, test);//定时器相关函数
-
 	int count = 0;
-
-
+vu32 qq;
 
 	nvic_init();
 	pinModeB(GPIO_Pin_5, OUTPUT);			 //IOT设备复位引脚
