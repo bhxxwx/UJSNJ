@@ -63,7 +63,7 @@ void Connect_MQTT_again()
 {
 	ClearCmdBuffer();					//清空缓冲区
 	digitalWriteC(GPIO_Pin_14, HIGH);	//连网指示灯灭
-	cmd_axis = 4;						//断开MQTT使用第5格缓冲区
+	cmd_axis = 5;						//断开MQTT使用第5格缓冲区
 	x_axis = 0;
 	y_axis = 0;
 
