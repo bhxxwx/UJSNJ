@@ -9,8 +9,14 @@
 
 //可支持19条指令(1~19)[0另作他用],每条指令可接收10条返回信息(0~9),每条返回信息长度最长97(0~96)[98为溢出标记位][99作为单条信息长度数据记录位]
 //char receives[20][10][100]; //BC28或者EC20返回数据的缓冲区
-char receives[8][4][40];
-
+#define a 7
+#define b 6
+#define c 30
+#define connect_max_time 3													//记录最大重连次数
+char receives[a][b][c];													//4：上报请求；5：上传消息；6：断开MQTT连接
+char connect_time = 0;														//记录连网次数
+extern char Deviceerr;														//4G设备故障
+extern void vTaskDelay();
 /*	无符号8位整型变量
  *  x_axis:横轴计数,即串口单次接受的数据长度(以\r\n作为一条数据结束标记)
  *  y_axis:纵轴计数,即串口同一条命令下接受的数据条数(以\r\n作为一条数据结束标记)
@@ -24,9 +30,9 @@ uint8_t x_axis = 0, y_axis = 0, cmd_axis = 0;
 void ClearCmdBuffer()
 {
 	uint8_t x, y, z;
-	for (z = 0; z < 20; z++)
-		for (y = 0; y < 10; y++)
-			for (x = 0; x < 100; x++)
+	for (z = 0; z < a; z++)
+		for (y = 0; y < b; y++)
+			for (x = 0; x < c; x++)
 				receives[z][y][x] = '\0';
 }
 
@@ -36,7 +42,7 @@ void ClearCmdBuffer()
 void IOT_Reset()
 {
 	digitalWriteB(GPIO_Pin_5, LOW);
-	delay_us(3000000);
+	delay_us(500000);					//0.5s
 	digitalWriteB(GPIO_Pin_5, HIGH);
 }
 
@@ -45,9 +51,35 @@ void IOT_Reset()
  */
 void FullSystemReset()
 {
-	digitalWriteB(GPIO_Pin_5, LOW);
-	delay_us(3000000);
+	IOT_Reset();
+	delay_us(100000);					//0.1s
 	NVIC_SystemReset();
+}
+
+/*
+ * 物联网设备断开MQTT服务并重连
+ */
+void Connect_MQTT_again()
+{
+	ClearCmdBuffer();					//清空缓冲区
+	digitalWriteC(GPIO_Pin_14, HIGH);	//连网指示灯灭
+	cmd_axis = 4;						//断开MQTT使用第5格缓冲区
+	x_axis = 0;
+	y_axis = 0;
+
+	send_cmd("AT+QMTDISC=0 \r\n");		//关闭MQTT服务
+	delay_us(200000);					//0.2s
+	if (check_receives(6, "OK"))
+	{
+		;
+	} else
+	{
+		IOT_Reset();
+//		delay_us(12000000);				//等待复位完成
+		vTaskDelay(5000);				//等待复位完成,10s
+	}
+	IOT_init();							//重连ALiCloud
+	Deviceerr = 0;
 }
 
 void send_cmd(char *str)
@@ -68,73 +100,84 @@ void send_cmd(char *str)
  */
 void IOT_init()
 {
-	IOT_Reset(); //物联网设备复位
-	delay_us(12000000);
-	usart_1_init(115200);
-
-	send_cmd("ATE0 \r\n"); //第1条指令,对应cmd_axis为1
-	delay_us(200000); //延时0.2s
-	while (!check_receives(1, "OK"))
-		//检测指令1返回的数据中是否包含"ok"
-		;
-
-	send_cmd(
-	        "AT+QMTCFG=\"aliauth\",0,\"a1f2CH9BSx7\",\"ZRH_4G\",\"TEnbrWdkBXfLkca73A9Nhyzqe9o19HM6\" \r\n"); //第2条指令
-	delay_us(500000); //延时0.5s
-
-	send_cmd("AT+QMTOPEN=0,\"iot-as-mqtt.cn-shanghai.aliyuncs.com\",1883 \r\n"); //第3条指令
-	delay_us(1000000); //延时1s
-
-	if (check_receives(3, "ERROR"))
+	connect_time++;
+	if (connect_time > connect_max_time)				//重连次数超过最大重连次数，复位重启
 	{
-		NVIC_SystemReset();
-	}
-	delay_us(500000);
-	if (check_receives(3, "+QMTOPEN: 0,-1"))
+		FullSystemReset();
+		return;
+	} else
 	{
-		NVIC_SystemReset();
-	}
-	if (check_receives(3, "+QMTOPEN: 0,3"))
-	{
-		NVIC_SystemReset();
-	}
-	if (check_receives(3, "+QMTOPEN: 0,2"))
-	{
-		NVIC_SystemReset();
-	}
-
-	send_cmd("AT+QMTCONN=0,\"ZRH_4G\" \r\n"); //第4条指令
-	delay_us(10000000);						  //1s
-	if (check_receives(4, "ERROR"))
-	{
-		NVIC_SystemReset();
-	}
-	if (check_receives(4, "+QMTCONN: 0,1"))
-	{
-		NVIC_SystemReset();
-	}
-	cmd_axis = 6; //使用12号数组检测是否发送成功。
-	printf("AT+QMTPUB=0,0,0,1,\"/a1f2CH9BSx7/ZRH_4G/user/put\" \r\n");
-	delay_us(100000); //0.1s
-	x_axis = 0;
-	y_axis = 0;
-	printf("~ \r\n");
-
-	delay_us(200000);
-	while (!check_receives(6, "+QMTPUB: 0,0,0"))
-	{
-		if (check_receives(6, "ERROR"))
+		ClearCmdBuffer();					//清空缓冲区
+		cmd_axis = 0;			//复位接受缓冲区
+		x_axis = 0;
+		y_axis = 0;
+		send_cmd("ATE0 \r\n");  //第1条指令,对应cmd_axis为1
+		delay_us(200000); 		//延时0.2s
+//		vTaskDelay(100);
+		while (!check_receives(1, "OK"))  //检测指令1返回的数据中是否包含"ok",没有则重连接
 		{
-			for (int i = 0; i < 10; i++)
-			{
-				for (int j = 0; j < 100; j++)
-					receives[12][i][j] = '\0';
-			}
-			NVIC_SystemReset();
-			break;
+			IOT_init();
+			return;
 		}
+
+		printf(
+		        "AT+QMTCFG=\"aliauth\",0,\"a1f2CH9BSx7\",\"ZRH_4G\",\"TEnbrWdkBXfLkca73A9Nhyzqe9o19HM6\" \r\n"); //第2条指令
+//		vTaskDelay(250);
+		delay_us(100000); 		//延时0.1s
+		send_cmd("AT+QMTOPEN=0,\"iot-as-mqtt.cn-shanghai.aliyuncs.com\",1883 \r\n"); //第3条指令
+//		vTaskDelay(400);
+		delay_us(800000); 		//延时0.8s
+		if (check_receives(2, "+QMTOPEN: 0,0"))
+		{
+			;
+		} else if (check_receives(2, "+QMTOPEN: 0,3"))					//无法断开连接，只能复位
+		{
+			IOT_Reset();
+//			vTaskDelay(5000);
+			delay_us(500000); 		//延时0.5s
+			IOT_init();
+			return;
+		} else if (check_receives(2, "+QMTSTAT: 0,1"))					//MQTT状态发生变化，重连即可
+		{
+			IOT_init();
+		} else
+		{
+			Connect_MQTT_again();
+			return;
+		}
+
+		send_cmd("AT+QMTCONN=0,\"ZRH_4G\" \r\n"); //第4条指令
+//		vTaskDelay(500);
+		delay_us(800000); 		//延时0.8s
+		if (check_receives(3, "+QMTCONN: 0,0,0"))
+		{
+			;
+		} else
+		{
+			Connect_MQTT_again();
+			return;
+		}
+
+		send_cmd("AT+QMTPUB=0,0,0,1,\"/a1f2CH9BSx7/ZRH_4G/user/put\" \r\n");
+//		vTaskDelay(50);
+		delay_us(100000); 		//延时0.1s
+		send_cmd("~ \r\n");
+		delay_us(100000); 		//延时0.1s
+		if (check_receives(5, "+QMTPUB: 0,0,0"))
+		{
+			;
+		} else
+		{
+			Connect_MQTT_again();
+			return;
+		}
+//		vTaskDelay(50);
+
+		digitalWriteC(GPIO_Pin_14, LOW);//联网成功
+		delay_us(100000); //0.1s
+		connect_time = 0;								//复位连网次数
 	}
-	delay_us(100000); //0.1s
+
 }
 
 /*
@@ -158,13 +201,13 @@ void USART1_IRQHandler(void)
 		if (x_axis >= 97) //防止数据长度溢出,造成精确的数据访问冲突
 		{
 			x_axis = 0;
-			receives[cmd_axis][y_axis][98] = 1;
+			receives[cmd_axis][y_axis][c - 2] = 1;
 		}
 		if (y_axis > 9) //防止数据条数溢出,造成精确的数据访问冲突
 			y_axis = 0;
 		if (temp == '\n')
 		{
-			receives[cmd_axis][y_axis][99] = x_axis;
+			receives[cmd_axis][y_axis][c - 1] = x_axis;
 			y_axis++;
 			x_axis = 0;
 		}
@@ -207,7 +250,7 @@ bool check_receives(uint8_t cmd_number, char *cmd)
 	char str[20] = { '\0' };
 	for (i = 0; i < y_axis; i++)
 	{
-		for (j = 0; j < receives[cmd_number][i][99] - 2; j++)
+		for (j = 0; j < receives[cmd_number][i][c - 1] - 2; j++)
 		{
 			str[j] = receives[cmd_number][i][j];
 		}

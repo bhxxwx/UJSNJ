@@ -16,6 +16,7 @@ void FullSystemReset();
 void IOT_init();
 
 void SendToCloud();
+void Connect_MQTT_again();
 
 bool iscontants(char *str, char *cmd);
 bool check_receives(uint8_t cmd_number, char *cmd);
