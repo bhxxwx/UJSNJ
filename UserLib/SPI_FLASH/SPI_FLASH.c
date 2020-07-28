@@ -9,7 +9,7 @@
 #include <stdarg.h>
 __attribute__((alias("SPI_iprintf"))) int SPI_printf(const char *fmt, ...);
 
-uint32_t HeadPage, HeadSector;
+uint32_t HeadPage, HeadSector, ReadPage;
 
 /*
  *	SPI协议初始化
@@ -305,7 +305,7 @@ void SPI_WriteFlashPageByte(uint32_t page, uint8_t offset, char str[])
 	{
 		SPI_write(0XFF);
 	}
-	for (i = 0; str[i] != '\0' ; i++)
+	for (i = 0; str[i] != '\0'; i++)
 		SPI_write(str[i]);
 	CS_HIGH
 	;
@@ -316,15 +316,19 @@ void SPI_WriteFlashPageByte(uint32_t page, uint8_t offset, char str[])
  */
 void SPI_FlashFindHeadPage()
 {
-	uint32_t Page1Data = 0, Page2Data = 0;
+	uint32_t Page1Data = 0, Page2Data = 0, Page3Data = 0;
 	uint8_t tempData[5] = { '\0' };
 	CheckBusy();
 
-	SPI_FlashReadPageByte(1, 2, tempData);//读取当前写入的page
+	SPI_FlashReadPageByte(1, 2, tempData); //读取当前写入的page
 	Page1Data = (tempData[0] << 8) | tempData[1] | 0x000000;
 
-	SPI_FlashReadPageByte(2, 2, tempData);//读取当前写入的sector
+	SPI_FlashReadPageByte(2, 2, tempData); //读取当前写入的sector
 	Page2Data = (tempData[0] << 8) + tempData[1];
+
+	SPI_FlashReadPageByte(3, 2, tempData); //读取当前写入的读取page
+	Page3Data = (tempData[0] << 8) + tempData[1];
+
 	if (Page1Data == 0xFFFF)
 	{
 		SPI_EraseSector(2);
@@ -337,6 +341,10 @@ void SPI_FlashFindHeadPage()
 	else
 	{
 		HeadSector = ((HeadPage - 1) / 16) + 1;
+	}
+	if (Page3Data == 0xFFFF)
+	{
+		ReadPage = 17;
 	}
 }
 
@@ -371,4 +379,51 @@ void SPI_FlashLostPower()
 	CS_HIGH
 	;
 
+	data[0] = (ReadPage >> 8) & 0xFF;
+	data[1] = (ReadPage) & 0xFF;
+
+	CheckBusy();
+	WriteEN();
+	CS_LOW;
+	SPI_write(FLASH_WRITE_PAGE);
+	SPI_writeStr(3, (char *) data);
+	CS_HIGH
+	;
+}
+
+extern void clearStr(char *str, uint8_t i);
+
+/*
+ * SPI协议W25Q128 Flash储存芯片自动指定长度数组的数据
+ * 最大读取长度255,读取之后页面自加
+ * 		如果读取指针在写入的之前(大于),将指针置于下一个块的首地址
+ * 		如果读取指针在写入之后(小于),等待,返回Wait或者W(视数组大小而定)
+ */
+void SPI_FlashAutoRead(char data[])
+{
+	uint8_t length = sizeof(data);//获取数组的长度
+	clearStr(data, length);
+	if (ReadPage >= 65530) //读取了一个轮回
+	{
+		ReadPage = 17; //从开头开始读取
+	}
+	if (HeadSector == ((ReadPage - 1) / 16) + 1) //如果当前读取页面与写入同属于同一个块
+	{
+		if (ReadPage > HeadPage) //读取指针在写入之前,将指针置于下一个块的首地址
+			ReadPage = (HeadSector) * 16 + 1;
+		if (ReadPage <= HeadPage) //读取指针在写入之后,等待
+		{
+			if (length >= 4)
+			{
+				data[0] = 'W';
+				data[1] = 'a';
+				data[2] = 'i';
+				data[3] = 't';
+			} else
+				data[0] = 'W';
+		}
+		return;
+	}
+	SPI_FlashReadPageByte(ReadPage, length, (uint8_t *) data);
+	ReadPage++;
 }

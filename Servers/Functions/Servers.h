@@ -11,10 +11,7 @@
 #include "DATAstruct/DATAstruct.h"
 #include "Functions/GPS/GPS.H"
 
-
-
 void GPS_get_message();
-
 
 //bool iscontants(char *str, char *cmd);
 //void send_cmd(char *str);

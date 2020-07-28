@@ -10,11 +10,14 @@
 #include "UserConfig.h"
 #include "DATAstruct/DATAstruct.h"
 
+#define GPS_Res_Pin GPIO_Pin_8
+#define GPS_Erase_Pin GPIO_Pin_7
+
 void writeUTC(char *time, char *data);
 void writeL(char *lan, char *data);
 void copyData(char *speed, char *data);
 void clearStr(char *str, uint8_t i);
-void copyData(char *speed,char *data);
+void copyData(char *speed, char *data);
 uint8_t CheckHead();
 void DecodeRMC();
 void DecodeGGA();

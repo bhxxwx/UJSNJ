@@ -162,7 +162,7 @@ void test()
 int main(void)
 {
 	DBGMCU_Config(DBGMCU_IWDG_STOP, ENABLE); //DEBUG时看门狗关闭
-
+	nvic_init();
 	/*------------------------------SPI FLASH使用示例------------------------------------*/
 //	char receives[257];
 //	for(cc=0;cc<256;cc++)
@@ -178,29 +178,24 @@ int main(void)
 //	SPI_FlashReadPage(17, receives);
 	/*------------------------------SPI FLASH使用示例------------------------------------*/
 
-
 	//BSP_TimOpen(TIM_7, 36000 - 1, 1000 * 2 - 1, test);//定时器示例函数
-
 	/*------------------------------GPS使用示例------------------------------------------*/
 	GPS_init();
-	GPS_Begin_analysis();
-	anaGPS();
+
 	/*------------------------------GPS使用示例------------------------------------------*/
 
-
-	nvic_init();
-	pinModeB(GPIO_Pin_5, OUTPUT);			 //IOT设备复位引脚
-	IOT_init();
-
-	xTaskCreate(CAN_Analysis, "GetCAN", 1024, NULL, 3, NULL);
-	xTaskCreate(GPS_Analysis, "GetGPS", 1024, NULL, 3, NULL);
-	xTaskCreate(upload_or_store, "up/store", 1024, NULL, 2, NULL);
-	xTaskCreate(Abnormal_detection, "err", 1024, NULL, 4, NULL);
-	vTaskStartScheduler();
-
+//	pinModeB(GPIO_Pin_5, OUTPUT);			 //IOT设备复位引脚
+//	IOT_init();
+//
+//	xTaskCreate(CAN_Analysis, "GetCAN", 1024, NULL, 3, NULL);
+//	xTaskCreate(GPS_Analysis, "GetGPS", 1024, NULL, 3, NULL);
+//	xTaskCreate(upload_or_store, "upstore", 1024, NULL, 2, NULL);
+//	xTaskCreate(Abnormal_detection, "err", 1024, NULL, 4, NULL);
+//	vTaskStartScheduler();
 	while (1)
 	{
-
+		GPS_Begin_analysis();
+		anaGPS();
 	}
 }
 

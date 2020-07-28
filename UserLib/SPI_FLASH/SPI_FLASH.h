@@ -23,13 +23,14 @@
 
 extern int SPI_printf(const char *fmt, ...);
 
-//----------------------对外调用接口----------------------//
+/*----------------------对外调用接口----------------------*/
 void SPI_INIT();
 void WriteEN();
 void SPI_EraseChip();
 void SPI_FlashReset();
 void SPI_FlashFindHeadPage();
 void SPI_FlashLostPower();
+void SPI_FlashAutoRead(char data[]);
 
 //----------------------中间调用函数----------------------//
 void SPI_write(u8 TxData);

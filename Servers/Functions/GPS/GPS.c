@@ -29,8 +29,13 @@ GPS_INIT GPSINIT = { .match1[0]='G', .match1[1]='N', .match1[2]='R', .match1[3]=
 void GPS_init()
 {
 	usart_3_init(9600, 1);
+	pinModeC(GPS_Res_Pin, OUTPUT);
+	pinModeC(GPS_Erase_Pin, OUTPUT);
+	digitalWriteC(GPS_Erase_Pin, HIGH);
+	digitalWriteC(GPS_Res_Pin, LOW);
+	delay_us(8000);
+	digitalWriteC(GPS_Res_Pin, HIGH);
 }
-
 
 /*
  * 允许将解析到的数据写入GPS数据结构体
@@ -181,13 +186,12 @@ GPS_DATA anaGPS()
 		GPSINIT.splitTime = 0; //分隔符计数
 		clearStr(GpsCharToConvert, 20); //缓冲区清零
 
-		if(CheckHead()==GNRMC)
+		if (CheckHead() == GNRMC)
 			DecodeRMC();
-		if(CheckHead()==GNGGA)
+		if (CheckHead() == GNGGA)
 			DecodeGGA();
 	}
 	return GPSDATA;
-
 }
 
 /*
