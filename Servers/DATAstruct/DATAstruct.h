@@ -201,7 +201,7 @@ typedef struct
 	char CourseovergroundDegrees[6];
 	char CourseovergroundTrue[6];
 	char CourseovergroundMagnetic[6];
-
+	char Status[2];
 	char time_new_status;	 			//time时间刷新标志位。0未刷新，1刷新
 	char gps_new_status;	 			//GPS刷新标志位。0未刷新，1刷新
 } GPS_DATA;

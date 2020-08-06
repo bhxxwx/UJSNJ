@@ -61,7 +61,7 @@ char *usart2_readToEnd();
 //串口发送数据,串口1使用printf函数故一般不用usart_1_send()
 void usart_1_send(uint8_t *data, int length);
 void usart_2_send(uint8_t *data, int length);
-void usart_3_send(uint8_t *data, int length);
+void usart_3_send(char *data);
 
 /***************************************************时钟频率 相关操作****************************************************/
 //设置CPU时钟为72MHz,返回系统各时钟频率数值

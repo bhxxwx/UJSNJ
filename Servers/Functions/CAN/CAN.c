@@ -35,6 +35,21 @@ void Analysys(CanRxMsg CANRX)
 		case P4ID:
 			Analysys_DATA(get_pack_currentPack(CANRX), CANRX);
 			break;
+		case P5ID:
+			Analysys_DATA(get_pack_currentPack(CANRX), CANRX);
+			break;
+		case P6ID:
+			Analysys_DATA(get_pack_currentPack(CANRX), CANRX);
+			break;
+		case P7ID:
+			Analysys_DATA(get_pack_currentPack(CANRX), CANRX);
+			break;
+		case P8ID:
+			Analysys_DATA(get_pack_currentPack(CANRX), CANRX);
+			break;
+		case P9ID:
+			Analysys_DATA(get_pack_currentPack(CANRX), CANRX);
+			break;
 			//		default:
 	}
 }
@@ -63,26 +78,26 @@ uint8_t set_Pri(uint32_t id)
  */
 void Analysys_ID(uint8_t Pack_NO, CanRxMsg CANRX)
 {
-	ID_INFOs.Pri = set_Pri(CANRX.ExtId);
-	ID_INFOs.PGN = (CANRX.ExtId & 0x00FFFF00) >> 8;
-	ID_INFOs.PF = (CANRX.ExtId & 0x00FF0000) >> 16;
-	ID_INFOs.PSGE = (CANRX.ExtId & 0x0000FF00) >> 8;
-	ID_INFOs.SA = (CANRX.ExtId & 0x000000FF);
-	ID_INFOs.DLC = CANRX.DLC;
-	if (Pack_NO == 1)
-		Pack1.ID_INFO = ID_INFOs, Pack1.ID = CANRX.ExtId;
-	else if (Pack_NO == 2)
-		Pack2.ID_INFO = ID_INFOs, Pack2.ID = CANRX.ExtId;
-	else if (Pack_NO == 3)
-		Pack3.ID_INFO = ID_INFOs, Pack3.ID = CANRX.ExtId;
-	else if (Pack_NO == 4)
-		Pack4.ID_INFO = ID_INFOs, Pack4.ID = CANRX.ExtId;
-	else if (Pack_NO == 5)
-		Pack5.ID_INFO = ID_INFOs, Pack5.ID = CANRX.ExtId;
-	else if (Pack_NO == 6)
-		Pack6.ID_INFO = ID_INFOs, Pack6.ID = CANRX.ExtId;
-	else if (Pack_NO == 7)
-		Pack7.ID_INFO = ID_INFOs, Pack7.ID = CANRX.ExtId;
+//	ID_INFOs.Pri = set_Pri(CANRX.ExtId);
+//	ID_INFOs.PGN = (CANRX.ExtId & 0x00FFFF00) >> 8;
+//	ID_INFOs.PF = (CANRX.ExtId & 0x00FF0000) >> 16;
+//	ID_INFOs.PSGE = (CANRX.ExtId & 0x0000FF00) >> 8;
+//	ID_INFOs.SA = (CANRX.ExtId & 0x000000FF);
+//	ID_INFOs.DLC = CANRX.DLC;
+//	if (Pack_NO == 1)
+//		Pack1.ID_INFO = ID_INFOs, Pack1.ID = CANRX.ExtId;
+//	else if (Pack_NO == 2)
+//		Pack2.ID_INFO = ID_INFOs, Pack2.ID = CANRX.ExtId;
+//	else if (Pack_NO == 3)
+//		Pack3.ID_INFO = ID_INFOs, Pack3.ID = CANRX.ExtId;
+//	else if (Pack_NO == 4)
+//		Pack4.ID_INFO = ID_INFOs, Pack4.ID = CANRX.ExtId;
+//	else if (Pack_NO == 5)
+//		Pack5.ID_INFO = ID_INFOs, Pack5.ID = CANRX.ExtId;
+//	else if (Pack_NO == 6)
+//		Pack6.ID_INFO = ID_INFOs, Pack6.ID = CANRX.ExtId;
+//	else if (Pack_NO == 7)
+//		Pack7.ID_INFO = ID_INFOs, Pack7.ID = CANRX.ExtId;
 }
 
 /*

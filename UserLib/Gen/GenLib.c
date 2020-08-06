@@ -335,9 +335,10 @@ void usart_2_send(uint8_t *data, int length)
  * 参数:  data->需要发送的数据的char型指针
  * 		  length->发送的数据位数
  */
-void usart_3_send(uint8_t *data, int length)
+void usart_3_send(char *data)
 {
 	int i = 0;
+	int length=strlen(data);
 	for (; i < length; i++)
 	{
 		while (USART_GetFlagStatus(USART3, USART_FLAG_TC) == RESET)
@@ -356,13 +357,13 @@ RCC_ClocksTypeDef set_cpu_72MHz()
 {
 	RCC_ClocksTypeDef get_rcc_clock;
 	//set the CPU clock as 72MHz
-	RCC_HSEConfig(RCC_HSE_OFF);
-	RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_9);
-	RCC_HSEConfig(RCC_HSE_ON);
-	RCC_PCLK1Config(RCC_HCLK_Div4); //APB1
-	RCC_WaitForHSEStartUp();
-	RCC_HCLKConfig(RCC_SYSCLK_Div1);
-	RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
+//	RCC_HSEConfig(RCC_HSE_OFF);
+//	RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_9);
+//	RCC_HSEConfig(RCC_HSE_ON);
+//	RCC_PCLK1Config(RCC_HCLK_Div4); //APB1
+//	RCC_WaitForHSEStartUp();
+//	RCC_HCLKConfig(RCC_SYSCLK_Div1);
+//	RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
 	RCC_GetClocksFreq(&get_rcc_clock);
 	return get_rcc_clock;
 }
@@ -1219,6 +1220,7 @@ CanRxMsg CAN_POLLING_REC()
 	return RxMessage;
 }
 
+#define userDEFfilter
 /*
  * CAN总线中断方式初始化
  * 设置总线模式,总线频率(目前250kHz)
@@ -1240,13 +1242,14 @@ void CAN_IT_INIT()
 	CAN_InitStructure.CAN_RFLM = DISABLE;
 	CAN_InitStructure.CAN_TXFP = DISABLE;
 	CAN_InitStructure.CAN_Mode = CAN_Mode_Normal;
-	CAN_InitStructure.CAN_SJW = CAN_SJW_1tq;
-	CAN_InitStructure.CAN_BS1 = CAN_BS1_8tq;
-	CAN_InitStructure.CAN_BS2 = CAN_BS2_3tq;
-	CAN_InitStructure.CAN_Prescaler = 12;   //  36M/(1+8+3)/12=250k
+	CAN_InitStructure.CAN_SJW = CAN_SJW_1tq;//1
+	CAN_InitStructure.CAN_BS1 = CAN_BS1_8tq;//3
+	CAN_InitStructure.CAN_BS2 = CAN_BS2_3tq;//2
+	CAN_InitStructure.CAN_Prescaler = 12;   //  36M/(1+8+3)/12=250k//24
 	CAN_Init(CAN1, &CAN_InitStructure);
 
 	/* CAN filter init */
+#ifdef defaultFIFO
 	CAN_FilterInitStructure.CAN_FilterNumber = 1;
 	CAN_FilterInitStructure.CAN_FilterMode = CAN_FilterMode_IdMask;
 	CAN_FilterInitStructure.CAN_FilterScale = CAN_FilterScale_32bit;
@@ -1260,6 +1263,98 @@ void CAN_IT_INIT()
 
 	/* CAN FIFO0 message pending interrupt enable */
 	CAN_ITConfig(CAN1, CAN_IT_FMP0, ENABLE);
+#endif
+
+#ifdef userDEFfilter
+	CAN_FilterInitStructure.CAN_FilterNumber = 0;
+	CAN_FilterInitStructure.CAN_FilterMode = CAN_FilterMode_IdMask;
+	CAN_FilterInitStructure.CAN_FilterScale = CAN_FilterScale_32bit;
+	CAN_FilterInitStructure.CAN_FilterIdHigh = 0x18FF;
+	CAN_FilterInitStructure.CAN_FilterIdLow = 0x2111;
+	CAN_FilterInitStructure.CAN_FilterMaskIdHigh = 0x0000;
+	CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0xFFFF;
+	CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_FIFO0;
+	CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
+	CAN_FilterInit(&CAN_FilterInitStructure);
+
+	CAN_FilterInitStructure.CAN_FilterNumber = 1;
+	CAN_FilterInitStructure.CAN_FilterIdHigh = 0x18FF;
+	CAN_FilterInitStructure.CAN_FilterIdLow = 0x2313;
+	CAN_FilterInitStructure.CAN_FilterMaskIdHigh = 0x0000;
+	CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0xFFFF;
+	CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_FIFO0;
+	CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
+	CAN_FilterInit(&CAN_FilterInitStructure);
+
+
+	CAN_FilterInitStructure.CAN_FilterNumber = 2;
+	CAN_FilterInitStructure.CAN_FilterIdHigh = 0x18FF;
+	CAN_FilterInitStructure.CAN_FilterIdLow = 0x2413;
+	CAN_FilterInitStructure.CAN_FilterMaskIdHigh = 0x0000;
+	CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0xFFFF;
+	CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_FIFO0;
+	CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
+	CAN_FilterInit(&CAN_FilterInitStructure);
+
+
+	CAN_FilterInitStructure.CAN_FilterNumber = 3;
+	CAN_FilterInitStructure.CAN_FilterIdHigh = 0x0000;
+	CAN_FilterInitStructure.CAN_FilterIdLow = 0x2715;
+	CAN_FilterInitStructure.CAN_FilterMaskIdHigh = 0x0000;
+	CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0xFFFF;
+	CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_FIFO0;
+	CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
+	CAN_FilterInit(&CAN_FilterInitStructure);
+
+	CAN_FilterInitStructure.CAN_FilterNumber = 4;
+	CAN_FilterInitStructure.CAN_FilterIdHigh = 0x0000;
+	CAN_FilterInitStructure.CAN_FilterIdLow = 0x2815;
+	CAN_FilterInitStructure.CAN_FilterMaskIdHigh = 0x0000;
+	CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0xFFFF;
+	CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_FIFO0;
+	CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
+	CAN_FilterInit(&CAN_FilterInitStructure);
+
+	CAN_FilterInitStructure.CAN_FilterNumber = 5;
+	CAN_FilterInitStructure.CAN_FilterIdHigh = 0x0000;
+	CAN_FilterInitStructure.CAN_FilterIdLow = 0x2915;
+	CAN_FilterInitStructure.CAN_FilterMaskIdHigh = 0x0000;
+	CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0xFFFF;
+	CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_FIFO0;
+	CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
+	CAN_FilterInit(&CAN_FilterInitStructure);
+
+	CAN_FilterInitStructure.CAN_FilterNumber = 6;
+	CAN_FilterInitStructure.CAN_FilterIdHigh = 0x0000;
+	CAN_FilterInitStructure.CAN_FilterIdLow = 0x2515;
+	CAN_FilterInitStructure.CAN_FilterMaskIdHigh = 0x0000;
+	CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0xFFFF;
+	CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_FIFO0;
+	CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
+	CAN_FilterInit(&CAN_FilterInitStructure);
+
+
+	CAN_FilterInitStructure.CAN_FilterNumber = 7;
+	CAN_FilterInitStructure.CAN_FilterIdHigh = 0x0000;
+	CAN_FilterInitStructure.CAN_FilterIdLow = 0x2615;
+	CAN_FilterInitStructure.CAN_FilterMaskIdHigh = 0x0000;
+	CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0xFFFF;
+	CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_FIFO0;
+	CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
+	CAN_FilterInit(&CAN_FilterInitStructure);
+
+
+	CAN_FilterInitStructure.CAN_FilterNumber = 8;
+	CAN_FilterInitStructure.CAN_FilterIdHigh = 0x0000;
+	CAN_FilterInitStructure.CAN_FilterIdLow = 0x2817;
+	CAN_FilterInitStructure.CAN_FilterMaskIdHigh = 0x0000;
+	CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0xFFFF;
+	CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_FIFO0;
+	CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
+	CAN_FilterInit(&CAN_FilterInitStructure);
+	/* CAN FIFO0 message pending interrupt enable */
+	CAN_ITConfig(CAN1, CAN_IT_FMP0, ENABLE);
+#endif
 }
 
 /*
@@ -1271,7 +1366,8 @@ void CAN_IT_SEND(CanTxMsg TxMessage)
 }
 
 //CanRxMsg CAN_IT_REC();
-
+extern __IO uint8_t first_v;
+extern __IO uint8_t second_v;
 /*
  * CAN/USB总线接收中断
  */
@@ -1280,8 +1376,8 @@ void USB_LP_CAN1_RX0_IRQHandler(void)
 	CanRxMsg RxMessage;
 	CAN_Receive(CAN1, CAN_FIFO0, &RxMessage);
 
-	USB_Istr();
 
+//	USB_Istr();
 }
 
 /*

@@ -28,13 +28,23 @@ GPS_INIT GPSINIT = { .match1[0]='G', .match1[1]='N', .match1[2]='R', .match1[3]=
  */
 void GPS_init()
 {
-	usart_3_init(9600, 1);
 	pinModeC(GPS_Res_Pin, OUTPUT);
 	pinModeC(GPS_Erase_Pin, OUTPUT);
 	digitalWriteC(GPS_Erase_Pin, HIGH);
 	digitalWriteC(GPS_Res_Pin, LOW);
-	delay_us(8000);
+	delay_us(30000);
+	usart_3_init(115200, 1);
+	delay_us(30000);
 	digitalWriteC(GPS_Res_Pin, HIGH);
+	delay_us(5000000);
+	usart_3_send("UNLOGALL\r\n");
+	usart_3_send("UNLOG\r\n");
+	usart_3_send("LOG GNGGA ONTIME 1\r\n");
+	usart_3_send("LOG GNRMC ONTIME 1\r\n");
+//	usart_3_send("LOG RANGEA ONTIME 1\r\n");
+//	usart_3_send("LOG GPHDT ONCHANGED\r\n");
+//	usart_3_send("LOG HEADINGA ONCHANGED\r\n");
+
 }
 
 /*
@@ -56,6 +66,7 @@ inline void GPS_Stop_analysis()
 /*
  * 串口3中断服务函数
  */
+static uint8_t counts = 0;
 void USART3_IRQHandler(void)
 {
 	if (USART_GetFlagStatus(USART3, USART_FLAG_ORE) != RESET)
@@ -72,10 +83,12 @@ void USART3_IRQHandler(void)
 	}
 	if (USART_GetITStatus(USART3, USART_IT_RXNE) != RESET) //接收到数据
 	{
-		__IO uint8_t counts = 0;
 		datas[counts] = USART_ReceiveData(USART3);
-		if (datas[counts] == '$')
-			datas[0] = '$';
+//		if (datas[counts] == '$')
+//		{
+//			datas[0] = '$';
+//			counts=0;
+//		}
 		if (datas[counts] == '\n')
 		{
 			counts = 0;
@@ -83,7 +96,8 @@ void USART3_IRQHandler(void)
 			GPSINIT.ATR = true; //缓冲区更新完成允许读取
 			return;
 		}
-		counts++;
+		if (++counts >= 99)
+			counts = 0;
 		USART_ClearITPendingBit(USART3, USART_IT_RXNE); //清除接收中断标志
 	}
 }
@@ -148,6 +162,7 @@ void clearStr(char *str, uint8_t i)
 uint8_t CheckHead()
 {
 	uint8_t matchCount = 0;
+
 	for (matchCount = 1; matchCount <= 5; matchCount++) //检测包头是否符合规范
 	{
 		if ((datas[matchCount] != GPSINIT.match1[matchCount - 1])
@@ -159,9 +174,10 @@ uint8_t CheckHead()
 			return err;
 		}
 	}
+
 	if (datas[4] == 'M')
 		return GNRMC;
-	if (datas[4] == 'T')
+	if (datas[4] == 'G')
 		return GNGGA;
 	return err;
 }
@@ -185,11 +201,12 @@ GPS_DATA anaGPS()
 	{
 		GPSINIT.splitTime = 0; //分隔符计数
 		clearStr(GpsCharToConvert, 20); //缓冲区清零
-
 		if (CheckHead() == GNRMC)
 			DecodeRMC();
 		if (CheckHead() == GNGGA)
 			DecodeGGA();
+		clearStr(datas, 100);
+		GPSINIT.ATR = false;
 	}
 	return GPSDATA;
 }
@@ -200,48 +217,53 @@ GPS_DATA anaGPS()
 void DecodeRMC()
 {
 	uint8_t x, y;
-	for (x = 7, y = 0; datas[x] != '\r'; x++)
-	{
-		if (datas[x] != ',') //如果数据不为',',复制数据
+	if (strlen(datas) > 8)
+		for (x = 7, y = 0; datas[x] != '\r'; x++)
 		{
-			GpsCharToConvert[y] = datas[x];
-			y++;
-		} else //如果数据为',',判断为第几个逗号
-		{
-			y = 0;
-			GPSINIT.splitTime++;
-			switch (GPSINIT.splitTime)
+			if (datas[x] != ',') //如果数据不为',',复制数据
 			{
-				case 1:
-					writeUTC(GPSDATA.UTCtime, GpsCharToConvert), clearStr(GpsCharToConvert, 20);
-					continue;
-				case 3:
-					writeL(GPSDATA.latitude, GpsCharToConvert), clearStr(GpsCharToConvert, 20);
-					continue;
-				case 4:
-					GPSDATA.NorS = GpsCharToConvert[0], clearStr(GpsCharToConvert, 20);
-					continue;
-				case 5:
-					writeL(GPSDATA.longitude, GpsCharToConvert), clearStr(GpsCharToConvert, 20);
-					continue;
-				case 6:
-					GPSDATA.EorW = GpsCharToConvert[0], clearStr(GpsCharToConvert, 20);
-					continue;
-				case 7:
-					copyData(GPSDATA.SpeedinKnots, GpsCharToConvert), clearStr(GpsCharToConvert, 20);
-					continue;
-				case 8:
-					copyData(GPSDATA.CourseovergroundDegrees, GpsCharToConvert), clearStr(
-					        GpsCharToConvert, 20);
-					continue;
-				case 9:
-					GPSDATA.ATW = false, GPSINIT.ATR = false, GPSINIT.splitTime = 0;
-					return;
+				GpsCharToConvert[y] = datas[x];
+				y++;
+			} else //如果数据为',',判断为第几个逗号
+			{
+				y = 0;
+				GPSINIT.splitTime++;
+				switch (GPSINIT.splitTime)
+				{
+					case 1:
+						writeUTC(GPSDATA.UTCtime, GpsCharToConvert), clearStr(GpsCharToConvert, 20);
+						continue;
+					case 2:
+						GPSDATA.Status[0] = GpsCharToConvert[0], clearStr(GpsCharToConvert, 20);
+						continue;
+					case 3:
+						writeL(GPSDATA.latitude, GpsCharToConvert), clearStr(GpsCharToConvert, 20);
+						continue;
+					case 4:
+						GPSDATA.NorS = GpsCharToConvert[0], clearStr(GpsCharToConvert, 20);
+						continue;
+					case 5:
+						writeL(GPSDATA.longitude, GpsCharToConvert), clearStr(GpsCharToConvert, 20);
+						continue;
+					case 6:
+						GPSDATA.EorW = GpsCharToConvert[0], clearStr(GpsCharToConvert, 20);
+						continue;
+					case 7:
+						copyData(GPSDATA.SpeedinKnots, GpsCharToConvert), clearStr(GpsCharToConvert,
+						        20);
+						continue;
+					case 8:
+						copyData(GPSDATA.CourseovergroundDegrees, GpsCharToConvert), clearStr(
+						        GpsCharToConvert, 20);
+						continue;
+					case 9:
+						GPSDATA.ATW = false, GPSINIT.ATR = false, GPSINIT.splitTime = 0;
+						return;
+				}
+				clearStr(GpsCharToConvert, 20); //若没匹配到switch规则,清空缓存
+				continue;
 			}
-			clearStr(GpsCharToConvert, 20); //若没匹配到switch规则,清空缓存
-			continue;
 		}
-	}
 }
 
 /*
