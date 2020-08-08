@@ -338,7 +338,7 @@ void usart_2_send(uint8_t *data, int length)
 void usart_3_send(char *data)
 {
 	int i = 0;
-	int length=strlen(data);
+	int length = strlen(data);
 	for (; i < length; i++)
 	{
 		while (USART_GetFlagStatus(USART3, USART_FLAG_TC) == RESET)
@@ -496,7 +496,6 @@ void systick_delay(u32 time, void (*temp_function))
 //	SysTick->CTRL = 0x00;   //失能SysTick
 //	SysTick->VAL = 0x00;    //当前值清零
 }
-
 
 /*
  * flash初始化
@@ -1089,7 +1088,6 @@ void TIM7_init(uint16_t times)
 }
 #endif
 
-
 /***************************************************CAN总线相关操作*******************************************************/
 /*
  * CAN总线基本设置
@@ -1141,7 +1139,7 @@ void CAN_INIT()
 	/* enabling interrupt */
 	NVIC_InitStructure.NVIC_IRQChannel = USB_LP_CAN1_RX0_IRQn;
 	;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
 //	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
@@ -1155,6 +1153,41 @@ void CAN_POLLING_INIT()
 {
 	CAN_InitTypeDef CAN_InitStructure;
 	CAN_FilterInitTypeDef CAN_FilterInitStructure;
+	RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO,
+	        ENABLE);
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN1, ENABLE);
+	GPIO_InitTypeDef GPIO_InitStructure;
+
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+
+#ifdef USE_CAN_PB
+	//重映射到PB端口
+	/* Configure CAN pin: RX */
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+	/* Configure CAN pin: TX */
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+	GPIO_PinRemapConfig(GPIO_Remap1_CAN1, ENABLE);	   //重影射CAN IO脚到 PB8,PB9
+#endif
+
+#ifdef USE_CAN_PA
+	//不重新映射,PA端口
+	/* Configure CAN pin: RX */
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+	/* Configure CAN pin: TX */
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
+#endif
+
 	CAN_DeInit(CAN1);
 //	CAN_OperatingModeRequest(CAN1, CAN_OperatingMode_Initialization);
 	/* CAN register init */
@@ -1186,6 +1219,7 @@ void CAN_POLLING_INIT()
 	CAN_FilterInitStructure.CAN_FilterFIFOAssignment = 0;
 	CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
 	CAN_FilterInit(&CAN_FilterInitStructure);
+
 
 }
 
@@ -1221,6 +1255,8 @@ CanRxMsg CAN_POLLING_REC()
 }
 
 #define userDEFfilter
+//#define defaultFIFO
+
 /*
  * CAN总线中断方式初始化
  * 设置总线模式,总线频率(目前250kHz)
@@ -1229,6 +1265,55 @@ void CAN_IT_INIT()
 {
 	CAN_InitTypeDef CAN_InitStructure;
 	CAN_FilterInitTypeDef CAN_FilterInitStructure;
+
+	RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO,
+	        ENABLE);
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN1, ENABLE);
+	GPIO_InitTypeDef GPIO_InitStructure;
+
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+
+#ifdef USE_CAN_PB
+	//重映射到PB端口
+	/* Configure CAN pin: RX */
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+	/* Configure CAN pin: TX */
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+	GPIO_PinRemapConfig(GPIO_Remap1_CAN1, ENABLE);	   //重影射CAN IO脚到 PB8,PB9
+#endif
+
+#ifdef USE_CAN_PA
+	//不重新映射,PA端口
+	/* Configure CAN pin: RX */
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+	/* Configure CAN pin: TX */
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
+#endif
+
+	NVIC_InitTypeDef NVIC_InitStructure;
+	/* Configure the NVIC Preemption Priority Bits */
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
+	/* VECT_TAB_FLASH  */
+	/* Set the Vector Table base location at 0x08000000 */
+	NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0);
+	/* enabling interrupt */
+	NVIC_InitStructure.NVIC_IRQChannel = USB_LP_CAN1_RX0_IRQn;
+	;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
+//	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
 
 	/* CAN register init */
 	CAN_DeInit(CAN1);
@@ -1242,9 +1327,9 @@ void CAN_IT_INIT()
 	CAN_InitStructure.CAN_RFLM = DISABLE;
 	CAN_InitStructure.CAN_TXFP = DISABLE;
 	CAN_InitStructure.CAN_Mode = CAN_Mode_Normal;
-	CAN_InitStructure.CAN_SJW = CAN_SJW_1tq;//1
-	CAN_InitStructure.CAN_BS1 = CAN_BS1_8tq;//3
-	CAN_InitStructure.CAN_BS2 = CAN_BS2_3tq;//2
+	CAN_InitStructure.CAN_SJW = CAN_SJW_1tq;	   //1
+	CAN_InitStructure.CAN_BS1 = CAN_BS1_8tq;	   //3
+	CAN_InitStructure.CAN_BS2 = CAN_BS2_3tq;	   //2
 	CAN_InitStructure.CAN_Prescaler = 12;   //  36M/(1+8+3)/12=250k//24
 	CAN_Init(CAN1, &CAN_InitStructure);
 
@@ -1253,10 +1338,10 @@ void CAN_IT_INIT()
 	CAN_FilterInitStructure.CAN_FilterNumber = 1;
 	CAN_FilterInitStructure.CAN_FilterMode = CAN_FilterMode_IdMask;
 	CAN_FilterInitStructure.CAN_FilterScale = CAN_FilterScale_32bit;
-	CAN_FilterInitStructure.CAN_FilterIdHigh = 0x0000;
-	CAN_FilterInitStructure.CAN_FilterIdLow = 0x0000;
+	CAN_FilterInitStructure.CAN_FilterIdHigh = 0x18FF;
+	CAN_FilterInitStructure.CAN_FilterIdLow = (0x2313<<3)&0xFFFF;
 	CAN_FilterInitStructure.CAN_FilterMaskIdHigh = 0x0000;
-	CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0x0000;
+	CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0xFFF8;
 	CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_FIFO0;
 	CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
 	CAN_FilterInit(&CAN_FilterInitStructure);
@@ -1270,90 +1355,77 @@ void CAN_IT_INIT()
 	CAN_FilterInitStructure.CAN_FilterMode = CAN_FilterMode_IdMask;
 	CAN_FilterInitStructure.CAN_FilterScale = CAN_FilterScale_32bit;
 	CAN_FilterInitStructure.CAN_FilterIdHigh = 0x18FF;
-	CAN_FilterInitStructure.CAN_FilterIdLow = 0x2111;
+	CAN_FilterInitStructure.CAN_FilterIdLow = (0x2111 << 3) & 0xFFFF;
 	CAN_FilterInitStructure.CAN_FilterMaskIdHigh = 0x0000;
-	CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0xFFFF;
+	CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0xFFF8;
 	CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_FIFO0;
 	CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
 	CAN_FilterInit(&CAN_FilterInitStructure);
 
 	CAN_FilterInitStructure.CAN_FilterNumber = 1;
 	CAN_FilterInitStructure.CAN_FilterIdHigh = 0x18FF;
-	CAN_FilterInitStructure.CAN_FilterIdLow = 0x2313;
+	CAN_FilterInitStructure.CAN_FilterIdLow = (0x2313 << 3) & 0xFFFF;
 	CAN_FilterInitStructure.CAN_FilterMaskIdHigh = 0x0000;
-	CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0xFFFF;
+	CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0xFFF8;
 	CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_FIFO0;
 	CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
 	CAN_FilterInit(&CAN_FilterInitStructure);
-
 
 	CAN_FilterInitStructure.CAN_FilterNumber = 2;
 	CAN_FilterInitStructure.CAN_FilterIdHigh = 0x18FF;
-	CAN_FilterInitStructure.CAN_FilterIdLow = 0x2413;
+	CAN_FilterInitStructure.CAN_FilterIdLow = (0x2413 << 3) & 0xFFFF;
 	CAN_FilterInitStructure.CAN_FilterMaskIdHigh = 0x0000;
-	CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0xFFFF;
+	CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0xFFF8;
 	CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_FIFO0;
 	CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
 	CAN_FilterInit(&CAN_FilterInitStructure);
 
-
 	CAN_FilterInitStructure.CAN_FilterNumber = 3;
 	CAN_FilterInitStructure.CAN_FilterIdHigh = 0x0000;
-	CAN_FilterInitStructure.CAN_FilterIdLow = 0x2715;
+	CAN_FilterInitStructure.CAN_FilterIdLow = (0x2715 << 3) & 0xFFFF;
 	CAN_FilterInitStructure.CAN_FilterMaskIdHigh = 0x0000;
-	CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0xFFFF;
+	CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0xFFF8;
 	CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_FIFO0;
 	CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
 	CAN_FilterInit(&CAN_FilterInitStructure);
 
 	CAN_FilterInitStructure.CAN_FilterNumber = 4;
 	CAN_FilterInitStructure.CAN_FilterIdHigh = 0x0000;
-	CAN_FilterInitStructure.CAN_FilterIdLow = 0x2815;
+	CAN_FilterInitStructure.CAN_FilterIdLow = (0x2815 << 3) & 0xFFFF;
 	CAN_FilterInitStructure.CAN_FilterMaskIdHigh = 0x0000;
-	CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0xFFFF;
+	CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0xFFF8;
 	CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_FIFO0;
 	CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
 	CAN_FilterInit(&CAN_FilterInitStructure);
 
 	CAN_FilterInitStructure.CAN_FilterNumber = 5;
 	CAN_FilterInitStructure.CAN_FilterIdHigh = 0x0000;
-	CAN_FilterInitStructure.CAN_FilterIdLow = 0x2915;
+	CAN_FilterInitStructure.CAN_FilterIdLow = (0x2915 << 3) & 0xFFFF;
 	CAN_FilterInitStructure.CAN_FilterMaskIdHigh = 0x0000;
-	CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0xFFFF;
+	CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0xFFF8;
 	CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_FIFO0;
 	CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
 	CAN_FilterInit(&CAN_FilterInitStructure);
 
 	CAN_FilterInitStructure.CAN_FilterNumber = 6;
 	CAN_FilterInitStructure.CAN_FilterIdHigh = 0x0000;
-	CAN_FilterInitStructure.CAN_FilterIdLow = 0x2515;
+	CAN_FilterInitStructure.CAN_FilterIdLow = (0x2515 << 3) & 0xFFFF;
 	CAN_FilterInitStructure.CAN_FilterMaskIdHigh = 0x0000;
-	CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0xFFFF;
+	CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0xFFF0;
 	CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_FIFO0;
 	CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
 	CAN_FilterInit(&CAN_FilterInitStructure);
-
 
 	CAN_FilterInitStructure.CAN_FilterNumber = 7;
 	CAN_FilterInitStructure.CAN_FilterIdHigh = 0x0000;
-	CAN_FilterInitStructure.CAN_FilterIdLow = 0x2615;
+	CAN_FilterInitStructure.CAN_FilterIdLow = (0x2615 << 3) & 0xFFFF;
 	CAN_FilterInitStructure.CAN_FilterMaskIdHigh = 0x0000;
-	CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0xFFFF;
+	CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0xFFF0;
 	CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_FIFO0;
 	CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
 	CAN_FilterInit(&CAN_FilterInitStructure);
-
-
-	CAN_FilterInitStructure.CAN_FilterNumber = 8;
-	CAN_FilterInitStructure.CAN_FilterIdHigh = 0x0000;
-	CAN_FilterInitStructure.CAN_FilterIdLow = 0x2817;
-	CAN_FilterInitStructure.CAN_FilterMaskIdHigh = 0x0000;
-	CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0xFFFF;
-	CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_FIFO0;
-	CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
-	CAN_FilterInit(&CAN_FilterInitStructure);
-	/* CAN FIFO0 message pending interrupt enable */
 	CAN_ITConfig(CAN1, CAN_IT_FMP0, ENABLE);
+
 #endif
 }
 
@@ -1374,10 +1446,10 @@ extern __IO uint8_t second_v;
 void USB_LP_CAN1_RX0_IRQHandler(void)
 {
 	CanRxMsg RxMessage;
-	CAN_Receive(CAN1, CAN_FIFO0, &RxMessage);
-
-
 //	USB_Istr();
+	CAN_Receive(CAN1, CAN_FIFO0, &RxMessage);
+	Analysys(RxMessage);
+
 }
 
 /*
@@ -1398,9 +1470,9 @@ void USB_LP_CAN1_RX0_IRQHandler(void)
  *      例如64分频,重装载值为625,那么看门狗计时为1秒钟
  *
  */
-void IWDG_INIT(uint8_t Div,u16 No)
+void IWDG_INIT(uint8_t Div, u16 No)
 {
- 	IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable);  //使能对寄存器IWDG_PR和IWDG_RLR的写操作
+	IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable);  //使能对寄存器IWDG_PR和IWDG_RLR的写操作
 
 	IWDG_SetPrescaler(Div);  //设置IWDG预分频值
 
@@ -1414,5 +1486,5 @@ void IWDG_INIT(uint8_t Div,u16 No)
 /*喂狗*/
 void IWDG_Feed(void)
 {
- 	IWDG_ReloadCounter();
+	IWDG_ReloadCounter();
 }

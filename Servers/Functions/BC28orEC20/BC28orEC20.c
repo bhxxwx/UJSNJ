@@ -23,13 +23,13 @@ extern char CANerr;														//CAN bus interrupt flag
 extern char GPSerr;														//GPS interrupt flag
 
 /* Buffer for CAN bus parameter transmission */
-CAN_buffer1 CAN_Buffer_1;
-CAN_buffer2 CAN_Buffer_2;
-CAN_buffer3 CAN_Buffer_3;
-CAN_buffer4 CAN_Buffer_4;
-CAN_buffer5 CAN_Buffer_5;
-CAN_buffer6 CAN_Buffer_6;
-CAN_buffer7 CAN_Buffer_7;
+//CAN_buffer1 CAN_Buffer_1;
+//CAN_buffer2 CAN_Buffer_2;
+//CAN_buffer3 CAN_Buffer_3;
+//CAN_buffer4 CAN_Buffer_4;
+//CAN_buffer5 CAN_Buffer_5;
+//CAN_buffer6 CAN_Buffer_6;
+//CAN_buffer7 CAN_Buffer_7;
 
 extern char IOTerr;															//IOT interrupt flag
 /*	无符号8位整型变量
@@ -299,18 +299,18 @@ void pack_to_aliyun()
 	x_axis = 0;
 	y_axis = 0;
 	cmd_axis = 6; //使用6号数组检测是否发送成功。
-	printf(
-	        "{\"Mark\":\"A1001\",\"Time\":\"%s\",\"N\":\"%s\",\"E\":\"%s\",\"Bohelun\":\"%d\",\"Zuoye\":\"%d\",\"Fukuan\":\"%d\",\"Getai\":\"%d\",\"Shusongzhou\":\"%d\",\"Chesu\":\"%d\",\"QieLTL\":\"%d\",\"ZongZTL\":\"%d\",\"FongJZS\":\"%d\",\"QuDL\":\"%d\",\"ZhengDS\":\"%d\",\"LiZSP\":\"%d\",\"ZaYSP\":\"%d\",\"GeCGD\":\"%d\",\"QinXSS\":\"%d\",\"JiaDSS\":\"%d\",\"YuLSD\":\"%d\",\"HanZL\":\"%d\",\"PoSL\":\"%d\",\"LiZLL\":\"%d\",\"CANerr\":\"%d\",\"GPSerr\":\"%d\"} \r\n",
-	        GPS_Buffer.UTCtime, GPS_Buffer.latitude, GPS_Buffer.longitude, CAN_Buffer_1.whell_speed,
-	        CAN_Buffer_1.is_on_work, CAN_Buffer_1.ultrasonic_sensor,
-	        CAN_Buffer_1.rotating_speed, CAN_Buffer_1.drive_speed,
-	        CAN_Buffer_1.car_speed, CAN_Buffer_2.roller_speed,
-	        CAN_Buffer_2.Yroller_speed, CAN_Buffer_2.wind_speed,
-	        CAN_Buffer_2.driver_speed, CAN_Buffer_3.shock_speed,
-	        CAN_Buffer_3.Xroller_speed, CAN_Buffer_3.Xrest_speed, CAN_Buffer_4.high,
-	        CAN_Buffer_5.cleanlost_sensor, CAN_Buffer_5.cliplost_sensor,
-	        CAN_Buffer_5.angle, CAN_Buffer_6.pure_value, CAN_Buffer_6.break_value,
-	        CAN_Buffer_7.float_value, CANerr, GPSerr);
+//	printf(
+//	        "{\"Mark\":\"A1001\",\"Time\":\"%s\",\"N\":\"%s\",\"E\":\"%s\",\"Bohelun\":\"%d\",\"Zuoye\":\"%d\",\"Fukuan\":\"%d\",\"Getai\":\"%d\",\"Shusongzhou\":\"%d\",\"Chesu\":\"%d\",\"QieLTL\":\"%d\",\"ZongZTL\":\"%d\",\"FongJZS\":\"%d\",\"QuDL\":\"%d\",\"ZhengDS\":\"%d\",\"LiZSP\":\"%d\",\"ZaYSP\":\"%d\",\"GeCGD\":\"%d\",\"QinXSS\":\"%d\",\"JiaDSS\":\"%d\",\"YuLSD\":\"%d\",\"HanZL\":\"%d\",\"PoSL\":\"%d\",\"LiZLL\":\"%d\",\"CANerr\":\"%d\",\"GPSerr\":\"%d\"} \r\n",
+//	        GPS_Buffer.UTCtime, GPS_Buffer.latitude, GPS_Buffer.longitude, CAN_Buffer_1.whell_speed,
+//	        CAN_Buffer_1.is_on_work, CAN_Buffer_1.ultrasonic_sensor,
+//	        CAN_Buffer_1.rotating_speed, CAN_Buffer_1.drive_speed,
+//	        CAN_Buffer_1.car_speed, CAN_Buffer_2.roller_speed,
+//	        CAN_Buffer_2.Yroller_speed, CAN_Buffer_2.wind_speed,
+//	        CAN_Buffer_2.driver_speed, CAN_Buffer_3.shock_speed,
+//	        CAN_Buffer_3.Xroller_speed, CAN_Buffer_3.Xrest_speed, CAN_Buffer_4.high,
+//	        CAN_Buffer_5.cleanlost_sensor, CAN_Buffer_5.cliplost_sensor,
+//	        CAN_Buffer_5.angle, CAN_Buffer_6.pure_value, CAN_Buffer_6.break_value,
+//	        CAN_Buffer_7.float_value, CANerr, GPSerr);
 
 	delay_us(500000); //0.5s
 	while (!check_receives(6, "+QMTPUB: 0,0,0"))

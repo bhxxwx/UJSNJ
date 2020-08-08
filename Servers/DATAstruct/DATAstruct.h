@@ -8,184 +8,52 @@
 #ifndef DATASTRUCT_DATASTRUCT_H_
 #define DATASTRUCT_DATASTRUCT_H_
 
-/*
- * ID解析之后数据结构体格式
- */
 typedef struct
 {
-	uint8_t Pri;
-	uint16_t PGN;
-	uint8_t PF;
-	uint8_t PSGE;
-	uint8_t SA;
-	uint8_t DLC;
-} ID_INFO;
+	uint16_t HXCS;
+	uint16_t ZXCS;
+	uint16_t XLGWY;
+	uint16_t XLGZJ;
 
-/*
- * EXCEL表中第1条命令的解析格式
- */
-typedef struct
-{
-	uint8_t total_pack; 			//总包数
-	uint8_t current_pack; 			//当前包序号
-	uint8_t whell_speed; 			//拨禾轮转速/转速传感器
-	bool is_on_work; 				//作业状态
-	uint16_t ultrasonic_sensor; 	//幅宽/超声波传感器
-	uint8_t rotating_speed; 		//割台搅龙转速/转速传感器
-	uint16_t drive_speed; 			//输送槽主动轴转速/转速传感器
-	uint8_t car_speed; 				//车速/车速雷达传感器
-	bool ATW;
-} Mail_Box1;
+	uint16_t GTGD;
+	uint16_t BHLGD;
+	uint16_t XGD;
 
-/*
- * EXCEL表中第2条命令的解析格式
- */
-typedef struct
-{
-	uint8_t total_pack;				//总包数
-	uint8_t current_pack;			//当前包序号
-	uint16_t roller_speed;			//切流脱粒滚筒/转速传感器
-	uint16_t Yroller_speed;			//纵轴流脱粒滚筒/转速传感器
-	uint16_t wind_speed;			//风机转速/转速传感器
-	uint8_t driver_speed;			//驱动轮转速/转速传感器
-	bool ATW;
-} Mail_Box2;
+	uint16_t DPZQ;
+	uint16_t DPYQ;
+	uint16_t DPZH;
+	uint16_t DPYH;
 
-/*
- * EXCEL表中第3条命令的解析格式
- */
-typedef struct
-{
-	uint8_t total_pack;				//总包数
-	uint8_t current_pack;			//当前包序号
-	uint16_t shock_speed;			//振动筛驱动轴转速/转速传感器
-	uint16_t Xroller_speed;			//籽粒水平搅龙转速/转速传感器
-	uint16_t Xrest_speed;			//杂余水平搅龙转/转速传感器
-	uint8_t keep;					//保留
-	bool ATW;
-} Mail_Box3;
+	uint16_t QJSD;
+	uint16_t LZLL;
 
-/*
- * EXCEL表中第4条命令的解析格式
- */
-typedef struct
-{
-	uint8_t total_pack;				//总包数
-	uint8_t current_pack;			//当前包序号
-	uint16_t high;					//割茬高度/割茬高度传感器
-	bool ATW;
-} Mail_Box4;
+	uint16_t ZGDZS;
+	uint16_t BHLZS;
+	uint16_t SSCZS;
+	uint16_t TLGT;
 
-/*
- * EXCEL表中第5条命令的解析格式
- */
-typedef struct
-{
-	uint16_t cleanlost_sensor;		//清选损失/清选损失传感器
-	uint16_t cliplost_sensor;		//夹带损失/夹带损失传感器
-	uint8_t angle;
-	bool ATW;
-} Mail_Box5;
+	uint16_t FJZS;
+	uint16_t SLJLZS;
+	uint16_t ZYJLZS;
 
-/*
- * EXCEL表中第6条命令的解析格式
- */
-typedef struct
-{
-	uint8_t pure_value;				//含杂率/含杂率传感器
-	uint8_t break_value;			//破碎率/破碎率传感器
-	bool ATW;
-} Mail_Box6;
+	uint16_t QXSS;
+	uint16_t JDSS;
+	uint16_t TLJX;
+	uint16_t DLBKD;
+	uint16_t JFKKD;
+	uint16_t YLKSD;
 
-/*
- * EXCEL表中第7条命令的解析格式
- */
-typedef struct
-{
-	uint8_t float_value;			//籽粒流量/籽粒流量监测传感器
-	bool ATW;
-} Mail_Box7;
+	uint16_t GFKD;
+	uint16_t HZL;
+	uint16_t PSL;
 
-/*
- * EXCEL表中第1条命令的缓存
- */
-typedef struct
-{
-	ID_INFO ID_INFO;				//ID数据解析结构体
-	Mail_Box1 Mail_Box;				//数据缓存区
-	uint32_t ID;					//完整ID
-} Cach1;
-
-/*
- * EXCEL表中第2条命令的缓存
- */
-typedef struct
-{
-	ID_INFO ID_INFO;
-	Mail_Box2 Mail_Box;
-	uint32_t ID;
-} Cach2;
-
-/*
- * EXCEL表中第3条命令的缓存
- */
-typedef struct
-{
-	ID_INFO ID_INFO;
-	Mail_Box3 Mail_Box;
-	uint32_t ID;
-} Cach3;
-
-/*
- * EXCEL表中第4条命令的缓存
- */
-typedef struct
-{
-	ID_INFO ID_INFO;
-	Mail_Box4 Mail_Box;
-	uint32_t ID;
-} Cach4;
-
-/*
- * EXCEL表中第5条命令的缓存
- */
-typedef struct
-{
-	ID_INFO ID_INFO;
-	Mail_Box5 Mail_Box;
-	uint32_t ID;
-} Cach5;
-
-/*
- * EXCEL表中第6条命令的缓存
- */
-typedef struct
-{
-	ID_INFO ID_INFO;
-	Mail_Box6 Mail_Box;
-	uint32_t ID;
-} Cach6;
-
-/*
- * EXCEL表中第7条命令的缓存
- */
-typedef struct
-{
-	ID_INFO ID_INFO;
-	Mail_Box7 Mail_Box;
-	uint32_t ID;
-} Cach7;
+} CAN_DATA;
 
 typedef struct
 {
-	Cach1 CANpack1;
-	Cach2 CANpack2;
-	Cach3 CANpack3;
-	Cach4 CANpack4;
-	Cach5 CANpack5;
-	Cach6 CANpack6;
-	Cach7 CANpack7;
-} CANpacks;
+	bool is_AllFlashed;
+	int8_t Flashed_number;
+}CAN_STATUS;
 
 typedef struct
 {
@@ -216,89 +84,5 @@ typedef struct
 	uint8_t splitTime;
 	bool ATR;
 } GPS_INIT;
-
-/*
- * CAN数据包1——main函数使用
- * 为了解耦而新建的传参结构体
- */
-typedef struct
-{
-	uint8_t whell_speed; 			//拨禾轮转速/转速传感器
-	bool is_on_work; 				//作业状态
-	uint16_t ultrasonic_sensor; 	//幅宽/超声波传感器
-	uint8_t rotating_speed; 		//割台搅龙转速/转速传感器
-	uint16_t drive_speed; 			//输送槽主动轴转速/转速传感器
-	uint8_t car_speed; 				//车速/车速雷达传感器
-	bool ATW;
-} CAN_buffer1;
-
-/*
- * CAN数据包2——main函数使用
- * 为了解耦而新建的传参结构体
- */
-typedef struct
-{
-	uint16_t roller_speed;			//切流脱粒滚筒/转速传感器
-	uint16_t Yroller_speed;			//纵轴流脱粒滚筒/转速传感器
-	uint16_t wind_speed;			//风机转速/转速传感器
-	uint8_t driver_speed;			//驱动轮转速/转速传感器
-	bool ATW;
-} CAN_buffer2;
-
-/*
- * CAN数据包3——main函数使用
- * 为了解耦而新建的传参结构体
- */
-typedef struct
-{
-	uint16_t shock_speed;			//振动筛驱动轴转速/转速传感器
-	uint16_t Xroller_speed;			//籽粒水平搅龙转速/转速传感器
-	uint16_t Xrest_speed;			//杂余水平搅龙转/转速传感器
-	bool ATW;
-} CAN_buffer3;
-
-/*
- * CAN数据包4——main函数使用
- * 为了解耦而新建的传参结构体
- */
-typedef struct
-{
-	uint16_t high;					//割茬高度/割茬高度传感器
-	bool ATW;
-} CAN_buffer4;
-
-/*
- * CAN数据包5——main函数使用
- * 为了解耦而新建的传参结构体
- */
-typedef struct
-{
-	uint16_t cleanlost_sensor;		//清选损失/清选损失传感器
-	uint16_t cliplost_sensor;		//夹带损失/夹带损失传感器
-	uint8_t angle;
-	bool ATW;
-} CAN_buffer5;
-
-/*
- * CAN数据包6——main函数使用
- * 为了解耦而新建的传参结构体
- */
-typedef struct
-{
-	uint8_t pure_value;				//含杂率/含杂率传感器
-	uint8_t break_value;			//破碎率/破碎率传感器
-	bool ATW;
-} CAN_buffer6;
-
-/*
- * CAN数据包7——main函数使用
- * 为了解耦而新建的传参结构体
- */
-typedef struct
-{
-	uint8_t float_value;			//籽粒流量/籽粒流量监测传感器
-	bool ATW;
-} CAN_buffer7;
-
 
 #endif /* DATASTRUCT_DATASTRUCT_H_ */

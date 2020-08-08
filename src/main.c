@@ -30,15 +30,15 @@
 #include "queue.h"
 #include "timers.h"
 
-/*标志位、变量定义*/
-char CANerr = 0;														//CAN bus interrupt flag
-char GPSerr = 0;														//GPS interrupt flag
-char IOTerr = 0;															//IOT interrupt flag
-char Historical_data = 0;													//Historical data flag
+///*标志位、变量定义*/
+//char CANerr = 0;														//CAN bus interrupt flag
+//char GPSerr = 0;														//GPS interrupt flag
+//char IOTerr = 0;															//IOT interrupt flag
+//char Historical_data = 0;													//Historical data flag
 int time_count = 0;										//Global variable ———— CAN timing time
-#define Timeout_time 2													//Constant —— defines the timeout time
-char CAN_new_message = 0;								//Global variable ———— CAN get new message
-char GPS_new_message = 0;								//Global variable ———— GPS get new message
+//#define Timeout_time 2													//Constant —— defines the timeout time
+//char CAN_new_message = 0;								//Global variable ———— CAN get new message
+//char GPS_new_message = 0;								//Global variable ———— GPS get new message
 
 /*RTC timing time*/
 void time_break_function()
@@ -47,13 +47,7 @@ void time_break_function()
 }
 
 /* Buffer for CAN bus parameter transmission */
-CAN_buffer1 CAN_Buffer_1;
-CAN_buffer2 CAN_Buffer_2;
-CAN_buffer3 CAN_Buffer_3;
-CAN_buffer4 CAN_Buffer_4;
-CAN_buffer5 CAN_Buffer_5;
-CAN_buffer6 CAN_Buffer_6;
-CAN_buffer7 CAN_Buffer_7;
+
 
 /* Buffer for GPS parameter transmission */
 GPS_DATA GPS_Buffer[10];
